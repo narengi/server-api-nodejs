@@ -1,0 +1,34 @@
+{
+  "name": "AccountVerification",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": false,
+    "verificationType": {
+      "type": "string",
+      "required": true,
+      "description": "None | Email | SMS"
+    },
+    "requestDate": {
+      "type": "date",
+      "required": true,
+      "defaultFn": "now"
+    },
+    "code": {
+      "type": "string",
+      "required": true
+    },
+    "verified": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,46 @@
+{
+  "name": "HouseAvailableDate",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "house_available_dates"
+    }
+  },
+  "hidden": ["id"],
+  "protected": ["id"],
+  "properties": {
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "type": {
+      "type": "string",
+      "default": "default",
+      "description": "default | by_admin | by_owner"
+    },
+    "houseId": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "indexes": {
+    "date_index": {
+      "keys": {"date": 1}
+    }
+  },
+  "validations": [],
+  "relations": {
+    "house": {
+      "type": "belongsTo",
+      "model": "House",
+      "foreignKey": "houseId",
+      "as": "house",
+      "property": "house",
+      "options": {}
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

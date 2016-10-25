@@ -1,0 +1,22 @@
+{
+  "name": "HouseAvailableDateDTO",
+  "base": "BaseDTO",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "date": {
+      "type": "date"
+    },
+    "type": {
+      "type": "string",
+      "default": "default",
+      "description": "default | by_admin | by_owner"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

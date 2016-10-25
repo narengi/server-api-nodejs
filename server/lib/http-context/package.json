@@ -1,0 +1,13 @@
+{
+  "name": "narengi-http-context",
+  "version": "1.0.0",
+  "description": "Http context for loopback/express applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ebrahim Pasbani <e.pasbani@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+  }
+}

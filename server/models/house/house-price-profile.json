@@ -1,0 +1,26 @@
+{
+  "name": "HousePriceProfile",
+  "base": "Model",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": false
+  },
+  "properties": {
+    "weeklyDiscount": {
+      "type": "number"
+    },
+    "monthlyDiscount": {
+      "type": "number"
+    },
+    "extraGuestFee": {
+      "type": "Price"
+    },
+    "securityDeposit": {
+      "type": "Price"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

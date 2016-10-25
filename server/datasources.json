@@ -1,0 +1,14 @@
+{
+  "memory": {
+    "name": "memory",
+    "connector": "memory"
+  },
+  "narengi": {
+    "host": "localhost",
+    "port": 27017,
+    "database": "narengi_db_dev",
+    "name": "narengi",
+    "connector": "mongodb",
+    "debug": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "HouseBookingRequestMQPersister",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "requestId": {
+      "type": "object"
+    },
+    "event": {
+      "type": "string"
+    },
+    "from": {
+      "type": "string"
+    },
+    "to": {
+      "type": "string"
+    },
+    "date": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "request": {
+      "type": "embedsOne",
+      "model": "HouseBookingRequest",
+      "property": "book_request",
+      "options": {
+        "validate": true,
+        "forceId": false,
+        "persistent": false
+      }
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

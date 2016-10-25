@@ -1,0 +1,33 @@
+{
+  "name": "HouseSpec",
+  "base": "Model",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": false
+  },
+  "hidden": ["id"],
+  "protected": ["id"],
+  "properties": {
+    "id": false,
+    "accommodate": {
+      "type": "number",
+      "default": 0
+    },
+    "bedroom": {
+      "type": "number",
+      "default": 0
+    },
+    "bed": {
+      "type": "number",
+      "default": 0
+    },
+    "bathroom": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

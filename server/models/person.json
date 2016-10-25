@@ -1,0 +1,47 @@
+{
+  "name": "Person",
+  "plural": "people",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "person",
+      "allowExtendedOperators": true
+    }
+  },
+  "http": {
+    "path": "/people"
+  },
+  "mixins": {
+    "RemoteMethodReset": {}
+  },
+  "properties": {},
+  "validations": [],
+  "relations": {
+    "account": {
+      "type": "hasOne",
+      "model": "Account",
+      "foreignKey": "personId"
+    },
+    "houses": {
+      "type": "hasMany",
+      "model": "House",
+      "foreignKey": "personId"
+    },
+    "financialProfile": {
+      "type": "embedsOne",
+      "model": "FinancialProfile",
+      "as": "financialProfile",
+      "property": "financialProfile",
+      "options": {}
+    },
+    "bookingRequests": {
+      "type": "hasMany",
+      "model": "HouseBookingRequest",
+      "foreignKey": "requesterId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

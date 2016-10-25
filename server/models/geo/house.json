@@ -1,0 +1,331 @@
+{
+  "name": "House",
+  "plural": "houses",
+  "base": "LocalizedModel",
+  "idInjection": true,
+  "strict": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "houses",
+      "allowExtendedOperators": true
+    }
+  },
+  "http": {
+    "path": "/houses"
+  },
+  "mixins": {
+    "RemoteMethodReset": {
+      "belongsTo": ["owner"],
+      "many": ["extraServices", "availableDates", "prices"],
+      "embedsOne": ["type", "priceProfile", "cancellationPolicyRel"]
+    },
+    "IsAdmin": {},
+    "UrlProvider": {}
+  },
+  "scopes": {
+    "deleted": {"where": {"deleted": true}},
+    "existed": {"where": {"deleted": false}}
+  },
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "pictures": {
+      "type": "array"
+    },
+    "location": {
+      "type": "Location"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "HouseSpec"
+    },
+    "deleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "ownerId": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "owner": {
+      "type": "belongsTo",
+      "model": "Person",
+      "foreignKey": "ownerId"
+    },
+    "houseExtraServices": {
+      "type": "embedsMany",
+      "model": "HouseExtraService",
+      "as": "extraServices",
+      "property": "extraServices",
+      "options": {}
+    },
+    "houseFeatures": {
+      "type": "embedsMany",
+      "model": "HouseFeature",
+      "property": "features",
+      "options": {
+        "forceId": false,
+        "validate": true,
+        "persistent": false
+      }
+    },
+    "houseType": {
+      "type": "embedsOne",
+      "model": "HouseType",
+      "property": "type",
+      "options": {
+        "forceId": false,
+        "validate": true,
+        "persistent": false
+      }
+    },
+    "houseAvailableDates": {
+      "type": "hasMany",
+      "model": "HouseAvailableDate",
+      "foreignKey": "houseId",
+      "property": "available_dates",
+      "options": {}
+    },
+    "housePrices": {
+      "type": "hasMany",
+      "model": "HouseDatePrice",
+      "foreignKey": "houseId",
+      "as": "prices",
+      "property": "prices",
+      "options": {}
+    },
+    "priceProfile": {
+      "type": "embedsOne",
+      "model": "HousePriceProfile",
+      "property": "price_profile",
+      "options": {
+        "validate": true,
+        "forceId": false,
+        "persistent": false
+      }
+    },
+    "cancellationPolicy": {
+      "type": "embedsOne",
+      "model": "HouseCancellationPolicy",
+      "property": "cancellation_policy",
+      "options": {
+        "validate": true,
+        "forceId": false,
+        "persistent": false
+      }
+    },
+    "bookingRequests":{
+      "type": "hasMany",
+      "model": "HouseBookingRequest",
+      "foreignKey": "houseId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY",
+      "property": "*"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "ADMIN",
+      "permission": "ALLOW",
+      "property": "*"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "[Search, DownloadPicture]"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": "Create"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "Update"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "DeleteOne"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "AddFeature"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "DeleteFeature"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "CreateExtraService"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "DeleteExtraService"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetAllExtraServices"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetExtraServiceById"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "SetType"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "UnsetType"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "UpdateSpec"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "ResetSpec"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": ["GetSpec", "GetMyHouses"]
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "AddAvailableDates"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "RemoveAvailableDates"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetAvailableDates"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "AddOrUpdateDatePrices"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetDatePricesInRange"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "UnsetDatePricesInRange"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "SetPriceProfile"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "UnsetPriceProfile"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetPriceProfile"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "SetCancellationPolicy"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "UnsetCancellationPolicy"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetCancellationPolicy"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": "UploadPicture"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "houseOwner",
+      "permission": "ALLOW",
+      "property": ["UploadPictureAll", "GetById"]
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": ["DownloadPicture", "GetPictureList"]
+    }
+  ],
+  "methods": {}
+}

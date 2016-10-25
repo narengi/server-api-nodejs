@@ -1,0 +1,23 @@
+{
+  "name": "Currency",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "http":{
+    "path": "/settings/currencies"
+  },
+  "mixins": {
+    "RemoteMethodReset": {}
+  },
+  "properties": {
+    "title": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

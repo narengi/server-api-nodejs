@@ -1,0 +1,220 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "../common/models/dto",
+      "../common/models/dto/geo",
+      "../common/models/dto/house",
+      "./models",
+      "./models/geo",
+      "./models/search",
+      "./models/house",
+      "./models/settings",
+      "./models/communication"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "AccessToken": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "Role": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "Account": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "AuthToken": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "AccountVerification": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "AccountDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "BaseDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "UserProfile": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "Image": {
+    "dataSource": null,
+    "public": false
+  },
+  "UserProfileImageContainer": {
+    "dataSource": null,
+    "public": false
+  },
+  "City": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "LocalizedModel": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "Attraction": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "CityImageContainer": {
+    "dataSource": null,
+    "public": false
+  },
+  "AttractionImageContainer": {
+    "dataSource": null,
+    "public": false
+  },
+  "GlobalSearch": {
+    "dataSource": null,
+    "public": true
+  },
+  "CityDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "AttractionDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "House": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "HouseDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "HouseImageContainer": {
+    "dataSource": null,
+    "public": false
+  },
+  "Person": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "HouseFeature": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "HouseFeatureDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "HouseExtraService": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "FinancialProfile": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "Price": {
+    "dataSource": null,
+    "public": false
+  },
+  "HouseSpec": {
+    "dataSource": null,
+    "public": false
+  },
+  "HouseType": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "HouseTypeDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "HouseAvailableDate": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "HouseAvailableDateDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "Currency": {
+    "dataSource": null,
+    "public": true
+  },
+  "HouseDatePrice": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "HousePriceProfile": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "HouseCancellationPolicy": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "HouseCancellationPolicyDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "Notification": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "ImageContainerBase": {
+    "dataSource": null,
+    "public": false
+  },
+  "Location": {
+    "dataSource": null,
+    "public": false
+  },
+  "HouseBookingRequest": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "NotificationMQ": {
+    "dataSource": null,
+    "public": false
+  },
+  "NotificationMQPersister": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "HouseBookingRequestMQPersister": {
+    "dataSource": "narengi",
+    "public": false
+  },
+  "HouseBookingRequestDTO": {
+    "dataSource": null,
+    "public": false
+  },
+  "ProvinceCity": {
+    "dataSource": "narengi",
+    "public": true
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Location",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "hidden": [
+    "id"
+  ],
+  "properties": {
+    "point": {
+      "type": "GeoPoint"
+    },
+    "city": {
+      "type": "string"
+    },
+    "province": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Image",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": false
+  },
+  "properties": {
+    "filename": {
+      "type": "string"
+    },
+    "relativePath": {
+      "type": "string"
+    },
+    "size": {
+      "type": "number"
+    },
+    "type": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
