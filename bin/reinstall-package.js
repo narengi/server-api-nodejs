@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 //
-// Author : Ebrahim Pasbani (e.pasbani@gmail.com)
+// Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
 var spawn = require('cross-spawn');

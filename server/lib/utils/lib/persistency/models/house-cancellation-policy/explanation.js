@@ -1,7 +1,7 @@
 "use strict";
 
 //
-// Author : Ebrahim Pasbani (e.pasbani@gmail.com)
+// Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
 var underscore = require('underscore');

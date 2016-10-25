@@ -1,5 +1,5 @@
 //
-// Author : Ebrahim Pasbani (e.pasbani@gmail.com)
+// Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
 var PersistencyErrors = require('narengi-utils').Persistency.Errors;
