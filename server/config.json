@@ -9,6 +9,9 @@
             "normalizeHttpPath": false,
             "xml": false
         },
+        "context": {
+            "enableHttpContext": true
+        },
         "json": {
             "strict": false,
             "limit": "200kb"

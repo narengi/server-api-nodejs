@@ -197,6 +197,12 @@
         "principalId": "authenticated",
         "permission": "ALLOW",
         "property": "ShowProfileMe"
+    }, {
+        "accessType": "*",
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "UpdateProfile"
     }],
     "methods": {}
 }

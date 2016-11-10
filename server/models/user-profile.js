@@ -202,12 +202,8 @@ var defineServices = function (UserProfile) {
         return updateProfile(currentUser.id, data, cb);
     };
 
-    UserProfile.UpdateProfile2 = function (data, cb) {
-        console.log("TEST TEST TEST TEST");
-    };
-
     UserProfile.remoteMethod(
-        'UpdateProfile2', {
+        'UpdateProfile', {
             description: 'Updates an user profile.',
             accepts: [
                 {

@@ -28,12 +28,15 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
     }
 
     if (searchObj) {
+        // handle context -- added by Aref
+        app.use(loopback.token()); // this calls getCurrentContext
+        app.use(loopback.context()); // the context is started here
+        // end
         app.models.Account.find({
                 include: "authToken",
                 where: searchObj
             },
             function(err, accs) {
-
                 try {
                     req.accessToken = null;
                     req.loopbackContext.active.http.req.accessToken = null;
@@ -52,7 +55,6 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
                 }
                 context.setUser(accs[0]);
                 context.setToken(accs[0].authToken.value());
-
                 try {
                     /**
                      This is needed for ACL and just used there
@@ -63,6 +65,13 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
                         userId: String(accs[0].id),
                         username: accs[0].usernameOrEmail()
                     };
+
+                    // added by aref
+                    var ctx = loopback.getCurrentContext();
+                    if (ctx) {
+                        ctx.set('currentUser', accs[0]);
+                    }
+
                     req.accessToken = obj;
                     req.loopbackContext.active.http.req.accessToken = obj;
                 } catch (e) {}
@@ -81,9 +90,11 @@ module.exports = function(options) {
      * Authorizes current `request` and set current user to `context`
      **/
     return function handler(req, res, next) {
+        console.log('authentication-middleware for %s [%s]', req.url, req.method);
         try {
             //TODO: should add OAuth authorization
             var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || null;
+            // added by aref: support access token for authorization
             if (!Boolean(authHeader)) {
                 authHeader = req.headers['access-token'] ? {
                     token: req.headers['access-token'],

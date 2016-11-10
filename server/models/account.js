@@ -10,6 +10,7 @@ var app = serverRequire('server');
 var moment = require('moment');
 var async = require('async');
 var promiseCallback = require('narengi-utils').Common.PromiseCallback;
+var crudHandler = require('narengi-utils').Persistency.CrudHandlers;
 var Common = require('narengi-utils').Common;
 var Persistency = require('narengi-utils').Persistency;
 var Pagination = require('narengi-utils').Pagination;
@@ -20,7 +21,7 @@ var makeError = Common.Errors.makeError;
  * @class
  * @constructor
  */
-module.exports = function (Account) {
+module.exports = function(Account) {
     init(Account);
     defineProperties(Account);
     addHooks(Account);
@@ -31,7 +32,7 @@ module.exports = function (Account) {
     addExtraMethods(Account);
 };
 
-var init = function (Account) {
+var init = function(Account) {
 
     Account.disableRemoteMethod('confirm', true);
     Account.disableRemoteMethod('login', true);
@@ -49,7 +50,7 @@ var init = function (Account) {
         message: 'error.user.validation.username_existed'
     });
 
-    Account.prototype.person = function (cb) {
+    Account.prototype.person = function(cb) {
         cb = cb || promiseCallback();
         if (this.personId)
             app.models.Person.findById(this.personId, cb);
@@ -68,7 +69,7 @@ function defineProperties(Account) {
     }
 
     Object.defineProperty(Account.prototype, "DisplayName", {
-        get: function () {
+        get: function() {
             if (this && this.profile && this.profile.value())
                 return `${this.profile.value().title || ''} ${this.profile.value().firstName || ''} ${this.profile.value().lastName || ''}`;
             return "---";
@@ -77,20 +78,19 @@ function defineProperties(Account) {
         enumerable: true
     });
 
-    Account.setter.email = function (value) {
+    Account.setter.email = function(value) {
         value = value || "";
         this.$email = value.trim().toLowerCase();
     };
 
-    Account.setter.username = function (value) {
+    Account.setter.username = function(value) {
         value = value || "";
         this.$username = value.trim().toLowerCase();
     };
-
 }
 
-var addHooks = function (Account) {
-    Account.observe('before save', function (ctx, next) {
+var addHooks = function(Account) {
+    Account.observe('before save', function(ctx, next) {
         if (ctx.options && ctx.options.skipUpdatedAt) {
             return next();
         }
@@ -105,11 +105,11 @@ var addHooks = function (Account) {
     /**
      * Ensures each `Account` has a `Person`
      */
-    Account.observe('before save', function (ctx, next) {
+    Account.observe('before save', function(ctx, next) {
         var instance = ctx.instance || ctx.currentInstance;
         if (instance) {
             if (!instance.personId) {
-                app.models.Person.create({}, function (err, person) {
+                app.models.Person.create({}, function(err, person) {
                     if (!err) {
                         if (ctx.data)
                             ctx.data["personId"] = person.id;
@@ -129,11 +129,11 @@ var addHooks = function (Account) {
     });
 };
 
-var initMethods = function (Account) {
+var initMethods = function(Account) {
     /**
      * Finds `Account` based on `username` or `email`
      **/
-    Account.findByUsernameOrEmail = function (usernameOrEmail, cb) {
+    Account.findByUsernameOrEmail = function(usernameOrEmail, cb) {
         cb = cb || promiseCallback();
         usernameOrEmail = usernameOrEmail || "";
         usernameOrEmail = usernameOrEmail.trim().toLowerCase();
@@ -146,7 +146,7 @@ var initMethods = function (Account) {
                     }]
                 }
             },
-            function (err, account) {
+            function(err, account) {
                 if (err) return cb(err);
                 cb(null, account);
             });
@@ -158,16 +158,14 @@ var initMethods = function (Account) {
     Account.remoteMethod(
         'findByUsernameOrEmail', {
             description: 'Returns account by username/email',
-            accepts: [
-                {
-                    arg: 'identity',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
+            accepts: [{
+                arg: 'identity',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }],
             returns: {
                 arg: 'account',
                 type: 'object',
@@ -180,7 +178,7 @@ var initMethods = function (Account) {
         }
     );
 
-    Account.GetById = function (id, cb) {
+    Account.GetById = function(id, cb) {
         cb = cb || promiseCallback();
         Account.findById(id).then((account) => {
             if (!account) return cb(Persistency.Errors.NotFound());
@@ -196,16 +194,14 @@ var initMethods = function (Account) {
     Account.remoteMethod(
         'GetById', {
             description: 'Returns account by id',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }],
             returns: {
                 arg: 'account',
                 type: 'object',
@@ -221,7 +217,7 @@ var initMethods = function (Account) {
     /**
      * Determines if account is verfiied or not
      **/
-    Account.prototype.isVerified = function () {
+    Account.prototype.isVerified = function() {
         var last = this.lastVerification();
         if (this.verifications.count() === 0 && last === null) {
             return false;
@@ -236,11 +232,11 @@ var initMethods = function (Account) {
      * Returns last `AccountVerification` for `this` `Account`
      * @method
      **/
-    Account.prototype.lastVerification = function () {
+    Account.prototype.lastVerification = function() {
         var len = this.verifications.value().length;
         if (len && len > 0) {
             var nextYear = moment().add(500, 'y');
-            var list = underscore.sortBy(this.verifications.value(), function (verification) {
+            var list = underscore.sortBy(this.verifications.value(), function(verification) {
                 return nextYear.diff(moment(verification.requestDate));
             });
             return list[0];
@@ -249,7 +245,7 @@ var initMethods = function (Account) {
         }
     };
 
-    Account.prototype.lastVerificationOfType = function (type) {
+    Account.prototype.lastVerificationOfType = function(type) {
         var list = this.verificationsOfType(type);
         if (list && list.length > 0) {
             return list[0];
@@ -258,13 +254,13 @@ var initMethods = function (Account) {
         }
     };
 
-    Account.prototype.verificationsOfType = function (type) {
+    Account.prototype.verificationsOfType = function(type) {
         var list = this.verifications.value();
-        list = underscore.filter(list, function (item) {
+        list = underscore.filter(list, function(item) {
             return item.verificationType.toLowerCase() === type.toLowerCase();
         });
         var nextYear = moment().add(500, 'y');
-        list = underscore.sortBy(list, function (verification) {
+        list = underscore.sortBy(list, function(verification) {
             return nextYear.diff(moment(verification.requestDate));
         });
         return list;
@@ -274,7 +270,7 @@ var initMethods = function (Account) {
      * Returns `VerificationTypeEnum`
      * **Note**: This function should be defined as a `getter` method. But in `loopback` there is a mechanism which prevents that.
      **/
-    Account.prototype.getVerificationType = function () {
+    Account.prototype.getVerificationType = function() {
         if (this.getRegistrationSource().is('web')) {
             return app.VerificationTypeEnum.get('email');
         } else if (this.getRegistrationSource().is('mobile')) {
@@ -288,14 +284,14 @@ var initMethods = function (Account) {
      * Returns `RegistrationSourceEnum`
      * **Note**: This function should be defined as a `getter` method. But in `loopback` there is a mechanism which prevents that.
      **/
-    Account.prototype.getRegistrationSource = function () {
+    Account.prototype.getRegistrationSource = function() {
         if (this.registrationSource instanceof Enum) {
             return this.registrationSource;
         }
         return app.RegistrationSourceEnum.get(this.registrationSource);
     };
 
-    Account.prototype.usernameOrEmail = function () {
+    Account.prototype.usernameOrEmail = function() {
         if (this.username && this.username !== "") {
             return this.username;
         }
@@ -303,7 +299,7 @@ var initMethods = function (Account) {
     };
 };
 
-var addLoginLogoutMethods = function (Account) {
+var addLoginLogoutMethods = function(Account) {
     // Login process
 
     /**
@@ -313,14 +309,14 @@ var addLoginLogoutMethods = function (Account) {
      * ```
      * @callback {Function} cb
      **/
-    Account.CustomLogin = function (credentials, cb) {
+    Account.CustomLogin = function(credentials, cb) {
         var defaultError = makeError({
             message: 'error.user.login.failed',
             statusCode: 401,
             code: 'LOGIN_FAILED'
         });
 
-        var tokenErrorHandler = function (ex) {
+        var tokenErrorHandler = function(ex) {
             console.log(ex);
             var error = makeError({
                 message: 'error.user.token_not_created',
@@ -330,7 +326,7 @@ var addLoginLogoutMethods = function (Account) {
             cb(error);
         };
 
-        var passwordNotMatchHandler = function (ex) {
+        var passwordNotMatchHandler = function(ex) {
             var error = makeError({
                 message: 'error.user.password_not_match',
                 statusCode: 401,
@@ -339,10 +335,10 @@ var addLoginLogoutMethods = function (Account) {
             cb(error);
         };
 
-        var tokenInitializedHandler = function (authToken, account) {
+        var tokenInitializedHandler = function(authToken, account) {
             account.updateAttributes({
                 lastLoginDate: new Date()
-            }, function (err, updatedAccount) {
+            }, function(err, updatedAccount) {
                 if (err) {
                     cb(err);
                 } else {
@@ -367,7 +363,7 @@ var addLoginLogoutMethods = function (Account) {
             return cb.promise;
         }
 
-        Account.findByUsernameOrEmail(credentials.username, function (err, account) {
+        Account.findByUsernameOrEmail(credentials.username, function(err, account) {
             if (err || !account) {
                 var error = makeError({
                     message: 'error.user.op.not_found',
@@ -388,7 +384,7 @@ var addLoginLogoutMethods = function (Account) {
                 return cb.promise;
             }
 
-            account.hasPassword(credentials.password).then(function (isMatch) {
+            account.hasPassword(credentials.password).then(function(isMatch) {
                 if (isMatch) {
 
                     /*if (!account.isVerified()) {
@@ -402,18 +398,18 @@ var addLoginLogoutMethods = function (Account) {
                     }*/
 
                     //renew `AuthToken`
-                    app.models.AuthToken.createToken().then(function (token) {
+                    app.models.AuthToken.createToken().then(function(token) {
                         var params = {
                             token: token,
                             updatedAt: new Date()
                         };
 
                         if (account.authToken.value()) {
-                            account.authToken.update(params).then(function (authToken) {
+                            account.authToken.update(params).then(function(authToken) {
                                 tokenInitializedHandler(authToken, account);
                             }).catch(tokenErrorHandler);
                         } else {
-                            account.authToken.create(params).then(function (authToken) {
+                            account.authToken.create(params).then(function(authToken) {
                                 tokenInitializedHandler(authToken, account);
                             }).catch(tokenErrorHandler);
                         }
@@ -460,14 +456,14 @@ var addLoginLogoutMethods = function (Account) {
      * Current user is authorized user by data sent in `request` header.
      * It is silent about non logged in users or undefined users.
      **/
-    Account.CustomLogout = function (cb) {
+    Account.CustomLogout = function(cb) {
         cb = cb || promiseCallback();
 
         var ctx = LoopBackContext.getCurrentContext();
         var authToken = ctx.get('currentToken');
         var currentUser = ctx.get('currentUser');
         if (currentUser && authToken && authToken.token) {
-            Account.findByUsernameOrEmail(currentUser.username, function (err, acc) {
+            Account.findByUsernameOrEmail(currentUser.username, function(err, acc) {
                 if (err) {
                     cb(err);
                 } else if (acc) {
@@ -504,7 +500,7 @@ var addLoginLogoutMethods = function (Account) {
  *    Handles create or update of `Account`
  *
  **/
-var accountCreateHandler = function (Account, account, password, verificationType, cb) {
+var accountCreateHandler = function(Account, account, password, verificationType, cb) {
     var verificationCodeLen = app.settings.narengi.verificationCodeLen || 4;
     var verified = false || verificationType.is('none');
     account.verifications.create({
@@ -514,13 +510,13 @@ var accountCreateHandler = function (Account, account, password, verificationTyp
             length: verificationCodeLen,
             charset: 'numeric'
         })
-    }).then(function (verification) {
+    }).then(function(verification) {
         if (verificationType.is('none')) {
-            var credential = {username: account.usernameOrEmail(), password: password};
+            var credential = { username: account.usernameOrEmail(), password: password };
             return Account.CustomLogin(credential, cb);
         }
         cb(null, account);
-    }).catch(function (ex) {
+    }).catch(function(ex) {
         var error = makeError({
             message: 'error.user.registeration_failed',
             statusCode: 500,
@@ -530,8 +526,8 @@ var accountCreateHandler = function (Account, account, password, verificationTyp
     });
 };
 
-var passwordValidation = function (force) {
-    return function (ctx, instance, next) {
+var passwordValidation = function(force) {
+    return function(ctx, instance, next) {
         var data = ctx.req.body;
         var passwordLen = app.settings.narengi.passwordLen || 4;
         if (!data || (force && (!data.password || data.password.length < passwordLen))) {
@@ -546,11 +542,20 @@ var passwordValidation = function (force) {
     };
 };
 
-var addRegisterMethod = function (Account) {
+/**
+ * Update Profile Handler
+ */
+function updateProfile(account, data, cb) {
+    cb = cb || promiseCallback();
+    account.profile.update(data, cb);
+    return cb.promise;
+};
+
+var addRegisterMethod = function(Account) {
 
     Account.beforeRemote("CustomRegister", passwordValidation(true));
 
-    Account.CustomRegister = function (data, req, cb) {
+    Account.CustomRegister = function(data, req, cb) {
         cb = cb || promiseCallback();
 
         var ctx = req.getNarengiContext();
@@ -599,12 +604,12 @@ var addRegisterMethod = function (Account) {
          verificationType = app.VerificationTypeEnum.get('email');
          }*/
 
-        var accountCreateUpdateErrorHandler = function (ex) {
+        var accountCreateUpdateErrorHandler = function(ex) {
             cb(ex);
         };
 
-        Account.create(data).then(function (createdAccount) {
-            createdAccount.profile.create(function (e, profile) {
+        Account.create(data).then(function(createdAccount) {
+            createdAccount.profile.create(function(e, profile) {
                 accountCreateHandler(Account, createdAccount, data.password, verificationType, cb);
             });
         }).catch(accountCreateUpdateErrorHandler);
@@ -615,20 +620,17 @@ var addRegisterMethod = function (Account) {
     Account.remoteMethod(
         'CustomRegister', {
             description: 'Registers an account',
-            accepts: [
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'body'}
-                },
-                {
-                    arg: 'req',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'req'}
-                }
-            ],
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: { source: 'body' }
+            }, {
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: { source: 'req' }
+            }],
             returns: {
                 arg: 'account',
                 type: 'object',
@@ -643,7 +645,7 @@ var addRegisterMethod = function (Account) {
     );
 };
 
-var addCrudMethods = function (Account) {
+var addCrudMethods = function(Account) {
 
     // remote hooks
 
@@ -659,7 +661,7 @@ var addCrudMethods = function (Account) {
     };
 
     function accountCreateUpdateErrorHandler(cb) {
-        return function (ex) {
+        return function(ex) {
             cb(ex);
         };
     }
@@ -671,7 +673,7 @@ var addCrudMethods = function (Account) {
      * @return {Promise}
      * @method
      */
-    Account.CustomCreate = function (data, cb) {
+    Account.CustomCreate = function(data, cb) {
         cb = cb || promiseCallback();
 
         var verificationType = app.VerificationTypeEnum.get(data.verificationType);
@@ -719,17 +721,17 @@ var addCrudMethods = function (Account) {
      * @return {Promise}
      * @method
      */
-    Account.CustomUpdate = function (id, data, cb) {
+    Account.CustomUpdate = function(id, data, cb) {
         cb = cb || promiseCallback();
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 Account.findById(id, callback);
             },
-            function (account, callback) {
+            function(account, callback) {
                 if (!account) return callback(Persistency.Errors.NotFound());
                 account.updateAttributes(data, callback);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return cb(err);
             cb(null, result);
         });
@@ -744,19 +746,17 @@ var addCrudMethods = function (Account) {
     Account.remoteMethod(
         'CustomUpdate', {
             description: 'Updates an account',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {source: 'path'}
-                },
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'body'}
-                }],
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: { source: 'path' }
+            }, {
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: { source: 'body' }
+            }],
             returns: {
                 arg: 'account',
                 type: 'object',
@@ -770,7 +770,7 @@ var addCrudMethods = function (Account) {
         }
     );
 
-    Account.GetAll = function (paging, cb) {
+    Account.GetAll = function(paging, cb) {
         cb = cb || promiseCallback();
         Account.find(paging).then(Persistency.CrudHandlers.arraySuccessHandler(cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
         return cb.promise;
@@ -786,14 +786,12 @@ var addCrudMethods = function (Account) {
     Account.remoteMethod(
         'GetAll', {
             description: 'Get all accounts',
-            accepts: [
-                {
-                    arg: 'paging',
-                    type: 'object',
-                    required: true,
-                    http: Pagination.Common.HttpPagingParam
-                }
-            ],
+            accepts: [{
+                arg: 'paging',
+                type: 'object',
+                required: true,
+                http: Pagination.Common.HttpPagingParam
+            }],
             returns: {
                 arg: 'accounts',
                 type: 'array',
@@ -806,7 +804,7 @@ var addCrudMethods = function (Account) {
             }
         });
 
-    Account.DeleteById = function (id, cb) {
+    Account.DeleteById = function(id, cb) {
         cb = cb || promiseCallback();
         Account.destroyById(id, cb);
         return cb.promise;
@@ -814,14 +812,12 @@ var addCrudMethods = function (Account) {
     Account.remoteMethod(
         'DeleteById', {
             description: 'Deletes account by id',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {source: 'path'}
-                }
-            ],
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: { source: 'path' }
+            }],
             http: {
                 path: "/:id",
                 verb: 'delete',
@@ -829,19 +825,19 @@ var addCrudMethods = function (Account) {
             }
         });
 
-    Account.ChangePassByAdmin = function (id, data, cb) {
+    Account.ChangePassByAdmin = function(id, data, cb) {
         cb = cb || promiseCallback();
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 Account.findById(id, callback);
             },
-            function (account, callback) {
+            function(account, callback) {
                 if (!account) return callback(Persistency.Errors.NotFound());
-                account.updateAttributes({password: data.password}, callback);
+                account.updateAttributes({ password: data.password }, callback);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return cb(err);
-            if (!result) return cb(makeError({message: 'error.operation.failure'}));
+            if (!result) return cb(makeError({ message: 'error.operation.failure' }));
             cb(null);
         });
         return cb.promise;
@@ -852,14 +848,12 @@ var addCrudMethods = function (Account) {
     Account.remoteMethod(
         'ChangePassByAdmin', {
             description: 'Changes password. It is for admin only',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {source: 'path'}
-                }
-            ],
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: { source: 'path' }
+            }],
             http: {
                 path: "/:id/change-password-by-admin",
                 verb: 'put',
@@ -868,9 +862,9 @@ var addCrudMethods = function (Account) {
         });
 };
 
-var addExtraMethods = function (Account) {
+var addExtraMethods = function(Account) {
 
-    var banPerformer = function (data, banning, cb) {
+    var banPerformer = function(data, banning, cb) {
         cb = cb || promiseCallback();
 
         if (!(data || data.accountId)) {
@@ -887,16 +881,16 @@ var addExtraMethods = function (Account) {
             id: data.accountId
         }, {
             enabled: banning
-        }).then(function (updated, count) {
+        }).then(function(updated, count) {
             cb(null, count);
-        }).catch(function (err) {
+        }).catch(function(err) {
             cb(err);
         });
 
         return cb.promise;
     };
 
-    Account.Ban = function (data, cb) {
+    Account.Ban = function(data, cb) {
         return banPerformer(data, false, cb);
     };
 
@@ -919,7 +913,7 @@ var addExtraMethods = function (Account) {
         }
     );
 
-    Account.Unban = function (data, cb) {
+    Account.Unban = function(data, cb) {
         return banPerformer(data, true, cb);
     };
 
@@ -982,7 +976,7 @@ var addExtraMethods = function (Account) {
         }
     );
 
-    Account.ShowProfile = function (id, cb) {
+    Account.ShowProfile = function(id, cb) {
         cb = cb || promiseCallback();
 
         Account.GetById(id, cb);
@@ -990,12 +984,12 @@ var addExtraMethods = function (Account) {
         return cb.promise;
     };
 
-    Account.prototype.getProfileDetailUrl = function () {
+    Account.prototype.getProfileDetailUrl = function() {
         var rel = `${Account.settings.http.path}/${this.id}/profile`;
         return Account.formatRelUrl(rel);
     };
 
-    Account.afterRemote("ShowProfile", Common.RemoteHooks.convert2Dto(Account, {justProfile: true}));
+    Account.afterRemote("ShowProfile", Common.RemoteHooks.convert2Dto(Account, { justProfile: true }));
 
     Account.remoteMethod(
         'ShowProfile', {
@@ -1022,7 +1016,7 @@ var addExtraMethods = function (Account) {
     );
 
 
-    Account.ShowProfileMe = function (req, cb) {
+    Account.ShowProfileMe = function(req, cb) {
         cb = cb || promiseCallback();
 
         var currentUser = req.getNarengiContext().getUser();
@@ -1058,19 +1052,19 @@ var addExtraMethods = function (Account) {
         }
     );
 
-    Account.SendResetPasswordByEmail = function (email, cb) {
+    Account.SendResetPasswordByEmail = function(email, cb) {
         cb = cb || promiseCallback();
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 Account.findByUsernameOrEmail(email, callback);
             },
-            function (account, callback) {
+            function(account, callback) {
                 if (!account) return callback(Persistency.Errors.NotFound());
                 var locals = {
                     displayName: account.DisplayName
                 };
                 app.models.Notification.SendEmailResetPassword(email, account, locals).then((res) => {
-                    callback(null, {result: 'sent'})
+                    callback(null, { result: 'sent' })
                 }).catch((e) => {
                     callback(e)
                 });
@@ -1103,19 +1097,19 @@ var addExtraMethods = function (Account) {
         }
     );
 
-    Account.SendResetPasswordByMobile = function (email, cb) {
+    Account.SendResetPasswordByMobile = function(email, cb) {
         cb = cb || promiseCallback();
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 Account.findByUsernameOrEmail(email, callback);
             },
-            function (account, callback) {
+            function(account, callback) {
                 if (!account) return callback(Persistency.Errors.NotFound());
                 var locals = {
                     displayName: account.DisplayName
                 };
                 app.models.Notification.SendEmailResetPassword(account.cellNumber, account, locals).then((res) => {
-                    callback(null, {result: 'sent'})
+                    callback(null, { result: 'sent' })
                 }).catch((e) => {
                     callback(e)
                 });
@@ -1148,7 +1142,7 @@ var addExtraMethods = function (Account) {
         }
     );
 
-    Account.ChangePassword = function (email, data, cb) {
+    Account.ChangePassword = function(email, data, cb) {
         cb = cb || promiseCallback();
         var passwordLen = app.settings.narengi.passwordLen || 4;
         if (!data.password || data.password.trim().length < passwordLen) {
@@ -1161,10 +1155,10 @@ var addExtraMethods = function (Account) {
             return cb.promise;
         }
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 Account.findByUsernameOrEmail(email, callback);
             },
-            function (account, callback) {
+            function(account, callback) {
                 if (!account) return callback(Persistency.Errors.NotFound());
                 account.updateAttributes({
                     password: data.password
@@ -1186,14 +1180,13 @@ var addExtraMethods = function (Account) {
                 http: {
                     source: 'path'
                 }
-            },
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'body'},
-                    description: 'Field `password` is required'
-                }],
+            }, {
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: { source: 'body' },
+                description: 'Field `password` is required'
+            }],
             returns: {
                 arg: 'result',
                 type: 'object',
@@ -1203,6 +1196,39 @@ var addExtraMethods = function (Account) {
                 path: "/change-password/:email",
                 verb: 'put',
                 status: 201
+            }
+        }
+    );
+
+    Account.UpdateProfile = function(data, cb) {
+        cb = cb || promiseCallback();
+
+        var ctx = loopback.getCurrentContext();
+        var currentUser = ctx && ctx.get('currentUser');
+        if (!currentUser) return cb(Security.Errors.NotAuthorized());
+        
+        updateProfile(currentUser, data, cb);
+
+        return cb.promise;
+    };
+
+    // Account.afterRemote("UpdateProfile", Common.RemoteHooks.convert2Dto(Account));
+
+    Account.remoteMethod(
+        'UpdateProfile', {
+            description: 'Update Currentc User Profile',
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
+            http: {
+                path: "/update",
+                verb: 'put',
+                status: 204
             }
         }
     );
