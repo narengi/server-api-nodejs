@@ -8,35 +8,36 @@ var app = serverRequire('server');
 
 function authWithJWT(req, loopbackCtx, token, username, next) {
     var context = loopbackCtx.get('narengi_context');
-    if (token && username) {
+
+    var searchObj = token ? {
+        "account_authToken.token": token
+    } : null;
+
+    if (searchObj && username) {
+        searchObj = {
+            "and": [{
+                "account_authToken.token": token
+            }, {
+                "or": [{
+                    "username": username
+                }, {
+                    "email": username
+                }]
+            }]
+        }
+    }
+
+    if (searchObj) {
         app.models.Account.find({
                 include: "authToken",
-                where: {
-                    "and": [
-                        {
-                            "account_authToken.token": token
-                        },
-                        {
-                            "or": [
-                                {
-                                    "username": username
-                                },
-                                {
-                                    "email": username
-                                }
-                            ]
-                        }
-                    ]
-                }
+                where: searchObj
             },
-            function (err, accs) {
+            function(err, accs) {
 
                 try {
                     req.accessToken = null;
                     req.loopbackContext.active.http.req.accessToken = null;
-                }
-                catch (ex) {
-                }
+                } catch (ex) {}
 
                 if (err || !accs || accs.length < 1) {
                     context.setUser(null);
@@ -64,9 +65,7 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
                     };
                     req.accessToken = obj;
                     req.loopbackContext.active.http.req.accessToken = obj;
-                }
-                catch (e) {
-                }
+                } catch (e) {}
                 next();
             });
     } else {
@@ -76,7 +75,7 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
     }
 }
 
-module.exports = function (options) {
+module.exports = function(options) {
 
     /**
      * Authorizes current `request` and set current user to `context`
@@ -84,16 +83,21 @@ module.exports = function (options) {
     return function handler(req, res, next) {
         try {
             //TODO: should add OAuth authorization
-            var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || {};
+            var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || null;
+            if (!Boolean(authHeader)) {
+                authHeader = req.headers['access-token'] ? {
+                    token: req.headers['access-token'],
+                    username: null
+                } : {};
+            }
             //This is `plain` login mechanism
             // `username` could be an email
-            LoopBackContext.runInContext(function (ns, domain) {
+            LoopBackContext.runInContext(function(ns, domain) {
                 authWithJWT(req, ns, authHeader.token, authHeader.username, next);
             });
 
         } catch (e) {
             next();
-        } finally {
-        }
+        } finally {}
     }
 }

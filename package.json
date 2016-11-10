@@ -1,5 +1,5 @@
 {
-  "name": "server-api-node",
+  "name": "api",
   "version": "0.4.15",
   "main": "server/server.js",
   "scripts": {
@@ -10,6 +10,7 @@
     "startStaging": "export NODE_ENV=staging && ./node_modules/forever/bin/forever -o out.log -e err.log start ./server/server.js",
     "stopStaging": "export NODE_ENV=staging && ./node_modules/forever/bin/forever stop ./server/server.js",
     "start": "node .",
+    "dev": "NODE_ENV=development node-dev server/server.js",
     "gendoc": "./node_modules/grunt/bin/grunt jsdoc"
   },
   "dependencies": {
@@ -61,7 +62,8 @@
     "grunt": "^1.0.1",
     "grunt-jsdoc": "^2.0.0",
     "ink-docstrap": "^1.2.1",
-    "jshint": "^2.5.6"
+    "jshint": "^2.5.6",
+    "nodemon": "^1.11.0"
   },
   "repository": {
     "type": "git",

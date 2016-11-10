@@ -355,7 +355,7 @@ var addLoginLogoutMethods = function (Account) {
 
         cb = cb || promiseCallback();
 
-        credentials.username = credentials.username.trim();
+        credentials.username = credentials.username ? credentials.username.trim() : null;
 
         if (!(credentials.username && credentials.password)) {
             var error = makeError({

@@ -1,143 +1,143 @@
 {
-  "restApiRoot": "/api",
-  "host": "0.0.0.0",
-  "port": 3000,
-  "https": false,
-  "hostExt": "127.0.0.1:3000",
-  "remoting": {
-    "rest": {
-      "normalizeHttpPath": false,
-      "xml": false
-    },
-    "json": {
-      "strict": false,
-      "limit": "200kb"
-    },
-    "urlencoded": {
-      "extended": true,
-      "limit": "100kb"
-    },
-    "cors": false,
-    "errorHandler": {
-      "disableStackTrace": false
-    }
-  },
-  "legacyExplorer": false,
-  "locale": {
-    "default": "fa",
-    "allowed": [
-      "fa",
-      "en"
-    ]
-  },
-  "narengi": {
-    "verificationCodeLen": 6,
-    "verificationType": "Email",
-    "passwordLen": 6
-  },
-  "userProfile": {
-    "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
-      "dirName": "user-profile-images",
-      "maxSize": "2097152",
-      "styles": {
-        "w64": 64,
-        "w128": 128,
-        "w480": 480,
-        "w1024": 1024
-      }
-    }
-  },
-  "pagination": {
-    "default": {
-      "limit": 10
-    },
-    "globalSearch": {
-      "limit": 10
-    }
-  },
-  "city": {
-    "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
-      "dirName": "city-images",
-      "maxSize": "2097152",
-      "styles": {
-        "w64": 64,
-        "w480": 480,
-        "w1024": 1024
-      }
-    }
-  },
-  "attraction": {
-    "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
-      "dirName": "attraction-images",
-      "maxSize": "2097152",
-      "styles": {
-        "w64": 64,
-        "w480": 480,
-        "w1024": 1024
-      }
-    }
-  },
-  "house": {
-    "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
-      "dirName": "house-images",
-      "maxSize": "2097152",
-      "styles": {
-        "w64": 64,
-        "w480": 480,
-        "w1024": 1024
-      }
-    }
-  },
-  "currency": {
-    "default": "IRR",
-    "available": [
-      "IRR",
-      "USD"
-    ]
-  },
-  "notification": {
-    "sms": {
-      "current": "kavenegar",
-      "kavenegar": {
-        "baseUrl": "api.kavenegar.com/v1",
-        "apikey": "62534D59454530446F4C724935584D4938784E766F513D3D",
-        "protocol": "http",
-        "sender": "300002525",
-        "vendor": "kavenegar"
-      }
-    },
-    "email": {
-      "default": {
-        "sender": "narengi.noreply@gmail.com",
-        "smtp": {
-          "host": "smtp.gmail.com",
-          "port": 465,
-          "secure": true,
-          "pool": true,
-          "auth": {
-            "user": "narengi.noreply@gmail.com",
-            "pass": "MailNArengiG8ail"
-          }
+    "restApiRoot": "/api",
+    "host": "127.0.0.1",
+    "port": 3000,
+    "https": false,
+    "hostExt": "127.0.0.1:3000",
+    "remoting": {
+        "rest": {
+            "normalizeHttpPath": false,
+            "xml": false
+        },
+        "json": {
+            "strict": false,
+            "limit": "200kb"
+        },
+        "urlencoded": {
+            "extended": true,
+            "limit": "100kb"
+        },
+        "cors": false,
+        "errorHandler": {
+            "disableStackTrace": false
         }
-      }
     },
-    "push": {
-      "gcm": {
-        "apiKey": "AIzaSyCbqrg9wZ3CyxNRHF0j3PPdKBKdSqB8ICg",
-        "senderId": "513487842873"
-      },
-      "apn": {
-        "cert": "path to your cert file",
-        "key": "path to your key file"
-      }
+    "legacyExplorer": false,
+    "locale": {
+        "default": "fa",
+        "allowed": [
+            "fa",
+            "en"
+        ]
     },
-    "redis": {
-      "host": "127.0.0.1",
-      "port": 6379
+    "narengi": {
+        "verificationCodeLen": 6,
+        "verificationType": "Email",
+        "passwordLen": 6
+    },
+    "userProfile": {
+        "picture": {
+            "root": "/usr/local/projects/narengi/app/assets",
+            "dirName": "user-profile-images",
+            "maxSize": "2097152",
+            "styles": {
+                "w64": 64,
+                "w128": 128,
+                "w480": 480,
+                "w1024": 1024
+            }
+        }
+    },
+    "pagination": {
+        "default": {
+            "limit": 10
+        },
+        "globalSearch": {
+            "limit": 10
+        }
+    },
+    "city": {
+        "picture": {
+            "root": "/usr/local/projects/narengi/app/assets",
+            "dirName": "city-images",
+            "maxSize": "2097152",
+            "styles": {
+                "w64": 64,
+                "w480": 480,
+                "w1024": 1024
+            }
+        }
+    },
+    "attraction": {
+        "picture": {
+            "root": "/usr/local/projects/narengi/app/assets",
+            "dirName": "attraction-images",
+            "maxSize": "2097152",
+            "styles": {
+                "w64": 64,
+                "w480": 480,
+                "w1024": 1024
+            }
+        }
+    },
+    "house": {
+        "picture": {
+            "root": "/usr/local/projects/narengi/app/assets",
+            "dirName": "house-images",
+            "maxSize": "2097152",
+            "styles": {
+                "w64": 64,
+                "w480": 480,
+                "w1024": 1024
+            }
+        }
+    },
+    "currency": {
+        "default": "IRR",
+        "available": [
+            "IRR",
+            "USD"
+        ]
+    },
+    "notification": {
+        "sms": {
+            "current": "kavenegar",
+            "kavenegar": {
+                "baseUrl": "api.kavenegar.com/v1",
+                "apikey": "62534D59454530446F4C724935584D4938784E766F513D3D",
+                "protocol": "http",
+                "sender": "300002525",
+                "vendor": "kavenegar"
+            }
+        },
+        "email": {
+            "default": {
+                "sender": "narengi.noreply@gmail.com",
+                "smtp": {
+                    "host": "smtp.gmail.com",
+                    "port": 465,
+                    "secure": true,
+                    "pool": true,
+                    "auth": {
+                        "user": "narengi.noreply@gmail.com",
+                        "pass": "MailNArengiG8ail"
+                    }
+                }
+            }
+        },
+        "push": {
+            "gcm": {
+                "apiKey": "AIzaSyCbqrg9wZ3CyxNRHF0j3PPdKBKdSqB8ICg",
+                "senderId": "513487842873"
+            },
+            "apn": {
+                "cert": "path to your cert file",
+                "key": "path to your key file"
+            }
+        },
+        "redis": {
+            "host": "127.0.0.1",
+            "port": 6379
+        }
     }
-  }
 }

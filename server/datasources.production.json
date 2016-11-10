@@ -2,7 +2,7 @@
 	"memory": {
 		"name": "memory",
 		"connector": "memory"
-	}
+	},
 	"narengi": {
 		"name": "narengi",
 		"connector": "mongodb",
