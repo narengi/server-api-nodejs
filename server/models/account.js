@@ -182,6 +182,7 @@ var initMethods = function(Account) {
         cb = cb || promiseCallback();
         Account.findById(id).then((account) => {
             if (!account) return cb(Persistency.Errors.NotFound());
+            account.displayName = ((account.profile().firstName || '') + ' ' + (account.profile().lastName || '')).trim();
             cb(null, account);
         }).catch((e) => {
             cb(e);
