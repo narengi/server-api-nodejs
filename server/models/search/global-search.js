@@ -148,6 +148,9 @@ function defineHooks(GlobalSearch) {
         result = underscore.map(result, function (item) {
             var dtoModel = loopback.findModel(item.Type + "DTO");
             var converted = dtoModel.Convert(item.Data, {});
+            
+            // // @TODO -- find a better solution for 
+
             return {
                 Type: item.Type,
                 Data: converted

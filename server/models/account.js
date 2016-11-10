@@ -608,6 +608,8 @@ var addRegisterMethod = function(Account) {
             cb(ex);
         };
 
+        console.log("CREATE DATA", data);
+
         Account.create(data).then(function(createdAccount) {
             createdAccount.profile.create(function(e, profile) {
                 accountCreateHandler(Account, createdAccount, data.password, verificationType, cb);
@@ -1207,6 +1209,7 @@ var addExtraMethods = function(Account) {
         var currentUser = ctx && ctx.get('currentUser');
         if (!currentUser) return cb(Security.Errors.NotAuthorized());
         
+        console.log("update-request:", currentUser.email, data);
         updateProfile(currentUser, data, cb);
 
         return cb.promise;
