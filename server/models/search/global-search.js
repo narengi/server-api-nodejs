@@ -149,7 +149,17 @@ function defineHooks(GlobalSearch) {
             var dtoModel = loopback.findModel(item.Type + "DTO");
             var converted = dtoModel.Convert(item.Data, {});
             
-            // // @TODO -- find a better solution for 
+            // // @TODO -- find a better solution asap -- by Aref
+            if (converted.pictures && converted.pictures.length) {
+                var pics = [];
+                converted.pictures.forEach(function(p){
+                    pics.push(p.url);
+                });
+                converted.pictures = pics;
+            }
+            // converted.forEach(function(s){
+            //     console.log(s);
+            // })
 
             return {
                 Type: item.Type,
