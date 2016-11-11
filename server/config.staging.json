@@ -3,7 +3,7 @@
   "host": "0.0.0.0",
   "port": 3100,
   "https": false,
-  "hostExt": "server.staging.narengi.xyz",
+  "hostExt": "api.narengi.xyz",
   "remoting": {
     "context": {
       "enableHttpContext": true
