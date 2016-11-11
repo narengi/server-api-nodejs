@@ -441,26 +441,45 @@ function defineProfilePictureMethods(UserProfile) {
 
 
     UserProfile.remoteMethod("DownloadPictureForOther", {
-        accepts: [
-            { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
-            { arg: 'hash', type: 'string', required: true, http: { source: 'path' } }, {
-                arg: 'style',
-                type: 'string',
-                http: function(ctx) {
-                    var req = ctx.req;
-                    var query = req.query || {};
-                    var style = query['style'] ? query['style'] : null;
-                    return style ? style.trim() : "";
-                }
-            },
-            { arg: 'ctx', type: 'object', http: { source: 'context' } }
-        ],
+        accepts: [{
+            arg: 'id',
+            type: 'string',
+            required: true,
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'hash',
+            type: 'string',
+            required: true,
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'style',
+            type: 'string',
+            http: function(ctx) {
+                var req = ctx.req;
+                var query = req.query || {};
+                var style = query['style'] ? query['style'] : null;
+                return style ? style.trim() : "";
+            }
+        }, {
+            arg: 'ctx',
+            type: 'object',
+            http: {
+                source: 'context'
+            }
+        }],
         returns: {
             arg: 'fileObject',
             type: 'object',
             root: true
         },
-        http: { verb: 'get', path: "/:id/picture/:hash" }
+        http: {
+            verb: 'get',
+            path: "/:id/picture/:hash"
+        }
     });
 
 }

@@ -40,7 +40,7 @@
   },
   "userProfile": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "user-profile-images",
       "maxSize": "2097152"
     }
@@ -55,21 +55,21 @@
   },
   "city": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "city-images",
       "maxSize": "2097152"
     }
   },
   "attraction": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "attraction-images",
       "maxSize": "2097152"
     }
   },
   "house": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "house-images",
       "maxSize": "2097152"
     }

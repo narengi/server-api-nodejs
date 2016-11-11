@@ -71,6 +71,12 @@
     }, {
         "accessType": "EXECUTE",
         "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "DownloadPictureForOther"
+    }, {
+        "accessType": "EXECUTE",
+        "principalType": "ROLE",
         "principalId": "ADMIN",
         "permission": "ALLOW",
         "property": "CreateProfileByAdmin"
