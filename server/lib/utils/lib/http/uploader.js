@@ -42,10 +42,10 @@ module.exports = exports;
  * ```
  * @return {Promise}
  */
-exports.upload = function (req, options) {
+exports.upload = function(req, options) {
 
     options.hash = true; //force hashing
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
         fs.Core.ensurePathExists(options.destDir)
             .then(pathExisted)
@@ -60,13 +60,13 @@ exports.upload = function (req, options) {
         function fileUploadedHandler(fields, files) {
             if (this.openedFiles) {
                 var uploadedFile = this.openedFiles[0];
-                handleImageStyles(uploadedFile, options).then((result) => {
-                    resolve(result);
-                }).catch((err) => {
-                    reject(err);
-                });
-            }
-            else {
+                handleImageStyles(uploadedFile, options)
+                    .then(function(result) {
+                        resolve(result);
+                    }).catch(function(err) {
+                        reject(err);
+                    });
+            } else {
                 reject(HttpErrors.FileUploadFailure());
             }
         }
@@ -77,16 +77,13 @@ exports.upload = function (req, options) {
                 if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
                     return reject(HttpErrors.FileNotCorrectError());
                 }
-            }
-            catch (ex) {
+            } catch (ex) {
                 return reject(HttpErrors.FileNotCorrectError());
             }
         }
 
         function pathExisted(path) {
             if (!req) return reject(HttpErrors.FileNotCorrectError());
-
-
             var form = new formidable.IncomingForm();
             form.keepExtensions = true;
             if (!!options.hash)
@@ -97,7 +94,6 @@ exports.upload = function (req, options) {
         }
 
         function pathNotExisted(path) {
-            console.log("pathNotExisted");
             reject(fs.Errors.NoAccess());
         }
     });
@@ -126,10 +122,10 @@ exports.upload = function (req, options) {
  * ```
  * @return {Promise}
  */
-exports.uploadAll = function (req, options) {
+exports.uploadAll = function(req, options) {
 
     options.hash = true; //force hashing
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
         fs.Core.ensurePathExists(options.destDir).then(pathExisted).catch(pathNotExisted);
 
@@ -159,8 +155,7 @@ exports.uploadAll = function (req, options) {
                     if (err) return reject(err);
                     resolve(retArr);
                 });
-            }
-            else {
+            } else {
                 reject(HttpErrors.FileUploadFailure());
             }
         }
@@ -171,8 +166,7 @@ exports.uploadAll = function (req, options) {
                 if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
                     return reject(HttpErrors.FileNotCorrectError());
                 }
-            }
-            catch (ex) {
+            } catch (ex) {
                 return reject(HttpErrors.FileNotCorrectError());
             }
         }
@@ -196,7 +190,7 @@ exports.uploadAll = function (req, options) {
 function handleImageStyles(uploadedFile, options, cb) {
     cb = cb || Common.PromiseCallback();
     styles = options.styles || {};
-    styles = underscore.extend({original: "original"}, styles);
+    styles = underscore.extend({ original: "original" }, styles);
 
     var emptyDir = bluebird.promisify(fsExtra.emptyDir);
 
@@ -204,22 +198,25 @@ function handleImageStyles(uploadedFile, options, cb) {
 
     var readFile = bluebird.promisify(nodeFs.readFile);
 
-    readFile(uploadedFile.path).then(fileDidRead).catch((e) => {
-        cb(fs.Errors.NoAccess());
-    });
+    readFile(uploadedFile.path)
+        .then(fileDidRead)
+        .catch(function(e) {
+            cb(fs.Errors.NoAccess());
+        });
     return cb.promise;
 
     function doEachFileForStyle(uploadedFile, styleName, styleValue, buffer) {
         debug("Image manipulation - style : %s => %s", styleName, styleValue);
-        return function (callback) {
+        return function(callback) {
             var destDirPath = nodePath.join(options.destDir, uploadedFile.hash);
             emptyDir(destDirPath).then(doOperation).catch((err) => {
                 callback(err);
+                return null;
             });
 
             function doOperation() {
                 var extension = nodePath.extname(uploadedFile.name).slice(1).toLowerCase();
-                if(!extension){
+                if (!extension) {
                     extension = mime.extension(uploadedFile.type);
                 }
                 var destPath = nodePath.join(destDirPath, styleName) + "." + extension;
@@ -229,7 +226,7 @@ function handleImageStyles(uploadedFile, options, cb) {
                         var batch = image.batch();
                         //if (image.width() > styleValue) //TODO: this is a policy consideration
                         batch.scale(styleValue / image.width());
-                        batch.writeFile(destPath, function (err) {
+                        batch.writeFile(destPath, function(err) {
                             if (err) return callback(err);
                             prepareForReturn(destPath);
                         });
@@ -243,6 +240,7 @@ function handleImageStyles(uploadedFile, options, cb) {
                         callback(err);
                     });
                 }
+                return null;
             }
 
             function prepareForReturn(destPath) {
@@ -255,21 +253,25 @@ function handleImageStyles(uploadedFile, options, cb) {
                 };
                 ret.style[styleName] = styleValue;
                 callback(null, ret);
+                return null;
             }
+
+            return null;
         }
     }
 
     function fileDidRead(buffer) {
-        var cbArr = underscore.map(styles, function (value, key) {
+        var cbArr = underscore.map(styles, function(value, key) {
             return new doEachFileForStyle(uploadedFile, key.toString(), value, buffer);
         });
 
-        async.parallel(cbArr, function (err, result) {
+        async.parallel(cbArr, function(err, result) {
             if (err) return cb(err);
-            result = underscore.filter(result, function (item) {
+            result = underscore.filter(result, function(item) {
                 return item !== null;
             });
             cb(null, result);
         });
+        return null;
     }
 }

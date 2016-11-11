@@ -257,18 +257,18 @@ function defineProfilePictureMethods(UserProfile) {
                     .then(function(result) {
                         var picture = result.db; //synced
                         console.log('picture', picture);
-                        // if (underscore.isArray(picture))
-                        //     picture = picture[0];
-                        // reloadedUser.profile.update({ picture: picture }).then((profile) => {
-                        //     var api = {};
-                        //     api.url = `/user-profiles/${reloadedUser.id}/picture/${result.api[0].hash}`;
-                        //     api.styles = underscore.reduce(result.api[0].styles, function(memo, stylePack) {
-                        //         return underscore.extend(memo, stylePack.style);
-                        //     }, {});
-                        //     cb(null, api);
-                        // }).catch(function(err) {
-                        //     cb(err);
-                        // });
+                        if (underscore.isArray(picture))
+                            picture = picture[0];
+                        reloadedUser.profile.update({ picture: picture }).then((profile) => {
+                            var api = {};
+                            api.url = `/user-profiles/${reloadedUser.id}/picture/${result.api[0].hash}`;
+                            api.styles = underscore.reduce(result.api[0].styles, function(memo, stylePack) {
+                                return underscore.extend(memo, stylePack.style);
+                            }, {});
+                            cb(null, api);
+                        }).catch(function(err) {
+                            cb(err);
+                        });
                     })
                     .catch(function(ex) {
                         return cb(ex);
