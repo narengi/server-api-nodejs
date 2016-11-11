@@ -9,7 +9,7 @@
 		"database": "narengi_db_prod",
 		"debug": false,
 		"host": "localhost",
-		"port": 27017,
+		"port": 27635,
 		"server": {
 			"auto_reconnect": true,
 			"reconnectTries": 100,
