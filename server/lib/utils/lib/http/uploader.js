@@ -47,7 +47,9 @@ exports.upload = function (req, options) {
     options.hash = true; //force hashing
     return new Promise(function (resolve, reject) {
 
-        fs.Core.ensurePathExists(options.destDir).then(pathExisted).catch(pathNotExisted);
+        fs.Core.ensurePathExists(options.destDir)
+            .then(pathExisted)
+            .catch(pathNotExisted);
 
         function formParsedHandler(err, fields, files) {
             if (err) {
@@ -82,6 +84,9 @@ exports.upload = function (req, options) {
         }
 
         function pathExisted(path) {
+            if (!req) return reject(HttpErrors.FileNotCorrectError());
+
+
             var form = new formidable.IncomingForm();
             form.keepExtensions = true;
             if (!!options.hash)
@@ -92,6 +97,7 @@ exports.upload = function (req, options) {
         }
 
         function pathNotExisted(path) {
+            console.log("pathNotExisted");
             reject(fs.Errors.NoAccess());
         }
     });
