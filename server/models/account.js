@@ -1209,7 +1209,13 @@ var addExtraMethods = function(Account) {
         var ctx = loopback.getCurrentContext();
         var currentUser = ctx && ctx.get('currentUser');
         if (!currentUser) return cb(Security.Errors.NotAuthorized());
-        
+
+        Object.keys(data).map(function (key) {
+            if (!data[key].trim().length) {
+                delete data[key];
+            }
+        });
+
         console.log("update-request:", currentUser.email, data);
         updateProfile(currentUser, data, cb);
 
