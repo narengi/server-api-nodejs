@@ -77,6 +77,10 @@ exports.upload = function(req, options) {
                 if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
                     return reject(HttpErrors.FileNotCorrectError());
                 }
+                //check image size
+                if (options.maxSize && file.size > options.maxSize) {
+                    return reject(HttpErrors.FileSizeLimitExceeded());
+                }
             } catch (ex) {
                 return reject(HttpErrors.FileNotCorrectError());
             }

@@ -69,7 +69,7 @@ function addServices(ImageContainerBase) {
         options["styles"] = underscore.extend({original: "original"}, config.Styles);
 
         return new Promise(function (resolve, reject) {
-
+            console.log('setting for uploading pictures:', options);
             Http.Uploader.upload(httpCtx.req, options).then(function (file) {
                     doStructureResultForOneUpload(file).then((result) => {
                         debugOne(JSON.stringify(result));

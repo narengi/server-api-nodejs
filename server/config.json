@@ -42,7 +42,7 @@
         "picture": {
             "root": "uploads",
             "dirName": "user-profile-images",
-            "maxSize": "4194304",
+            "maxSize": 4194304,
             "styles": {
                 "w64": 64,
                 "w128": 128,
@@ -63,7 +63,7 @@
         "picture": {
             "root": "./uploads",
             "dirName": "city-images",
-            "maxSize": "4194304",
+            "maxSize": 4194304,
             "styles": {
                 "w64": 64,
                 "w480": 480,
@@ -75,7 +75,7 @@
         "picture": {
             "root": "./uploads",
             "dirName": "attraction-images",
-            "maxSize": "4194304",
+            "maxSize": 4194304,
             "styles": {
                 "w64": 64,
                 "w480": 480,
@@ -87,7 +87,7 @@
         "picture": {
             "root": "./uploads",
             "dirName": "house-images",
-            "maxSize": "4194304",
+            "maxSize": 4194304,
             "styles": {
                 "w64": 64,
                 "w480": 480,
