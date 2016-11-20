@@ -28,6 +28,9 @@
         "lastName": {
             "type": "string"
         },
+        "bio": {
+            "type": "string"
+        },
         "location": {
             "type": "Location"
         },
