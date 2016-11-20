@@ -31,6 +31,15 @@
         "location": {
             "type": "Location"
         },
+        "city": {
+            "type": "string"
+        },
+        "province": {
+            "type": "string"
+        },
+        "country": {
+            "type": "string"
+        },
         "birthDate": {
             "type": "date"
         },
