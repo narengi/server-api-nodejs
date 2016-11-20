@@ -145,11 +145,12 @@ function defineHooks(GlobalSearch) {
 
     GlobalSearch.afterRemote("Search", function (ctx, instance, next) {
         var result = ctx.result;
+        console.log('total %d', result.length, result);
         result = underscore.map(result, function (item) {
             var dtoModel = loopback.findModel(item.Type + "DTO");
             var converted = dtoModel.Convert(item.Data, {});
             
-            // // @TODO -- find a better solution asap -- by Aref
+            // // @TODO -- find a better solution -- by Aref
             if (converted.pictures && converted.pictures.length) {
                 var pics = [];
                 converted.pictures.forEach(function(p){
@@ -157,9 +158,6 @@ function defineHooks(GlobalSearch) {
                 });
                 converted.pictures = pics;
             }
-            // converted.forEach(function(s){
-            //     console.log(s);
-            // })
 
             return {
                 Type: item.Type,

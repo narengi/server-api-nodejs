@@ -19,7 +19,7 @@ var moment = require('moment');
  * @namespace Models.House
  * @module House
  */
-module.exports = function (House) {
+module.exports = function(House) {
     House.setMaxListeners(50); //prevent from warning. Because this class has a lot of remote hooks, warning raised 
 
     defineInstanceServices(House);
@@ -48,20 +48,20 @@ function createOrUpdateHouse(req, houseId, data, cb) {
     var plainData = underscore.pick(data, plainProps);
 
     async.waterfall([
-        function (callback) { //create or update instance by plain properties
+        function(callback) { //create or update instance by plain properties
             if (houseId !== null) {
                 plainData.id = houseId;
             }
             app.models.House.upsert(plainData, callback);
         },
-        function (house, callback) { //set owner
+        function(house, callback) { //set owner
             if (houseId == null) {
                 setOwner(callback, req)(house);
             } else {
                 callback(null, house);
             }
         },
-        function (house, callback) { //set house type.
+        function(house, callback) { //set house type.
             if (data.type_id) {
                 app.models.HouseType.findById(data.type_id).then((type) => {
                     house.houseType(type);
@@ -74,7 +74,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                 callback(null, house);
             }
         },
-        function (house, callback) { //set spec
+        function(house, callback) { //set spec
             if (data.spec) {
                 var spec = app.models.HouseSpec.RefineInput(data.spec);
                 house.spec = house.spec || {};
@@ -83,29 +83,28 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
             callback(null, house);
         },
-        function (house, callback) { //set house features
+        function(house, callback) { //set house features
             if (lodash.isArray(data.features)) {
-                app.models.HouseFeature.find({where: {id: {inq: lodash.compact(data.features)}}}).then((features) => {
+                app.models.HouseFeature.find({ where: { id: { inq: lodash.compact(data.features) } } }).then((features) => {
                     //we should add those which are not persisted before
                     var existedFeatures = house.houseFeatures.value();
-                    var refinedFeatures = lodash.reject(features, function (item) {
-                        var found = lodash.find(existedFeatures, function (inner) {
+                    var refinedFeatures = lodash.reject(features, function(item) {
+                        var found = lodash.find(existedFeatures, function(inner) {
                             return item.id === inner.id || (item.key === inner.key && item.lang === inner.lang);
                         });
                         return !lodash.isNil(found);
                     });
-                    async.each(refinedFeatures, house.houseFeatures.create, function (err) {
+                    async.each(refinedFeatures, house.houseFeatures.create, function(err) {
                         callback(null, house);
                     });
                 }).catch(() => {
                     callback(null, house);
                 });
-            }
-            else {
+            } else {
                 callback(null, house);
             }
         }
-    ], function (err, house) {
+    ], function(err, house) {
         if (err) return cb(err);
         house.save(cb);
     });
@@ -120,7 +119,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
  * @ignore
  */
 function setOwner(cb, req) {
-    return function (house) {
+    return function(house) {
         if (!house)
             return cb(Persistency.Errors.NotFound());
 
@@ -128,13 +127,12 @@ function setOwner(cb, req) {
         var currentUser = loopbackCtx && loopbackCtx.getUser();
         if (currentUser) {
             app.models.Person.GetByAccountId(currentUser.id).then(personFoundHandler(house, cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
-        }
-        else
+        } else
             Persistency.CrudHandlers.successHandler(cb)(house);
     };
 
     function personFoundHandler(house, callback) {
-        return function (person) {
+        return function(person) {
             house.owner(person);
             //house.save().then(Persistency.CrudHandlers.successHandler(callback)).catch(Persistency.CrudHandlers.failureHandler(callback));
             callback(null, house);
@@ -147,7 +145,7 @@ function defineInstanceServices(House) {
      * Is the current user can book
      * @memberOf House
      */
-    House.prototype.canBook = function (id, req, cb) {
+    House.prototype.canBook = function(id, req, cb) {
 
     };
 }
@@ -177,7 +175,7 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO}
      */
-    House.Create = function (data, req, cb) {
+    House.Create = function(data, req, cb) {
         cb = cb || Common.PromiseCallback();
         return createOrUpdateHouse(req, null, data, cb);
     };
@@ -189,21 +187,18 @@ function defineMainServices(House) {
     House.remoteMethod(
         'Create', {
             description: 'Creates a house.',
-            accepts: [
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'body'},
-                    description: 'Data attributes to create new instance'
-                },
-                {
-                    arg: 'req',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'req'}
-                }
-            ],
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: { source: 'body' },
+                description: 'Data attributes to create new instance'
+            }, {
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: { source: 'req' }
+            }],
             returns: {
                 arg: 'house',
                 type: 'object',
@@ -217,7 +212,7 @@ function defineMainServices(House) {
         }
     );
 
-//===================================================================================================================
+    //===================================================================================================================
 
     /**
      * Updates a `House` instance.
@@ -243,7 +238,7 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO}
      */
-    House.Update = function (id, data, req, cb) {
+    House.Update = function(id, data, req, cb) {
         cb = cb || Common.PromiseCallback();
         return createOrUpdateHouse(req, id, data, cb);
     };
@@ -255,32 +250,28 @@ function defineMainServices(House) {
     House.remoteMethod(
         'Update', {
             description: 'Updates a house.',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
-                },
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'body'
-                    }
-                },
-                {
-                    arg: 'req',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'req'
-                    }
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }, {
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }, {
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'req'
+                }
+            }],
             returns: {
                 arg: 'house',
                 type: 'object',
@@ -294,17 +285,17 @@ function defineMainServices(House) {
         }
     );
 
-//===================================================================================================================
+    //===================================================================================================================
 
     /**
      * Deletes a `House` by its id
      * @param {string} id
      * @param {Callback} cb
      */
-    House.DeleteOne = function (id, cb) {
+    House.DeleteOne = function(id, cb) {
         cb = cb || Common.PromiseCallback();
 
-        House.upsert({id: id, deleted: true}, cb);
+        House.upsert({ id: id, deleted: true }, cb);
 
         return cb.promise;
     };
@@ -312,16 +303,14 @@ function defineMainServices(House) {
     House.remoteMethod(
         'DeleteOne', {
             description: 'Deletes a house.',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }],
             http: {
                 path: "/:id",
                 verb: 'delete',
@@ -330,7 +319,7 @@ function defineMainServices(House) {
         }
     );
 
-//===================================================================================================================
+    //===================================================================================================================
 
     /**
      * Fetch a `House` by its id
@@ -338,14 +327,16 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO}
      */
-    House.GetById = function (id, cb) {
+    House.GetById = function(id, cb) {
         cb = cb || Common.PromiseCallback();
-        House.findById(id).then((house) => {
-            if (house) {
-                return cb(null, house);
-            }
-            cb(Persistency.Errors.NotFound());
-        }).catch(Persistency.CrudHandlers.failureHandler(cb));
+        House.findById(id)
+            .then((house) => {
+                if (house) {
+                    return cb(null, house);
+                }
+                cb(Persistency.Errors.NotFound());
+            })
+            .catch(Persistency.CrudHandlers.failureHandler(cb));
         return cb.promise;
     };
 
@@ -354,16 +345,14 @@ function defineMainServices(House) {
     House.remoteMethod(
         'GetById', {
             description: 'Get a house by id',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }],
             returns: {
                 arg: 'house',
                 type: 'object',
@@ -377,7 +366,7 @@ function defineMainServices(House) {
         }
     );
 
-//===================================================================================================================
+    //===================================================================================================================
 
     /**
      * Returns all `House` instances based on filter
@@ -385,7 +374,7 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO[]}
      */
-    House.GetAll = function (paging, cb) {
+    House.GetAll = function(paging, cb) {
         cb = cb || PromiseCallback();
         var filter = paging;
         this.injectLangToFilter(filter);
@@ -406,16 +395,15 @@ function defineMainServices(House) {
     House.remoteMethod(
         'GetAll', {
             description: 'Returns all `House` instances based on input filtering',
-            accepts: [
-                {
-                    arg: 'paging',
-                    type: 'object',
-                    required: true,
-                    http: Pagination.Common.HttpPagingParam,
-                    description: ['Calculated parameter.',
-                        'In REST call should be like : `/houses?limit=25&skip=150`']
-                }
-            ],
+            accepts: [{
+                arg: 'paging',
+                type: 'object',
+                required: true,
+                http: Pagination.Common.HttpPagingParam,
+                description: ['Calculated parameter.',
+                    'In REST call should be like : `/houses?limit=25&skip=150`'
+                ]
+            }],
             returns: {
                 arg: 'houses',
                 type: 'array',
@@ -430,7 +418,7 @@ function defineMainServices(House) {
         }
     );
 
-//========================================================================================
+    //========================================================================================
 
     /**
      *
@@ -441,13 +429,13 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO[]}
      */
-    House.Search = function (term, paging, req, res, cb) {
+    House.Search = function(term, paging, req, res, cb) {
         cb = cb || Common.PromiseCallback();
         var filter = paging;
 
         //type of argument is string so we test it by empty string
         if (term !== "") {
-            filter["where"] = {name: {like: term, options: "i"}}; // i denotes insensitivity
+            filter["where"] = { name: { like: term, options: "i" } }; // i denotes insensitivity
         }
         filter.where = filter.where || {};
         filter.where.deleted = false;
@@ -468,39 +456,34 @@ function defineMainServices(House) {
     House.remoteMethod(
         'Search', {
             description: 'Search in houses',
-            accepts: [
-                {
-                    arg: 'term',
-                    type: 'string',
-                    required: true,
-                    http: function (ctx) {
-                        var req = ctx.req;
-                        return (req.query && req.query.term) ? req.query.term : "";
-                    }
-                },
-                {
-                    arg: 'paging',
-                    type: 'object',
-                    required: true,
-                    http: Pagination.Common.HttpPagingParam
-                },
-                {
-                    arg: 'req',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'req'
-                    }
-                },
-                {
-                    arg: 'res',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'res'
-                    }
+            accepts: [{
+                arg: 'term',
+                type: 'string',
+                required: true,
+                http: function(ctx) {
+                    var req = ctx.req;
+                    return (req.query && req.query.term) ? req.query.term : "";
                 }
-            ],
+            }, {
+                arg: 'paging',
+                type: 'object',
+                required: true,
+                http: Pagination.Common.HttpPagingParam
+            }, {
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'res',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'res'
+                }
+            }],
             returns: {
                 arg: 'houses',
                 type: '[object]',
@@ -523,7 +506,7 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO[]}
      */
-    House.GetMyHouses = function (paging, req, cb) {
+    House.GetMyHouses = function(paging, req, cb) {
         cb = cb || PromiseCallback();
 
         var currentUser = req.getNarengiContext().getUser();
@@ -532,10 +515,10 @@ function defineMainServices(House) {
         var self = this;
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 app.models.Person.findById(currentUser.personId, callback);
             },
-            function (person, callback) {
+            function(person, callback) {
                 if (!person) return callback(Security.Errors.NotAuthorized());
                 var filter = paging;
                 self.injectLangToFilter(filter);
@@ -561,22 +544,20 @@ function defineMainServices(House) {
     House.remoteMethod(
         'GetMyHouses', {
             description: 'Returns all `House` instances based on input filtering and belongs to current user',
-            accepts: [
-                {
-                    arg: 'paging',
-                    type: 'object',
-                    required: true,
-                    http: Pagination.Common.HttpPagingParam,
-                    description: ['Calculated parameter.',
-                        'In REST call should be like : `/houses?limit=25&skip=150`']
-                },
-                {
-                    arg: 'req',
-                    type: 'object',
-                    required: true,
-                    http: {source: 'req'}
-                }
-            ],
+            accepts: [{
+                arg: 'paging',
+                type: 'object',
+                required: true,
+                http: Pagination.Common.HttpPagingParam,
+                description: ['Calculated parameter.',
+                    'In REST call should be like : `/houses?limit=25&skip=150`'
+                ]
+            }, {
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: { source: 'req' }
+            }],
             returns: {
                 arg: 'houses',
                 type: 'array',
@@ -606,7 +587,7 @@ function definePictureStuff(House) {
      * @returns {Object}
      * @memberOf Models.House
      */
-    House.UploadPicture = function (id, ctx, cb) {
+    House.UploadPicture = function(id, ctx, cb) {
         cb = cb || Common.PromiseCallback();
 
         House.findById(id).then(houseFoundHandler).catch(houseNotFoundHandler);
@@ -619,10 +600,10 @@ function definePictureStuff(House) {
 
             function uploadCompletedHandler(result) {
                 var pictures = result.db; //synced
-                house.updateAttributes({pictures: pictures}).then(function (updatedhouse) {
+                house.updateAttributes({ pictures: pictures }).then(function(updatedhouse) {
                     var api = {};
                     api.url = `/houses/${updatedhouse.id}/pictures/${result.api[0].hash}`;
-                    api.styles = underscore.reduce(result.api[0].styles, function (memo, stylePack) {
+                    api.styles = underscore.reduce(result.api[0].styles, function(memo, stylePack) {
                         return underscore.extend(memo, stylePack.style);
                     }, {});
                     cb(null, api);
@@ -645,13 +626,15 @@ function definePictureStuff(House) {
      */
     House.remoteMethod("UploadPicture", {
         accepts: [
-            {arg: 'id', type: 'string', required: true, http: {source: 'path'}},
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
+            { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
+            { arg: 'ctx', type: 'object', http: { source: 'context' } }
         ],
         returns: {
-            arg: 'fileObject', type: 'object', root: true
+            arg: 'fileObject',
+            type: 'object',
+            root: true
         },
-        http: {verb: 'post', status: 201, path: "/:id/picture"}
+        http: { verb: 'post', status: 201, path: "/:id/picture" }
     });
 
     /**
@@ -662,7 +645,7 @@ function definePictureStuff(House) {
      * @returns {Array}
      * @memberOf Models.House
      */
-    House.UploadPictureAll = function (houseId, ctx, cb) {
+    House.UploadPictureAll = function(houseId, ctx, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(houseId).then(houseFoundHandler).catch(houseNotFoundHandler);
 
@@ -675,12 +658,12 @@ function definePictureStuff(House) {
 
             function uploadCompletedHandler(result) {
                 var pictures = result.db; //synced 
-                house.updateAttributes({pictures: pictures}).then(function (updatedHouse) {
+                house.updateAttributes({ pictures: pictures }).then(function(updatedHouse) {
                     var apiArr = [];
-                    underscore.each(result.api, function (filePack) {
+                    underscore.each(result.api, function(filePack) {
                         var api = {};
                         api.url = `/houses/${updatedHouse.id}/pictures/${filePack.hash}`;
-                        api.styles = underscore.reduce(filePack.styles, function (memo, stylePack) {
+                        api.styles = underscore.reduce(filePack.styles, function(memo, stylePack) {
                             return underscore.extend(memo, stylePack.style);
                         }, {});
                         apiArr.push(api);
@@ -707,13 +690,15 @@ function definePictureStuff(House) {
      */
     House.remoteMethod("UploadPictureAll", {
         accepts: [
-            {arg: 'id', type: 'string', required: true, http: {source: 'path'}},
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
+            { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
+            { arg: 'ctx', type: 'object', http: { source: 'context' } }
         ],
         returns: {
-            arg: 'fileObject', type: 'array', root: true
+            arg: 'fileObject',
+            type: 'array',
+            root: true
         },
-        http: {verb: 'post', status: 201, path: "/:id/pictures"}
+        http: { verb: 'post', status: 201, path: "/:id/pictures" }
     });
 
     /**
@@ -726,7 +711,7 @@ function definePictureStuff(House) {
      * @returns {Stream}
      * @memberOf Models.House
      */
-    House.DownloadPicture = function (id, hash, style, ctx, cb) {
+    House.DownloadPicture = function(id, hash, style, ctx, cb) {
         cb = cb || Common.PromiseCallback();
 
         House.findById(id).then(houseFoundHandler).catch(houseNotFoundHandler);
@@ -737,8 +722,7 @@ function definePictureStuff(House) {
 
             try {
                 app.models.HouseImageContainer.DownloadPicture(house, hash, style, ctx);
-            }
-            catch (ex) {
+            } catch (ex) {
                 cb(ex);
             }
         }
@@ -754,23 +738,25 @@ function definePictureStuff(House) {
      */
     House.remoteMethod("DownloadPicture", {
         accepts: [
-            {arg: 'id', type: 'string', required: true, http: {source: 'path'}},
-            {arg: 'hash', type: 'string', required: true, http: {source: 'path'}},
-            {
-                arg: 'style', type: 'string',
-                http: function (ctx) {
+            { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
+            { arg: 'hash', type: 'string', required: true, http: { source: 'path' } }, {
+                arg: 'style',
+                type: 'string',
+                http: function(ctx) {
                     var req = ctx.req;
                     var query = req.query || {};
                     var style = query['style'] ? query['style'] : null;
                     return style ? style.trim() : "";
                 }
             },
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
+            { arg: 'ctx', type: 'object', http: { source: 'context' } }
         ],
         returns: {
-            arg: 'fileObject', type: 'object', root: true
+            arg: 'fileObject',
+            type: 'object',
+            root: true
         },
-        http: {verb: 'get', path: "/:id/pictures/:hash"}
+        http: { verb: 'get', path: "/:id/pictures/:hash" }
     });
 
     /**
@@ -780,7 +766,7 @@ function definePictureStuff(House) {
      * @param {Callback} cb
      * @returns {Array}
      */
-    House.GetPictureList = function (houseId, ctx, cb) {
+    House.GetPictureList = function(houseId, ctx, cb) {
         cb = cb || Common.PromiseCallback();
 
         House.findById(houseId).then(houseFoundHandler).catch(houseNotFoundHandler);
@@ -795,8 +781,7 @@ function definePictureStuff(House) {
             try {
                 var pictures = app.models.HouseDTO.GetPictures(house);
                 cb(null, pictures);
-            }
-            catch (ex) {
+            } catch (ex) {
                 cb(ex);
             }
         }
@@ -811,39 +796,41 @@ function definePictureStuff(House) {
      */
     House.remoteMethod("GetPictureList", {
         accepts: [
-            {arg: 'houseId', type: 'string', http: {source: 'path'}},
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
+            { arg: 'houseId', type: 'string', http: { source: 'path' } },
+            { arg: 'ctx', type: 'object', http: { source: 'context' } }
         ],
         returns: {
-            arg: 'fileObject', type: 'array', root: true
+            arg: 'fileObject',
+            type: 'array',
+            root: true
         },
-        http: {verb: 'get', path: "/:houseId/pictures"}
+        http: { verb: 'get', path: "/:houseId/pictures" }
     });
 }
 
 function defineFeatureStuff(House) {
 
     function houseFoundForFeatureErrorHandler(cb) {
-        return function (err) {
+        return function(err) {
             cb(err);
         };
     }
 
     function houseFoundForAddFeatureHandler(ids, cb) {
-        return function (house) {
+        return function(house) {
             if (!house) {
                 return cb(Persistency.Errors.NotFound());
             }
-            app.models.HouseFeature.find({where: {id: {inq: lodash.compact(ids)}}}).then((features) => {
+            app.models.HouseFeature.find({ where: { id: { inq: lodash.compact(ids) } } }).then((features) => {
                 //we should add those which are not persisted before
                 var existedFeatures = house.houseFeatures.value();
-                var refinedFeatures = lodash.reject(features, function (item) {
-                    var found = lodash.find(existedFeatures, function (inner) {
+                var refinedFeatures = lodash.reject(features, function(item) {
+                    var found = lodash.find(existedFeatures, function(inner) {
                         return item.id === inner.id || (item.key === inner.key && item.lang === inner.lang);
                     });
                     return !lodash.isNil(found);
                 });
-                async.each(refinedFeatures, house.houseFeatures.create, function (err) {
+                async.each(refinedFeatures, house.houseFeatures.create, function(err) {
                     house.reload(cb);
                 });
             }).catch(() => {
@@ -853,12 +840,12 @@ function defineFeatureStuff(House) {
     }
 
     function houseFoundForDeleteFeatureHandler(key, cb) {
-        return function (house) {
+        return function(house) {
             if (!house) {
                 return cb(Persistency.Errors.NotFound());
             }
 
-            house.houseFeatures.destroyAll({or: [{id: key}, {key: key}]}, function (err) {
+            house.houseFeatures.destroyAll({ or: [{ id: key }, { key: key }] }, function(err) {
                 if (err) return cb(err);
                 house.reload(cb);
             });
@@ -872,7 +859,7 @@ function defineFeatureStuff(House) {
      * @param {Array} ids HouseFeature id array
      * @param {Callback} cb
      */
-    House.AddFeature = function (id, ids, cb) {
+    House.AddFeature = function(id, ids, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(id).then(houseFoundForAddFeatureHandler(ids, cb)).catch(houseFoundForFeatureErrorHandler(cb));
         return cb.promise;
@@ -882,13 +869,15 @@ function defineFeatureStuff(House) {
 
     House.remoteMethod("AddFeature", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'ids', type: 'array', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'ids', type: 'array', http: { source: 'path' } }
         ],
         returns: {
-            arg: 'house', type: 'HouseDTO', root: true
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
         },
-        http: {verb: 'post', status: 201, path: "/:id/features/:ids"}
+        http: { verb: 'post', status: 201, path: "/:id/features/:ids" }
     });
 
     /**
@@ -897,7 +886,7 @@ function defineFeatureStuff(House) {
      * @param {string} key HouseFeature key
      * @param {Callback} cb
      */
-    House.DeleteFeature = function (id, key, cb) {
+    House.DeleteFeature = function(id, key, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(id).then(houseFoundForDeleteFeatureHandler(key, cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
         return cb.promise;
@@ -907,19 +896,21 @@ function defineFeatureStuff(House) {
 
     House.remoteMethod("DeleteFeature", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'key', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'key', type: 'string', http: { source: 'path' } }
         ],
         returns: {
-            arg: 'house', type: 'HouseDTO', root: true
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
         },
-        http: {verb: 'delete', status: 201, path: "/:id/features/:key"}
+        http: { verb: 'delete', status: 201, path: "/:id/features/:key" }
     });
 }
 
 function defineExtraServicesStuff(House) {
 
-    House.beforeRemote('CreateExtraService', function (ctx, instance, next) {
+    House.beforeRemote('CreateExtraService', function(ctx, instance, next) {
         var args = ctx.args;
         if (args) {
             if (args.data) {
@@ -935,7 +926,7 @@ function defineExtraServicesStuff(House) {
     });
 
     function houseFoundForCreatingExtraService(data, cb) {
-        return function (house) {
+        return function(house) {
             if (!house) {
                 return cb(Persistency.Errors.NotFound());
             }
@@ -953,7 +944,7 @@ function defineExtraServicesStuff(House) {
      * @param {object} data
      * @param {Callback} cb
      */
-    House.CreateExtraService = function (id, data, cb) {
+    House.CreateExtraService = function(id, data, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(id).then(houseFoundForCreatingExtraService(data, cb)).catch((e) => {
             cb(e);
@@ -963,10 +954,10 @@ function defineExtraServicesStuff(House) {
 
     House.remoteMethod("CreateExtraService", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'data', type: 'object', http: {source: 'body'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'data', type: 'object', http: { source: 'body' } }
         ],
-        http: {verb: 'post', status: 204, path: "/:id/extra-services"}
+        http: { verb: 'post', status: 204, path: "/:id/extra-services" }
     });
 
     /**
@@ -975,7 +966,7 @@ function defineExtraServicesStuff(House) {
      * @param {string} extraServiceId extra service id
      * @param {Callback} cb
      */
-    House.DeleteExtraService = function (id, extraServiceId, cb) {
+    House.DeleteExtraService = function(id, extraServiceId, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -989,10 +980,10 @@ function defineExtraServicesStuff(House) {
 
     House.remoteMethod("DeleteExtraService", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'extraServiceId', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'extraServiceId', type: 'string', http: { source: 'path' } }
         ],
-        http: {verb: 'delete', status: 204, path: "/:id/extra-services/:extraServiceId"}
+        http: { verb: 'delete', status: 204, path: "/:id/extra-services/:extraServiceId" }
     });
 
     /**
@@ -1000,7 +991,7 @@ function defineExtraServicesStuff(House) {
      * @param {string} id house id
      * @param {Callback} cb
      */
-    House.GetAllExtraServices = function (id, cb) {
+    House.GetAllExtraServices = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1015,16 +1006,14 @@ function defineExtraServicesStuff(House) {
 
     House.remoteMethod("GetAllExtraServices", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
-        returns: [
-            {
-                arg: 'service',
-                type: 'array',
-                root: true
-            }
-        ],
-        http: {verb: 'get', status: 200, path: "/:id/extra-services"}
+        returns: [{
+            arg: 'service',
+            type: 'array',
+            root: true
+        }],
+        http: { verb: 'get', status: 200, path: "/:id/extra-services" }
     });
 
     /**
@@ -1033,12 +1022,12 @@ function defineExtraServicesStuff(House) {
      * @param {service} extraServiceId extra service id
      * @param {Callback} cb
      */
-    House.GetExtraServiceById = function (id, extraServiceId, cb) {
+    House.GetExtraServiceById = function(id, extraServiceId, cb) {
         cb = cb || Common.PromiseCallback();
         House.findById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
 
-            house.__findById__extraServices(extraServiceId, function (e, service) {
+            house.__findById__extraServices(extraServiceId, function(e, service) {
                 if (e) return cb(e);
 
                 if (!service) return cb(Persistency.Errors.NotFound());
@@ -1053,17 +1042,15 @@ function defineExtraServicesStuff(House) {
 
     House.remoteMethod("GetExtraServiceById", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'extraServiceId', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'extraServiceId', type: 'string', http: { source: 'path' } }
         ],
-        returns: [
-            {
-                arg: 'service',
-                type: 'object',
-                root: true
-            }
-        ],
-        http: {verb: 'get', status: 200, path: "/:id/extra-services/:extraServiceId"}
+        returns: [{
+            arg: 'service',
+            type: 'object',
+            root: true
+        }],
+        http: { verb: 'get', status: 200, path: "/:id/extra-services/:extraServiceId" }
     });
 }
 
@@ -1075,17 +1062,17 @@ function defineHouseTypeServiceStuff(House) {
      * @param {string} typeId house type id
      * @param {Callback} cb
      */
-    House.SetType = function (id, typeId, cb) {
+    House.SetType = function(id, typeId, cb) {
         cb = cb || Common.PromiseCallback();
 
         async.parallel([
-            function (callback) {
+            function(callback) {
                 app.models.HouseType.GetById(typeId, callback);
             },
-            function (callback) {
+            function(callback) {
                 House.GetById(id, callback);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return cb(err);
             var houseType = result[0];
             var house = result[1];
@@ -1101,17 +1088,15 @@ function defineHouseTypeServiceStuff(House) {
 
     House.remoteMethod("SetType", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'typeId', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'typeId', type: 'string', http: { source: 'path' } }
         ],
-        returns: [
-            {
-                arg: 'house',
-                type: 'HouseDTO',
-                root: true
-            }
-        ],
-        http: {verb: 'put', status: 201, path: "/:id/type/:typeId"}
+        returns: [{
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
+        }],
+        http: { verb: 'put', status: 201, path: "/:id/type/:typeId" }
     });
 
     /**
@@ -1119,7 +1104,7 @@ function defineHouseTypeServiceStuff(House) {
      * @param {string} id house id
      * @param {Callback} cb
      */
-    House.UnsetType = function (id, cb) {
+    House.UnsetType = function(id, cb) {
         cb = cb || Common.PromiseCallback();
 
         House.GetById(id).then((house) => {
@@ -1135,16 +1120,14 @@ function defineHouseTypeServiceStuff(House) {
 
     House.remoteMethod("UnsetType", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
-        returns: [
-            {
-                arg: 'house',
-                type: 'HouseDTO',
-                root: true
-            }
-        ],
-        http: {verb: 'delete', status: 201, path: "/:id/type"}
+        returns: [{
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
+        }],
+        http: { verb: 'delete', status: 201, path: "/:id/type" }
     });
 }
 
@@ -1161,7 +1144,7 @@ function defineHouseSpecServiceStuff(House) {
      * @return {*}
      * @memberOf Models.House
      */
-    House.UpdateSpec = function (id, spec, cb) {
+    House.UpdateSpec = function(id, spec, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1185,22 +1168,20 @@ function defineHouseSpecServiceStuff(House) {
 
     House.remoteMethod("UpdateSpec", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'spec', type: 'object', http: {source: 'body'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'spec', type: 'object', http: { source: 'body' } }
         ],
-        returns: [
-            {
-                arg: 'house',
-                type: 'HouseDTO',
-                root: true
-            }
-        ],
-        http: {verb: 'post', status: 201, path: "/:id/spec"}
+        returns: [{
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
+        }],
+        http: { verb: 'post', status: 201, path: "/:id/spec" }
     });
 
     //========================================================================================
 
-    House.ResetSpec = function (id, cb) {
+    House.ResetSpec = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1216,21 +1197,19 @@ function defineHouseSpecServiceStuff(House) {
 
     House.remoteMethod("ResetSpec", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
-        returns: [
-            {
-                arg: 'house',
-                type: 'HouseDTO',
-                root: true
-            }
-        ],
-        http: {verb: 'delete', status: 204, path: "/:id/spec"}
+        returns: [{
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
+        }],
+        http: { verb: 'delete', status: 204, path: "/:id/spec" }
     });
 
     //========================================================================================
 
-    House.GetSpec = function (id, cb) {
+    House.GetSpec = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1243,12 +1222,12 @@ function defineHouseSpecServiceStuff(House) {
 
     House.remoteMethod("GetSpec", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
         returns: [
-            {arg: 'spec', type: 'HouseSpec', root: true}
+            { arg: 'spec', type: 'HouseSpec', root: true }
         ],
-        http: {verb: 'get', status: 200, path: "/:id/spec"}
+        http: { verb: 'get', status: 200, path: "/:id/spec" }
     });
 }
 
@@ -1260,7 +1239,7 @@ function defineAvailableDateServiceStuff(House) {
      * @param {object} data Includes date array as GMT
      * @param {Callback} cb
      */
-    House.AddAvailableDates = function (id, data, cb) {
+    House.AddAvailableDates = function(id, data, cb) {
         cb = cb || Common.PromiseCallback();
 
         var currentUser = LoopBackContext.getCurrentContext().get("currentUser");
@@ -1274,19 +1253,19 @@ function defineAvailableDateServiceStuff(House) {
         };
 
         async.waterfall([
-            function (callback) {
-                app.models.Role.isInRole('houseOwner', accessCtx, function (err, isInRole) {
+            function(callback) {
+                app.models.Role.isInRole('houseOwner', accessCtx, function(err, isInRole) {
                     if (err) return callback(err);
                     callback(null, isInRole);
                 });
             },
-            function (isHouseOwner, callback) {
-                app.models.Role.isInRole(app.models.Role.ADMIN, accessCtx, function (err, isInRole) {
+            function(isHouseOwner, callback) {
+                app.models.Role.isInRole(app.models.Role.ADMIN, accessCtx, function(err, isInRole) {
                     if (err) return callback(err);
                     callback(null, [isHouseOwner, isInRole]);
                 });
             }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return cb(err);
             var isHouseOwner = result[0];
             var isAdmin = result[1];
@@ -1305,24 +1284,23 @@ function defineAvailableDateServiceStuff(House) {
 
     House.remoteMethod("AddAvailableDates", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'data', type: 'object', http: {source: 'body'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'data', type: 'object', http: { source: 'body' } }
         ],
-        http: {verb: 'put', status: 204, path: "/:id/available-dates"}
+        http: { verb: 'put', status: 204, path: "/:id/available-dates" }
     });
 
     House.beforeRemote('AddAvailableDates', Common.RemoteHooks.argShouldNotEmpty("data"));
-    House.beforeRemote('AddAvailableDates', function (ctx, instance, next) {
+    House.beforeRemote('AddAvailableDates', function(ctx, instance, next) {
         var dates = ctx.args["data"].dates || [];
-        dates = underscore.map(dates, function (strDate) {
+        dates = underscore.map(dates, function(strDate) {
             try {
                 return moment(strDate).format("YYYY-MM-DD");
-            }
-            catch (ex) {
+            } catch (ex) {
                 return null;
             }
         });
-        dates = underscore.filter(dates, function (date) {
+        dates = underscore.filter(dates, function(date) {
             return date != null;
         });
         ctx.args["data"].dates = dates;
@@ -1338,7 +1316,7 @@ function defineAvailableDateServiceStuff(House) {
      * @param {object} data Includes date array as GMT
      * @param {Callback} cb
      */
-    House.RemoveAvailableDates = function (id, data, cb) {
+    House.RemoveAvailableDates = function(id, data, cb) {
         cb = cb || Common.PromiseCallback();
 
         House.GetById(id).then((house) => {
@@ -1352,24 +1330,23 @@ function defineAvailableDateServiceStuff(House) {
 
     House.remoteMethod("RemoveAvailableDates", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'data', type: 'object', http: {source: 'body'}}
+            { arg: 'id', type: 'string', http: { source: 'path' } },
+            { arg: 'data', type: 'object', http: { source: 'body' } }
         ],
-        http: {verb: 'put', status: 204, path: "/:id/available-dates/remove"}
+        http: { verb: 'put', status: 204, path: "/:id/available-dates/remove" }
     });
 
     House.beforeRemote('RemoveAvailableDates', Common.RemoteHooks.argShouldNotEmpty("data"));
-    House.beforeRemote('RemoveAvailableDates', function (ctx, instance, next) {
+    House.beforeRemote('RemoveAvailableDates', function(ctx, instance, next) {
         var dates = ctx.args["data"].dates || [];
-        dates = underscore.map(dates, function (strDate) {
+        dates = underscore.map(dates, function(strDate) {
             try {
                 return moment(strDate).format("YYYY-MM-DD");
-            }
-            catch (ex) {
+            } catch (ex) {
                 return null;
             }
         });
-        dates = underscore.filter(dates, function (date) {
+        dates = underscore.filter(dates, function(date) {
             return date != null;
         });
         ctx.args["data"].dates = dates;
@@ -1385,7 +1362,7 @@ function defineAvailableDateServiceStuff(House) {
      * @param {string} endDate End date in ISO format
      * @param {Callback} cb
      */
-    House.GetAvailableDates = function (id, startDate, endDate, cb) {
+    House.GetAvailableDates = function(id, startDate, endDate, cb) {
         cb = cb || Common.PromiseCallback();
 
         House.GetById(id).then((house) => {
@@ -1405,21 +1382,20 @@ function defineAvailableDateServiceStuff(House) {
 
     House.remoteMethod("GetAvailableDates", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"},
-            {arg: 'startDate', type: 'string', http: {source: 'path'}, description: "Start date in ISO format"},
-            {arg: 'endDate', type: 'string', http: {source: 'path'}, description: "End date in ISO format"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" },
+            { arg: 'startDate', type: 'string', http: { source: 'path' }, description: "Start date in ISO format" },
+            { arg: 'endDate', type: 'string', http: { source: 'path' }, description: "End date in ISO format" }
         ],
-        returns: [
-            {
-                arg: 'availableDates',
-                type: 'array',
-                root: true,
-                description: ["Dates which are available in date range between `startDate` and `endDate` inputs."]
-            }
-        ],
-        http: {verb: 'get', status: 200, path: "/:id/available-dates/start-:startDate/end-:endDate"},
+        returns: [{
+            arg: 'availableDates',
+            type: 'array',
+            root: true,
+            description: ["Dates which are available in date range between `startDate` and `endDate` inputs."]
+        }],
+        http: { verb: 'get', status: 200, path: "/:id/available-dates/start-:startDate/end-:endDate" },
         description: ["Returns dates which are available in date range starting ",
-            "from `startDate` and `endDate` input parameters."]
+            "from `startDate` and `endDate` input parameters."
+        ]
     });
 
     House.afterRemote("GetAvailableDates", Common.RemoteHooks.convert2Dto("HouseAvailableDate"));
@@ -1434,7 +1410,7 @@ function definePriceDateServiceStuff(House) {
      * @param {Callback} cb
      * @returns {promise}
      */
-    House.AddOrUpdateDatePrices = function (id, data, cb) {
+    House.AddOrUpdateDatePrices = function(id, data, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             app.models.HouseDatePrice.AddOrUpdate(house, data, cb);
@@ -1444,9 +1420,10 @@ function definePriceDateServiceStuff(House) {
 
     House.remoteMethod("AddOrUpdateDatePrices", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"},
-            {
-                arg: 'data', type: 'array', http: {source: 'body'},
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }, {
+                arg: 'data',
+                type: 'array',
+                http: { source: 'body' },
                 description: [
                     "`data` should be an array containing objects like :",
                     "```",
@@ -1461,7 +1438,7 @@ function definePriceDateServiceStuff(House) {
                 ]
             }
         ],
-        http: {verb: 'put', status: 201, path: "/:id/date-prices"},
+        http: { verb: 'put', status: 201, path: "/:id/date-prices" },
         description: ["Adds new instances or updates existing entities based on input `data`."]
     });
 
@@ -1475,7 +1452,7 @@ function definePriceDateServiceStuff(House) {
      * @param {Callback} cb
      * @returns {promise}
      */
-    House.GetDatePricesInRange = function (id, startDate, endDate, cb) {
+    House.GetDatePricesInRange = function(id, startDate, endDate, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1486,19 +1463,17 @@ function definePriceDateServiceStuff(House) {
 
     House.remoteMethod("GetDatePricesInRange", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"},
-            {arg: 'startDate', type: 'string', http: {source: 'path'}, description: "Start date string in ISO format"},
-            {arg: 'endDate', type: 'string', http: {source: 'path'}, description: "End date string in ISO format"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" },
+            { arg: 'startDate', type: 'string', http: { source: 'path' }, description: "Start date string in ISO format" },
+            { arg: 'endDate', type: 'string', http: { source: 'path' }, description: "End date string in ISO format" }
         ],
-        returns: [
-            {
-                arg: 'datePrices',
-                type: '[HouseDatePrice]',
-                root: true,
-                description: ["Date prices objects which are available in date range between `startDate` and `endDate` inputs."]
-            }
-        ],
-        http: {verb: 'get', status: 200, path: "/:id/date-prices/start-:startDate/end-:endDate"},
+        returns: [{
+            arg: 'datePrices',
+            type: '[HouseDatePrice]',
+            root: true,
+            description: ["Date prices objects which are available in date range between `startDate` and `endDate` inputs."]
+        }],
+        http: { verb: 'get', status: 200, path: "/:id/date-prices/start-:startDate/end-:endDate" },
         description: ["Returns date prices which are available between `startDate` and `endDate`."]
     });
 
@@ -1511,7 +1486,7 @@ function definePriceDateServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.UnsetDatePricesInRange = function (id, dates, cb) {
+    House.UnsetDatePricesInRange = function(id, dates, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1522,10 +1497,10 @@ function definePriceDateServiceStuff(House) {
 
     House.remoteMethod("UnsetDatePricesInRange", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"},
-            {arg: 'dates', type: 'array', http: {source: 'body'}, description: "Array of dates in ISO format"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" },
+            { arg: 'dates', type: 'array', http: { source: 'body' }, description: "Array of dates in ISO format" }
         ],
-        http: {verb: 'put', status: 201, path: "/:id/date-prices/unset"},
+        http: { verb: 'put', status: 201, path: "/:id/date-prices/unset" },
         description: ["Set prices of dates which are in `dates` array to default "]
     });
 
@@ -1540,7 +1515,7 @@ function definePriceProfileServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.SetPriceProfile = function (id, data, cb) {
+    House.SetPriceProfile = function(id, data, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1551,15 +1526,14 @@ function definePriceProfileServiceStuff(House) {
 
     House.remoteMethod("SetPriceProfile", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"},
-            {
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }, {
                 arg: 'data',
                 type: 'object',
-                http: {source: 'body'},
+                http: { source: 'body' },
                 description: "Input profile data as `HousePriceProfile`"
             }
         ],
-        http: {verb: 'put', status: 201, path: "/:id/price-profile"},
+        http: { verb: 'put', status: 201, path: "/:id/price-profile" },
         description: ["Set price profile for the house."]
     });
 
@@ -1575,7 +1549,7 @@ function definePriceProfileServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.UnsetPriceProfile = function (id, cb) {
+    House.UnsetPriceProfile = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1586,9 +1560,9 @@ function definePriceProfileServiceStuff(House) {
 
     House.remoteMethod("UnsetPriceProfile", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
         ],
-        http: {verb: 'delete', status: 201, path: "/:id/price-profile"},
+        http: { verb: 'delete', status: 201, path: "/:id/price-profile" },
         description: ["Unset price profile for the house."]
     });
 
@@ -1600,7 +1574,7 @@ function definePriceProfileServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.GetPriceProfile = function (id, cb) {
+    House.GetPriceProfile = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1613,19 +1587,17 @@ function definePriceProfileServiceStuff(House) {
 
     House.remoteMethod("GetPriceProfile", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
         ],
-        returns: [
-            {
-                arg: 'priceProfile',
-                type: 'HousePriceProfile',
-                root: true,
-                description: ["Price profile of the house.",
-                    "It is configuration of price of the house."
-                ]
-            }
-        ],
-        http: {verb: 'get', status: 200, path: "/:id/price-profile"},
+        returns: [{
+            arg: 'priceProfile',
+            type: 'HousePriceProfile',
+            root: true,
+            description: ["Price profile of the house.",
+                "It is configuration of price of the house."
+            ]
+        }],
+        http: { verb: 'get', status: 200, path: "/:id/price-profile" },
         description: ["Get price profile for the house."]
     });
 }
@@ -1639,17 +1611,17 @@ function defineCancellationPolicyServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.SetCancellationPolicy = function (id, policyId, cb) {
+    House.SetCancellationPolicy = function(id, policyId, cb) {
         cb = cb || Common.PromiseCallback();
         async.parallel([
-                function (callback) {
+                function(callback) {
                     House.GetById(id, callback);
                 },
-                function (callback) {
+                function(callback) {
                     app.models.HouseCancellationPolicy.GetById(policyId, callback);
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 if (err) return cb(err);
                 var house = result[0];
                 var policy = result[1];
@@ -1661,17 +1633,17 @@ function defineCancellationPolicyServiceStuff(House) {
 
     House.remoteMethod("SetCancellationPolicy", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"},
-            {
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }, {
                 arg: 'policyId',
                 type: 'string',
-                http: {source: 'path'},
+                http: { source: 'path' },
                 description: "Cancellation policy ID. `HouseCancellationPolicy` model"
             }
         ],
-        http: {verb: 'put', status: 204, path: "/:id/cancellation-policy/:policyId"},
+        http: { verb: 'put', status: 204, path: "/:id/cancellation-policy/:policyId" },
         description: ["Set cancellation policy for the house.",
-            "It should be selected from existing `HouseCancellationPolicy` instances."]
+            "It should be selected from existing `HouseCancellationPolicy` instances."
+        ]
     });
 
     //========================================================================================
@@ -1682,7 +1654,7 @@ function defineCancellationPolicyServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.UnsetCancellationPolicy = function (id, cb) {
+    House.UnsetCancellationPolicy = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1693,9 +1665,9 @@ function defineCancellationPolicyServiceStuff(House) {
 
     House.remoteMethod("UnsetCancellationPolicy", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
         ],
-        http: {verb: 'delete', status: 204, path: "/:id/cancellation-policy"},
+        http: { verb: 'delete', status: 204, path: "/:id/cancellation-policy" },
         description: ["Unset cancellation policy for the house."]
     });
 
@@ -1707,7 +1679,7 @@ function defineCancellationPolicyServiceStuff(House) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    House.GetCancellationPolicy = function (id, cb) {
+    House.GetCancellationPolicy = function(id, cb) {
         cb = cb || Common.PromiseCallback();
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
@@ -1718,17 +1690,15 @@ function defineCancellationPolicyServiceStuff(House) {
 
     House.remoteMethod("GetCancellationPolicy", {
         accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}, description: "House ID"}
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
         ],
-        returns: [
-            {
-                arg: 'cancellationPolicy',
-                type: 'HouseCancellationPolicyDTO',
-                root: true,
-                description: ["Cancellation policy of the house."]
-            }
-        ],
-        http: {verb: 'get', status: 200, path: "/:id/cancellation-policy"},
+        returns: [{
+            arg: 'cancellationPolicy',
+            type: 'HouseCancellationPolicyDTO',
+            root: true,
+            description: ["Cancellation policy of the house."]
+        }],
+        http: { verb: 'get', status: 200, path: "/:id/cancellation-policy" },
         description: ["Returns cancellation policy for the house. If nothing existed returns empty object."]
     });
 
