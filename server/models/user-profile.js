@@ -339,8 +339,8 @@ function defineProfilePictureMethods(UserProfile) {
             root: true
         },
         http: {
-            verb: 'put',
-            status: 200,
+            verb: 'post',
+            status: 201,
             path: "/picture"
         }
     });
