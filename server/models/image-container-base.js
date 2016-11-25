@@ -21,7 +21,7 @@ var Common = require('narengi-utils').Common;
  * @class
  * @param  {Model} ImageContainerBase
  */
-module.exports = function (ImageContainerBase) {
+module.exports = function(ImageContainerBase) {
 
     addMethods(ImageContainerBase);
     addServices(ImageContainerBase);
@@ -37,11 +37,11 @@ function addMethods(ImageContainerBase) {
      * Returns folder name of pictures
      * @return {string}
      */
-    ImageContainerBase.DirName = function (config) {
+    ImageContainerBase.DirName = function(config) {
         return config.Dir;
     };
 
-    ImageContainerBase.NotFound = function (httpCtx) {
+    ImageContainerBase.NotFound = function(httpCtx) {
         httpCtx.res.statusCode = 404;
         httpCtx.res.end();
     };
@@ -62,35 +62,68 @@ function addServices(ImageContainerBase) {
      * @return {Promise}
      * @constructor
      */
-    ImageContainerBase.UploadPicture = function (httpCtx, options, config) {
+    ImageContainerBase.UploadPicture = function(httpCtx, options, config) {
 
         options["maxSize"] = config.MaxSize;
         options["hash"] = true;
-        options["styles"] = underscore.extend({original: "original"}, config.Styles);
+        options["styles"] = underscore.extend({ original: "original" }, config.Styles);
 
-        return new Promise(function (resolve, reject) {
-            console.log('setting for uploading pictures:', options);
-            Http.Uploader.upload(httpCtx.req, options).then(function (file) {
-                    doStructureResultForOneUpload(file).then((result) => {
-                        debugOne(JSON.stringify(result));
-                        var hashes = underscore.map(result.db, function (item) {
-                            return item.hash;
-                        });
-                        syncDbFromFs(options["destDir"], options["styles"], hashes, function (err, syncedResult) {
-                            if (err) syncedResult = [];
-                            result.db = result.db || [];
-                            result.db = result.db.concat(syncedResult);
-                            resolve(result);
-                        });
-                    }).catch((err) => {
-                        reject(err);
+        return new Promise(function(resolve, reject) {
+            Http.Uploader.upload(httpCtx.req, options).then(function(file) {
+                doStructureResultForOneUpload(file).then((result) => {
+                    debugOne(JSON.stringify(result));
+                    var hashes = underscore.map(result.db, function(item) {
+                        return item.hash;
                     });
-                }
-            ).catch(function (err) {
+                    syncDbFromFs(options["destDir"], options["styles"], hashes, function(err, syncedResult) {
+                        if (err) syncedResult = [];
+                        result.db = result.db || [];
+                        result.db = result.db.concat(syncedResult);
+                        resolve(result);
+                    });
+                }).catch((err) => {
+                    reject(err);
+                });
+            }).catch(function(err) {
+                debugOne(err);
+                reject(err);
+            });
+        });
+    };
+
+    ImageContainerBase.UploadPicture2 = function(httpCtx, options, config) {
+
+        config = Boolean(Object.keys(config).length) ? config : app.settings.userProfile.picture;
+
+        options["destDir"] = `${__dirname}/../../${config.root}/${config.dirName}/${options.uid}`;
+        options["fieldName"] = config.fieldName;
+        options["maxSize"] = config.maxSize;
+        options["hash"] = true;
+        options["styles"] = underscore.extend({ original: "original" }, config.styles);
+
+        return new Promise(function(resolve, reject) {
+            Http.Uploader.upload2(httpCtx.req, options)
+                .then(function(file) {
+                    // doStructureResultForOneUpload(file)
+                    //     .then((result) => {
+                    //         debugOne(JSON.stringify(result));
+                    //         var hashes = underscore.map(result.db, function(item) {
+                    //             return item.hash;
+                    //         });
+                    //         syncDbFromFs(options["destDir"], options["styles"], hashes, function(err, syncedResult) {
+                    //             if (err) syncedResult = [];
+                    //             result.db = result.db || [];
+                    //             result.db = result.db.concat(syncedResult);
+                    //             resolve(result);
+                    //         });
+                    //     }).catch((err) => {
+                    //         reject(err);
+                    //     });
+                    resolve(file);
+                }).catch(function(err) {
                     debugOne(err);
                     reject(err);
-                }
-            );
+                });
         });
     };
 
@@ -101,35 +134,33 @@ function addServices(ImageContainerBase) {
      * @param {Object} config
      * @return {Promise}
      */
-    ImageContainerBase.UploadPictureAll = function (httpCtx, options, config) {
+    ImageContainerBase.UploadPictureAll = function(httpCtx, options, config) {
 
         options["maxSize"] = config.MaxSize;
         options["hash"] = true;
-        options["styles"] = underscore.extend({original: "original"}, config.Styles);
+        options["styles"] = underscore.extend({ original: "original" }, config.Styles);
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
 
-            Http.Uploader.uploadAll(httpCtx.req, options).then(function (files) {
-                    doStructureResultForMultiple(files).then((result) => {
-                        debugMultiple(JSON.stringify(result));
-                        var hashes = underscore.map(result.db, function (item) {
-                            return item.hash;
-                        });
-                        syncDbFromFs(options["destDir"], options["styles"], hashes, function (err, syncedResult) {
-                            if (err) syncedResult = [];
-                            result.db = result.db || [];
-                            result.db = result.db.concat(syncedResult);
-                            resolve(result);
-                        });
-                    }).catch((err) => {
-                        reject(err);
+            Http.Uploader.uploadAll(httpCtx.req, options).then(function(files) {
+                doStructureResultForMultiple(files).then((result) => {
+                    debugMultiple(JSON.stringify(result));
+                    var hashes = underscore.map(result.db, function(item) {
+                        return item.hash;
                     });
-                }
-            ).catch(function (err) {
-                    debugMultiple(err);
+                    syncDbFromFs(options["destDir"], options["styles"], hashes, function(err, syncedResult) {
+                        if (err) syncedResult = [];
+                        result.db = result.db || [];
+                        result.db = result.db.concat(syncedResult);
+                        resolve(result);
+                    });
+                }).catch((err) => {
                     reject(err);
-                }
-            );
+                });
+            }).catch(function(err) {
+                debugMultiple(err);
+                reject(err);
+            });
         });
     };
 
@@ -142,10 +173,12 @@ function addServices(ImageContainerBase) {
      * @param {HttpContext} httpCtx
      * @param {Object} config
      */
-    ImageContainerBase.DownloadPicture = function (root, persistedPics, hash, style, httpCtx, config) {
+    ImageContainerBase.DownloadPicture = function(root, persistedPics, hash, style, httpCtx, config) {
         if (!persistedPics) return this.NotFound(httpCtx);
 
-        var picture = underscore.find(persistedPics, function (item) {
+        // console.log('persistedPics', persistedPics); return;
+
+        var picture = underscore.find(persistedPics, function(item) {
             return item.hash === hash;
         });
 
@@ -153,7 +186,7 @@ function addServices(ImageContainerBase) {
 
         style = underscore.pick(config.Styles, style);
         if (underscore.keys.length < 1)
-            style = underscore.extend({original: "original"}, style);
+            style = underscore.extend({ original: "original" }, style);
         style = underscore.keys(style)[0];
 
 
@@ -163,8 +196,8 @@ function addServices(ImageContainerBase) {
         var originalFilename = "";
         async.waterfall([
             async.apply(fs.readdir, dir),
-            function (filenames, callback) {
-                var foundFile = underscore.find(filenames, function (filename) {
+            function(filenames, callback) {
+                var foundFile = underscore.find(filenames, function(filename) {
                     var extname = nodePath.extname(filename);
                     var basename = nodePath.basename(filename, extname);
                     if (basename == "original") {
@@ -174,7 +207,7 @@ function addServices(ImageContainerBase) {
                 });
                 callback(null, foundFile);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return self.NotFound(httpCtx);
             result = result || originalFilename;
             var filePath = nodePath.join(dir, result);
@@ -197,7 +230,7 @@ function syncDbFromFs(root, styles, calculatedHashes, cb) {
     async.waterfall([
         async.apply(fs.readdir, root),
         traverseHashes
-    ], function (err, result) {
+    ], function(err, result) {
         if (err) return cb(err);
         cb(null, result);
     });
@@ -237,10 +270,10 @@ function syncDbFromFs(root, styles, calculatedHashes, cb) {
         var oneImgDir = path.join(root, hash);
         async.waterfall([
             async.apply(fs.readdir, oneImgDir),
-            function (filenames, callback) {
+            function(filenames, callback) {
                 async.reduce(filenames, [], calcEachFile, callback);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return retCb(err);
             var ret = {
                 hash: hash,
@@ -264,8 +297,8 @@ function syncDbFromFs(root, styles, calculatedHashes, cb) {
             var packet = {};
             packet.style = styles[styleName];
             packet.type = mime.lookup(filePath);
-            FileSystem.Core.getSize(filePath, function (err, fileSize) {
-                if (err) fileSize = {size: 0};
+            FileSystem.Core.getSize(filePath, function(err, fileSize) {
+                if (err) fileSize = { size: 0 };
                 packet.size = fileSize.size;
                 reducedStyle.push(packet);
                 callback(null, reducedStyle);
@@ -290,10 +323,10 @@ function syncDbFromFs(root, styles, calculatedHashes, cb) {
 function doStructureResultForMultiple(files, cb) {
     cb = cb || Common.PromiseCallback();
     if (underscore.isArray(files)) {
-        async.each(files, function (filePack, callback) {
+        async.each(files, function(filePack, callback) {
             var fileHash = underscore.keys(filePack)[0];
             var fileArr = filePack[fileHash];
-            var filePathArr = underscore.map(fileArr, function (file) {
+            var filePathArr = underscore.map(fileArr, function(file) {
                 return file.destPath;
             });
             extractFileSizes(fileArr, filePathArr).then((updatedFiles) => {
@@ -302,13 +335,12 @@ function doStructureResultForMultiple(files, cb) {
             }).catch((err) => {
                 callback(err);
             });
-        }, function (err) {
+        }, function(err) {
             if (err) return cb(err);
             cb(null, prepareReturnForMultipleUpload(files));
         });
-    }
-    else {
-        cb(null, {api: null, db: null});
+    } else {
+        cb(null, { api: null, db: null });
     }
     return cb.promise;
 }
@@ -318,11 +350,11 @@ function prepareReturnForMultipleUpload(files) {
         api: null,
         db: []
     };
-    underscore.each(files, function (filePack) {
+    underscore.each(files, function(filePack) {
         var hash = underscore.keys(filePack)[0];
         var oneFileArr = filePack[hash];
 
-        var arr = underscore.map(oneFileArr, function (item) {
+        var arr = underscore.map(oneFileArr, function(item) {
             return {
                 style: item.style,
                 size: item.size,
@@ -343,7 +375,7 @@ function prepareReturnForMultipleUpload(files) {
 function doStructureResultForOneUpload(files, cb) {
     cb = cb || Common.PromiseCallback();
     if (underscore.isArray(files)) {
-        var filePathArr = underscore.map(files, function (file) {
+        var filePathArr = underscore.map(files, function(file) {
             return file.destPath;
         });
         extractFileSizes(files, filePathArr).then((updatedFiles) => {
@@ -351,9 +383,8 @@ function doStructureResultForOneUpload(files, cb) {
         }).catch((err) => {
             cb(err);
         });
-    }
-    else {
-        cb(null, {api: null, db: []});
+    } else {
+        cb(null, { api: null, db: [] });
     }
     return cb.promise;
 }
@@ -367,10 +398,10 @@ function doStructureResultForOneUpload(files, cb) {
  */
 function extractFileSizes(files, filePathArr, cb) {
     cb = cb || Common.PromiseCallback();
-    async.map(filePathArr, FileSystem.Core.getSize, function (err, result) {
+    async.map(filePathArr, FileSystem.Core.getSize, function(err, result) {
         if (err) return cb(err);
-        underscore.each(files, function (file) {
-            var stat = underscore.find(result, function (item) {
+        underscore.each(files, function(file) {
+            var stat = underscore.find(result, function(item) {
                 return file.destPath === item.file;
             });
             file.size = stat ? stat.size : 0;
@@ -387,7 +418,7 @@ function prepareReturnForOneUpload(files) {
     };
     var packet = {};
     packet.hash = files[0].hash;
-    var arr = underscore.map(files, function (item) {
+    var arr = underscore.map(files, function(item) {
         return {
             style: item.style,
             size: item.size,

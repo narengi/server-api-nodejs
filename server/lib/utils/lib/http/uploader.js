@@ -60,8 +60,10 @@ exports.upload = function(req, options) {
         function fileUploadedHandler(fields, files) {
             if (this.openedFiles) {
                 var uploadedFile = this.openedFiles[0];
+                console.time('handleImageStyles');
                 handleImageStyles(uploadedFile, options)
                     .then(function(result) {
+                        console.timeEnd('handleImageStyles');
                         resolve(result);
                     }).catch(function(err) {
                         reject(err);
@@ -101,6 +103,67 @@ exports.upload = function(req, options) {
             reject(fs.Errors.NoAccess());
         }
     });
+};
+
+exports.upload2 = function(req, options) {
+
+    options.hash = true; //force hashing
+
+    return new Promise(function(resolve, reject) {
+        // check upload path exists
+        let baseDir = fsExtra.ensureDirSync(options.destDir) || options.destDir;
+
+        if (!req) return reject(HttpErrors.FileNotCorrectError());
+        
+        function fileUploadedHandler() {
+            if (this.openedFiles) {
+                var uploadedFile = this.openedFiles[0];
+                console.timeEnd('uploading');
+                handleImageStyles(uploadedFile, options);
+                let uploaded = underscore.extend({original: 'original'}, options.styles);
+                let styles = [];
+                Object.keys(uploaded).map(function(key){
+                    styles.push({
+                        style: key,
+                        size: uploadedFile.size,
+                        type: uploadedFile.type
+                    })
+                })
+                resolve({
+                    hash: uploadedFile.hash,
+                    styles: styles
+                });
+            } else {
+                reject(HttpErrors.FileUploadFailure());
+            }
+        }
+
+        function fileDetectedHandler(name, file) {
+            try {
+                if (!options.fieldName) return; //prevent forcing upload field names
+                if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
+                    return reject(HttpErrors.FileNotCorrectError());
+                }
+                //check image size
+                if (options.maxSize && file.size > options.maxSize) {
+                    return reject(HttpErrors.FileSizeLimitExceeded());
+                }
+            } catch (ex) {
+                return reject(HttpErrors.FileNotCorrectError());
+            }
+        }
+
+        console.time('uploading');
+        var form = new formidable.IncomingForm();
+        form.keepExtensions = true;
+        if (!!options.hash)
+            form.hash = "md5";
+        form.parse(req);
+        form.on("end", fileUploadedHandler);
+        form.on('file', fileDetectedHandler);
+    });
+
+
 };
 
 /**
@@ -144,7 +207,7 @@ exports.uploadAll = function(req, options) {
             var retArr = [];
 
             if (this.openedFiles) {
-                async.each(this.openedFiles, function (file, callback) {
+                async.each(this.openedFiles, function(file, callback) {
                     handleImageStyles(file, options).then((result) => {
                         if (underscore.isArray(result) && result.length > 0) {
                             var ret = {};
@@ -155,7 +218,7 @@ exports.uploadAll = function(req, options) {
                     }).catch((err) => {
                         callback(err);
                     });
-                }, function (err) {
+                }, function(err) {
                     if (err) return reject(err);
                     resolve(retArr);
                 });
@@ -202,11 +265,15 @@ function handleImageStyles(uploadedFile, options, cb) {
 
     var readFile = bluebird.promisify(nodeFs.readFile);
 
-    readFile(uploadedFile.path)
-        .then(fileDidRead)
-        .catch(function(e) {
-            cb(fs.Errors.NoAccess());
-        });
+    if (uploadedFile) {
+        readFile(uploadedFile.path)
+            .then(fileDidRead)
+            .catch(function(e) {
+                cb(fs.Errors.NoAccess());
+            });
+    } else {
+        cb(HttpErrors.FileUploadFailure());
+    }
     return cb.promise;
 
     function doEachFileForStyle(uploadedFile, styleName, styleValue, buffer) {

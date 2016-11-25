@@ -42,6 +42,7 @@
         "picture": {
             "root": "uploads",
             "dirName": "user-profile-images",
+            "fieldName": "picture",
             "maxSize": 4194304,
             "styles": {
                 "w64": 64,

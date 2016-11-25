@@ -237,7 +237,7 @@ function defineProfilePictureMethods(UserProfile) {
      * @param {Callback} cb
      * @private
      */
-    UserProfile._UploadPicture = function(currentUser, ctx, cb) {
+    UserProfile._UploadPictureOLD = function(currentUser, ctx, cb) {
         cb = cb || promiseCallback();
 
         var options = {};
@@ -252,11 +252,11 @@ function defineProfilePictureMethods(UserProfile) {
                 }
             ], function(err, reloadedUser) {
                 if (err) return cb(err);
-
+                console.time("UserProfileImageContainer.UploadPicture");
                 app.models.UserProfileImageContainer.UploadPicture(reloadedUser, ctx, options)
                     .then(function(result) {
+                        console.timeEnd("UserProfileImageContainer.UploadPicture");
                         var picture = result.db; //synced
-                        console.log('picture', picture);
                         if (underscore.isArray(picture))
                             picture = picture[0];
                         reloadedUser.profile.update({ picture: picture }).then((profile) => {
@@ -265,7 +265,8 @@ function defineProfilePictureMethods(UserProfile) {
                             api.styles = underscore.reduce(result.api[0].styles, function(memo, stylePack) {
                                 return underscore.extend(memo, stylePack.style);
                             }, {});
-                            cb(null, api);
+                            // cb(null, api);
+                            cb(null);
                         }).catch(function(err) {
                             cb(err);
                         });
@@ -277,6 +278,28 @@ function defineProfilePictureMethods(UserProfile) {
         } else {
             cb(SecurityErrors.NotAuthorized());
         }
+        return cb.promise;
+    };
+
+    /**
+     * UPLOAD USER PROFILE -- added by Aref
+     */
+     UserProfile._UploadPicture = function(currentUser, ctx, cb) {
+        cb = cb || promiseCallback();
+        var options = {
+            uid: currentUser.id
+        };
+
+        app.models.UserProfileImageContainer.UploadPicture2(ctx, options, {})
+            .then(function(file){
+                currentUser.profile.update({ picture: file });
+                // file.styles = [];
+                cb(null, file);
+            })
+            .catch(function(err){
+                cb(err);
+            })
+
         return cb.promise;
     };
 
@@ -316,8 +339,8 @@ function defineProfilePictureMethods(UserProfile) {
             root: true
         },
         http: {
-            verb: 'post',
-            status: 201,
+            verb: 'put',
+            status: 200,
             path: "/picture"
         }
     });
