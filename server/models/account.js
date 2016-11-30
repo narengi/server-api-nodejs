@@ -1217,10 +1217,11 @@ var addExtraMethods = function(Account) {
                 case 'lastName':
                     if (currentUser.user_profile[key] && currentUser.user_profile[key].length) {
                         if (!data[key].trim().length) {
-                            var err = new Error();
-                            err.status = 400;
-                            err.message = key + ' value should not be empty.';
-                            errMessages.push(err);
+                            // var err = new Error();
+                            // err.status = 400;
+                            // err.message = key + ' value should not be empty.';
+                            // errMessages.push(err);
+                            delete data[key];
                         }
                     } else {
                         if (!data[key].trim().length) {
