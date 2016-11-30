@@ -1215,7 +1215,7 @@ var addExtraMethods = function(Account) {
             switch (key) {
                 case 'firstName':
                 case 'lastName':
-                    if (currentUser.user_profile[key].length) {
+                    if (currentUser.user_profile[key] && currentUser.user_profile[key].length) {
                         if (!data[key].trim().length) {
                             var err = new Error();
                             err.status = 400;
