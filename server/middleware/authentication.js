@@ -90,7 +90,7 @@ module.exports = function(options) {
      * Authorizes current `request` and set current user to `context`
      **/
     return function handler(req, res, next) {
-        console.log('authentication-middleware for %s [%s]', req.url, req.method);
+        // console.log('authentication-middleware for %s [%s]', req.url, req.method);
         try {
             //TODO: should add OAuth authorization
             var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || null;
@@ -98,6 +98,13 @@ module.exports = function(options) {
             if (!Boolean(authHeader)) {
                 authHeader = req.headers['access-token'] ? {
                     token: req.headers['access-token'],
+                    username: null
+                } : null;
+            }
+
+            if (!Boolean(authHeader)) {
+                authHeader = req.headers['Authorization'] ? {
+                    token: req.headers['Authorization'],
                     username: null
                 } : {};
             }
