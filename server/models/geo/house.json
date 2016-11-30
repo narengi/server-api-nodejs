@@ -293,6 +293,11 @@
         "permission": "ALLOW",
         "property": "GetById"
     }, {
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "ALLOW",
+        "property": "GetAll"
+    }, {
         "accessType": "EXECUTE",
         "principalType": "ROLE",
         "principalId": "$everyone",
