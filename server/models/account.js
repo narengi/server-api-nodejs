@@ -1211,17 +1211,23 @@ var addExtraMethods = function(Account) {
         if (!currentUser) return cb(Security.Errors.NotAuthorized());
 
         var errMessages = [];
-        Object.keys(data).map(function (key) {
+        Object.keys(data).map(function(key) {
             switch (key) {
                 case 'firstName':
                 case 'lastName':
-                    if (!data[key].trim().length) {
-                        var err = new Error();
+                    if (currentUser.user_profile[key].length) {
+                        if (!data[key].trim().length) {
+                            var err = new Error();
                             err.status = 400;
                             err.message = key + ' value should not be empty.';
-                        errMessages.push(err);
+                            errMessages.push(err);
+                        }
+                    } else {
+                        if (!data[key].trim().length) {
+                            delete data[key];
+                        }
                     }
-                break;
+                    break;
                 default:
                     if (!data[key].trim().length) {
                         delete data[key];
@@ -1231,7 +1237,7 @@ var addExtraMethods = function(Account) {
 
         if (!errMessages.length)
             updateProfile(currentUser, data, cb);
-        else 
+        else
             cb(errMessages[0]);
 
         return cb.promise;
