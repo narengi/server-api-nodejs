@@ -1210,14 +1210,29 @@ var addExtraMethods = function(Account) {
         var currentUser = ctx && ctx.get('currentUser');
         if (!currentUser) return cb(Security.Errors.NotAuthorized());
 
+        var errMessages = [];
         Object.keys(data).map(function (key) {
-            if (!data[key].trim().length) {
-                delete data[key];
+            switch (key) {
+                case 'firstName':
+                case 'lastName':
+                    if (!data[key].trim().length) {
+                        var err = new Error();
+                            err.status = 400;
+                            err.message = key + ' value should not be empty.';
+                        errMessages.push(err);
+                    }
+                break;
+                default:
+                    if (!data[key].trim().length) {
+                        delete data[key];
+                    }
             }
         });
 
-        console.log("update-request:", currentUser.email, data);
-        updateProfile(currentUser, data, cb);
+        if (!errMessages.length)
+            updateProfile(currentUser, data, cb);
+        else 
+            cb(errMessages[0]);
 
         return cb.promise;
     };
