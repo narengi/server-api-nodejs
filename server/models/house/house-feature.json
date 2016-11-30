@@ -18,12 +18,16 @@
     "protected": ["lang"],
     "properties": {
         "key": {
-            "type": "string"
+            "type": "string",
+            "required": true
         },
         "title": {
             "type": "string"
         },
         "description": {
+            "type": "string"
+        },
+        "group": {
             "type": "string"
         }
     },

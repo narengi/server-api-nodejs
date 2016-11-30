@@ -28,9 +28,14 @@ function dataCorrector(ctx, instance, next) {
     var defaultForm = {
         "key": "",
         "title": "",
-        "description": ""
+        "description": "",
+        "group": ""
     };
     data = underscore.pick(data, underscore.keys(defaultForm));
+    data['key'] = data['key'].trim().toLowerCase().replace(/\ /g, '-');
+    if (data['title']) data['title'] = data['title'].trim();
+    if (data['group']) data['group'] = data['group'].trim();
+    if (data['description']) data['description'] = data['description'].trim();
     ctx.req.body = data;
     next();
 }
