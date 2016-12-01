@@ -276,9 +276,11 @@ function defineServices(HouseFeature) {
 
     HouseFeature.GetAll = function (paging, cb) {
         cb = cb || PromiseCallback();
-        var filter = paging;
-        this.injectLangToFilter(filter);
-        HouseFeature.find(filter).then(Persistency.CrudHandlers.successHandler(cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
+        // var filter = paging;
+        // this.injectLangToFilter(filter);
+        HouseFeature.find({})
+            .then(Persistency.CrudHandlers.successHandler(cb))
+            .catch(Persistency.CrudHandlers.failureHandler(cb));
         return cb.promise;
     };
 
