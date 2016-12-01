@@ -488,6 +488,7 @@ function defineMainServices(House) {
         }
         filter.where = filter.where || {};
         filter.where.deleted = false;
+        filter.where.status = 'listed';
         House.find(filter).then(Persistency.CrudHandlers.successHandler(cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
         return cb.promise;
     };
