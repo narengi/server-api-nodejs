@@ -118,37 +118,30 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
             callback(null, house);
         },
-        // function(house, callback) { //set house features
-        //     if (lodash.isArray(data.feature_list)) {
-        //         app.models.HouseFeature
-        //             .find({
-        //                 where: {
-        //                     key: {
-        //                         inq: lodash.compact(data.feature_list)
-        //                     }
-        //                 }
-        //             })
-        //             .then(function(features) {
-        //                 // console.log('features', features);
-        //                 //we should add those which are not persisted before
-        //                 var existedFeatures = house.houseFeatures.value();
-        //                 var refinedFeatures = lodash.reject(features, function(item) {
-        //                     var found = lodash.find(existedFeatures, function(inner) {
-        //                         return item.id === inner.id || (item.key === inner.key && item.lang === inner.lang);
-        //                     });
-        //                     return !lodash.isNil(found);
-        //                 });
-        //                 async.each(refinedFeatures, house.houseFeatures.create, function(err) {
-        //                     console.log('house', house);
-        //                     // callback(null, house);
-        //                 });
-        //             }).catch(function() {
-        //                 callback(null, house);
-        //             });
-        //     } else {
-        //         callback(null, house);
-        //     }
-        // }
+        function(house, callback) {
+            if (plainData.feature_list) {
+                app.models.HouseFeature
+                    .find({})
+                    .then(function(features) {
+                        var selected = [];
+                        plainData.feature_list.map(function(feature){
+                            var f = lodash.find(features, {
+                                key: feature
+                            })
+                            if (f) selected.push(f);
+                        })
+                        house.features = house.features || {};
+                        selected = underscore.defaults(selected, house.features);
+                        house.features = selected;
+                        callback(null, house);
+                    })
+                    .catch(function(err) {
+                        callback(err);
+                    })
+            } else {
+                callback(null, house);
+            } 
+        }
     ], function(err, house) {
         if (err) return cb(err);
         // console.log("NEW HOUSE WILL BE SAVE!", house);
