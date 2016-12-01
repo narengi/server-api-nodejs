@@ -44,8 +44,23 @@ module.exports = function(House) {
  * @ignore
  */
 function createOrUpdateHouse(req, houseId, data, cb) {
-    var plainProps = ['name', 'location', 'summary', 'description', 'lang'];
+    var plainProps = [
+        "name",
+        "summary",
+        "location",
+        "position",
+        // "type",
+        "spec",
+        "price",
+        "feature_list",
+        "available_dates",
+        "lang"
+    ];
+    // validate Data
     var plainData = underscore.pick(data, plainProps);
+
+    // console.log("plainData", plainData);
+    // return;
 
     async.waterfall([
         function(callback) { //create or update instance by plain properties
@@ -62,14 +77,21 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
         },
         function(house, callback) { //set house type.
-            if (data.type_id) {
-                app.models.HouseType.findById(data.type_id).then((type) => {
-                    house.houseType(type);
-                    callback(null, house);
-                }).catch(() => {
-                    callback(null, house);
-                    HouseBookingRequest
-                });
+            if (data.type) {
+                app.models.HouseType
+                    .find({
+                        where: {
+                            key: data.type
+                        }
+                    })
+                    .then(function(types) {
+                        house.houseType(types[0]);
+                        callback(null, house);
+                    })
+                    .catch(function() {
+                        callback(null, house);
+                        // HouseBookingRequest
+                    });
             } else {
                 callback(null, house);
             }
@@ -79,33 +101,48 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                 var spec = app.models.HouseSpec.RefineInput(data.spec);
                 house.spec = house.spec || {};
                 spec = underscore.defaults(spec, house.spec.toJSON());
+                // console.log(spec);
+                lodash.keys(spec).map(function(s){
+                    if (!Boolean(Number(spec[s]))) spec[s] = 0;
+                });
                 house.spec = spec;
             }
             callback(null, house);
         },
-        function(house, callback) { //set house features
-            if (lodash.isArray(data.features)) {
-                app.models.HouseFeature.find({ where: { id: { inq: lodash.compact(data.features) } } }).then((features) => {
-                    //we should add those which are not persisted before
-                    var existedFeatures = house.houseFeatures.value();
-                    var refinedFeatures = lodash.reject(features, function(item) {
-                        var found = lodash.find(existedFeatures, function(inner) {
-                            return item.id === inner.id || (item.key === inner.key && item.lang === inner.lang);
-                        });
-                        return !lodash.isNil(found);
-                    });
-                    async.each(refinedFeatures, house.houseFeatures.create, function(err) {
-                        callback(null, house);
-                    });
-                }).catch(() => {
-                    callback(null, house);
-                });
-            } else {
-                callback(null, house);
-            }
-        }
+        // function(house, callback) { //set house features
+        //     if (lodash.isArray(data.feature_list)) {
+        //         app.models.HouseFeature
+        //             .find({
+        //                 where: {
+        //                     key: {
+        //                         inq: lodash.compact(data.feature_list)
+        //                     }
+        //                 }
+        //             })
+        //             .then(function(features) {
+        //                 // console.log('features', features);
+        //                 //we should add those which are not persisted before
+        //                 var existedFeatures = house.houseFeatures.value();
+        //                 var refinedFeatures = lodash.reject(features, function(item) {
+        //                     var found = lodash.find(existedFeatures, function(inner) {
+        //                         return item.id === inner.id || (item.key === inner.key && item.lang === inner.lang);
+        //                     });
+        //                     return !lodash.isNil(found);
+        //                 });
+        //                 async.each(refinedFeatures, house.houseFeatures.create, function(err) {
+        //                     console.log('house', house);
+        //                     // callback(null, house);
+        //                 });
+        //             }).catch(function() {
+        //                 callback(null, house);
+        //             });
+        //     } else {
+        //         callback(null, house);
+        //     }
+        // }
     ], function(err, house) {
         if (err) return cb(err);
+        // console.log("NEW HOUSE WILL BE SAVE!", house);
         house.save(cb);
     });
 
@@ -177,9 +214,7 @@ function defineMainServices(House) {
      */
     House.Create = function(data, req, cb) {
         cb = cb || Common.PromiseCallback();
-        console.log('create-new-house-data', data);
-        return;
-        // return createOrUpdateHouse(req, null, data, cb);
+        return createOrUpdateHouse(req, null, data, cb);
     };
 
     House.beforeRemote('Create', Common.RemoteHooks.correctCaseOfKeysInArg('data', true));

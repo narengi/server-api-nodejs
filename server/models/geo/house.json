@@ -37,6 +37,9 @@
         "location": {
             "type": "Location"
         },
+        "position": {
+            "type": "Location"
+        },
         "summary": {
             "type": "string"
         },
@@ -52,6 +55,10 @@
         },
         "ownerId": {
             "type": "object"
+        },
+        "status": {
+            "type": "string",
+            "default": "unlisted"
         }
     },
     "validations": [],

@@ -1,33 +1,41 @@
 {
-  "name": "HouseSpec",
-  "base": "Model",
-  "idInjection": false,
-  "options": {
-    "validateUpsert": false
-  },
-  "hidden": ["id"],
-  "protected": ["id"],
-  "properties": {
-    "id": false,
-    "accommodate": {
-      "type": "number",
-      "default": 0
+    "name": "HouseSpec",
+    "base": "Model",
+    "idInjection": false,
+    "options": {
+        "validateUpsert": false
     },
-    "bedroom": {
-      "type": "number",
-      "default": 0
+    "hidden": ["id"],
+    "protected": ["id"],
+    "properties": {
+        "id": false,
+        "accommodate": {
+            "type": "number",
+            "default": 0
+        },
+        "bedroom": {
+            "type": "number",
+            "default": 0
+        },
+        "bed": {
+            "type": "number",
+            "default": 0
+        },
+        "bathroom": {
+            "type": "number",
+            "default": 0
+        },
+        "guest_count": {
+            "type": "number",
+            "default": 0
+        },
+        "max_guest_count": {
+            "type": "number",
+            "default": 0
+        }
     },
-    "bed": {
-      "type": "number",
-      "default": 0
-    },
-    "bathroom": {
-      "type": "number",
-      "default": 0
-    }
-  },
-  "validations": [],
-  "relations": {},
-  "acls": [],
-  "methods": {}
+    "validations": [],
+    "relations": {},
+    "acls": [],
+    "methods": {}
 }
