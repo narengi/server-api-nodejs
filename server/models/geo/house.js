@@ -102,7 +102,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                 house.spec = house.spec || {};
                 spec = underscore.defaults(spec, house.spec.toJSON());
                 // console.log(spec);
-                lodash.keys(spec).map(function(s){
+                lodash.keys(spec).map(function(s) {
                     if (!Boolean(Number(spec[s]))) spec[s] = 0;
                 });
                 house.spec = spec;
@@ -124,7 +124,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                     .find({})
                     .then(function(features) {
                         var selected = [];
-                        plainData.feature_list.map(function(feature){
+                        plainData.feature_list.map(function(feature) {
                             var f = lodash.find(features, {
                                 key: feature
                             })
@@ -140,7 +140,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                     })
             } else {
                 callback(null, house);
-            } 
+            }
         }
     ], function(err, house) {
         if (err) return cb(err);
@@ -674,13 +674,31 @@ function definePictureStuff(House) {
             .catch(houseNotFoundHandler);
 
         function houseFoundHandler(house) {
-            app.models.HouseImageContainer
-                .UploadPicture2(house, data)
-                .then(uploadCompletedHandler)
-                .catch(uploadFailedHandler);
+            var totalPictures = house.pictures.length;
+            if (totalPictures === 10) {
+                var err = new Error();
+                err.status = 400;
+                err.message = "you can not upoload more than 10 pictures for a house";
+                cb(err);
+            } else {
+                app.models.HouseImageContainer
+                    .UploadPicture(house, data)
+                    .then(uploadCompletedHandler)
+                    .catch(uploadFailedHandler);
+            }
 
             function uploadCompletedHandler(result) {
-                // console.log('result', result);
+                var pictures = result.db; //synced
+                house.updateAttributes({ pictures: pictures })
+                    .then(function(updatedhouse) {
+                        var api = {};
+                        api.url = `/houses/${updatedhouse.id}/pictures/${result.api[0].hash}`;
+                        api.styles = underscore.reduce(result.api[0].styles, function(memo, stylePack) {
+                            return underscore.extend(memo, stylePack.style);
+                        }, {});
+                        cb(null, api);
+                    })
+                    .catch(uploadFailedHandler);
             }
 
             function uploadFailedHandler(err) {

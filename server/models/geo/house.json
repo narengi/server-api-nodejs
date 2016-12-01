@@ -278,6 +278,11 @@
         "principalType": "ROLE",
         "principalId": "houseOwner",
         "permission": "ALLOW",
+        "property": "UploadPicture2"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "houseOwner",
+        "permission": "ALLOW",
         "property": "UploadPictureAll"
     }, {
         "principalType": "ROLE",

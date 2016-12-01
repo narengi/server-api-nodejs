@@ -51,19 +51,14 @@ function addMethods(HouseImageContainer) {
 function addServices(HouseImageContainer) {
 
     /**
-     * Uploads a file with specific attributes like filename and destination path and remote field name
-     * @param {House} house
-     * @param {HttpContext} httpCtx
-     * @param {object} options
-     * @return {Promise}
+     * added by Aref
      */
-    HouseImageContainer.UploadPicture = function (house, httpCtx, options) {
-        options = options || {};
-
-        options["destDir"] = this.getPathFor(house.id.toString());
-        options["fieldName"] = "picture";
-
-        return this.super_.UploadPicture(httpCtx, options, this.Config);
+    HouseImageContainer.UploadPicture = function (house, data) {
+        var options = {
+            destDir: this.getPathFor(house.id.toString()),
+            fieldName: "picture"
+        };
+        return this.super_.UploadPicture(data, options, this.Config);
     };
 
     /**
