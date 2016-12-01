@@ -51,7 +51,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         "position",
         // "type",
         "spec",
-        "price",
+        // "price",
         "feature_list",
         "available_dates",
         "lang"
@@ -106,6 +106,15 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                     if (!Boolean(Number(spec[s]))) spec[s] = 0;
                 });
                 house.spec = spec;
+            }
+            callback(null, house);
+        },
+        function(house, callback) { //set price
+            if (data.price) {
+                var price = app.models.HousePriceProfile.RefineInput(data.price);
+                house.prices = house.prices || {};
+                price = underscore.defaults(price, house.prices);
+                house.prices = price;
             }
             callback(null, house);
         },
@@ -575,8 +584,8 @@ function defineMainServices(House) {
      */
     House.beforeRemote("GetMyHouses", Pagination.RemoteHooks.refinePaginationParams);
 
-    House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
-    House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
+    // House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
+    // House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'GetMyHouses', {

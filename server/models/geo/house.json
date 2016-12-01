@@ -49,12 +49,15 @@
         "spec": {
             "type": "HouseSpec"
         },
+        "prices": {
+            "type": "HousePriceProfile"
+        },
         "deleted": {
             "type": "boolean",
             "default": false
         },
         "ownerId": {
-            "type": "object"
+            "type": "ObjectId"
         },
         "status": {
             "type": "string",
@@ -101,24 +104,6 @@
             "foreignKey": "houseId",
             "property": "available_dates",
             "options": {}
-        },
-        "housePrices": {
-            "type": "hasMany",
-            "model": "HouseDatePrice",
-            "foreignKey": "houseId",
-            "as": "prices",
-            "property": "prices",
-            "options": {}
-        },
-        "priceProfile": {
-            "type": "embedsOne",
-            "model": "HousePriceProfile",
-            "property": "price_profile",
-            "options": {
-                "validate": true,
-                "forceId": false,
-                "persistent": false
-            }
         },
         "cancellationPolicy": {
             "type": "embedsOne",
