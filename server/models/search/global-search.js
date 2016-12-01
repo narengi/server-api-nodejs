@@ -108,13 +108,13 @@ function defineGeneralServices(GlobalSearch) {
         async.parallel([
             function (houseCb) {
                 findInModel(app.models.House, term, pagingCloned, req, res, houseCb);
-            },
-            function (attractionCb) {
-                findInModel(app.models.Attraction, term, pagingCloned, req, res, attractionCb);
-            },
-            function (cityCb) {
-                findInModel(app.models.City, term, pagingCloned, req, res, cityCb);
             }
+            // function (attractionCb) {
+            //     findInModel(app.models.Attraction, term, pagingCloned, req, res, attractionCb);
+            // },
+            // function (cityCb) {
+            //     findInModel(app.models.City, term, pagingCloned, req, res, cityCb);
+            // }
         ], function (err, result) {
             if (err) return cb(err);
 
