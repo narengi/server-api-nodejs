@@ -1,3 +1,4 @@
+
 **NARENGI API CHANGELOG**
 =========================
 
@@ -6,6 +7,11 @@
 [TOC]
 
 ---
+
+#### **Thu Dec 1 2016**
+
+- remove paging filter on listing house features service: ```/api/house-features [GET]```
+- ​
 
 #### **Wed Nov 30 2016**
 
