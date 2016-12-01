@@ -177,7 +177,9 @@ function defineMainServices(House) {
      */
     House.Create = function(data, req, cb) {
         cb = cb || Common.PromiseCallback();
-        return createOrUpdateHouse(req, null, data, cb);
+        console.log('create-new-house-data', data);
+        return;
+        // return createOrUpdateHouse(req, null, data, cb);
     };
 
     House.beforeRemote('Create', Common.RemoteHooks.correctCaseOfKeysInArg('data', true));
@@ -621,20 +623,74 @@ function definePictureStuff(House) {
     };
 
     /**
+     * added by aref
+     */
+    House.UploadPicture2 = function(id, data, cb) {
+        cb = cb || promiseCallback();
+
+        var ctx = loopback.getCurrentContext();
+        var currentUser = ctx && ctx.get('currentUser');
+        if (!currentUser) return cb(Security.Errors.NotAuthorized());
+
+        House.findById(id)
+            .then(houseFoundHandler)
+            .catch(houseNotFoundHandler);
+
+        function houseFoundHandler(house) {
+            app.models.HouseImageContainer
+                .UploadPicture2(house, data)
+                .then(uploadCompletedHandler)
+                .catch(uploadFailedHandler);
+
+            function uploadCompletedHandler(result) {
+                // console.log('result', result);
+            }
+
+            function uploadFailedHandler(err) {
+                cb(err);
+            }
+        }
+
+        function houseNotFoundHandler(err) {
+            cb(Persistency.Errors.NotFound());
+        }
+
+        return cb.promise;
+    };
+
+    /**
      * Defines uploading picture service method as a REST API
      * @ignore
      */
-    House.remoteMethod("UploadPicture", {
-        accepts: [
-            { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
-            { arg: 'ctx', type: 'object', http: { source: 'context' } }
-        ],
+    House.remoteMethod("UploadPicture2", {
+        // accepts: [
+        //     { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
+        //     { arg: 'ctx', type: 'object', http: { source: 'context' } }
+        // ],
+        accepts: [{
+            arg: 'id',
+            type: 'string',
+            required: true,
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'data',
+            type: 'object',
+            http: {
+                source: 'context'
+            }
+        }],
         returns: {
             arg: 'fileObject',
             type: 'object',
             root: true
         },
-        http: { verb: 'post', status: 201, path: "/:id/picture" }
+        http: {
+            verb: 'post',
+            status: 201,
+            path: "/:id/picture"
+        }
     });
 
     /**
