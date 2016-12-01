@@ -28,6 +28,7 @@ module.exports = function(House) {
     defineFeatureStuff(House);
     defineExtraServicesStuff(House);
     defineHouseTypeServiceStuff(House);
+    defineHouseStatusServiceStuff(House);
     defineHouseSpecServiceStuff(House);
     defineAvailableDateServiceStuff(House);
     definePriceDateServiceStuff(House);
@@ -1250,6 +1251,66 @@ function defineHouseTypeServiceStuff(House) {
             root: true
         }],
         http: { verb: 'delete', status: 201, path: "/:id/type" }
+    });
+}
+
+function defineHouseStatusServiceStuff(House) {
+
+    /**
+     * Toggle Status of house
+     * @param {string} id house id
+     * @param {Callback} cb
+     */
+    House.toggleStatus = function(id, req, cb) {
+        cb = cb || Common.PromiseCallback();
+
+        async.waterfall([
+            function(callback) {
+                House.findById(id, callback);
+            },
+            function(house, callback) {
+                if (req.params.status && ['listed', 'unlisted', 'incomplete'].indexOf(req.params.status) > -1) {
+                    house.status = req.params.status;
+                } else {
+                    house.status = house.status === 'listed' ? 'unlisted' : 'listed';
+                }
+                callback(null, house);
+            }
+        ], function(err, house) {
+            if (err) return cb(err);
+            house.save()
+                .then(Persistency.CrudHandlers.successHandler(cb))
+                .catch(Persistency.CrudHandlers.failureHandler(cb));
+        });
+
+        return cb.promise;
+    };
+
+    // House.afterRemote("toggleStatus", Common.RemoteHooks.convert2Dto(House));
+
+    House.remoteMethod("toggleStatus", {
+        accepts: [{
+            arg: 'id',
+            type: 'string',
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'req',
+            type: 'object',
+            required: true,
+            http: { source: 'req' }
+        }],
+        returns: [{
+            arg: 'house',
+            type: 'HouseDTO',
+            root: true
+        }],
+        http: {
+            verb: 'put',
+            status: 201,
+            path: "/:id/status/:status?"
+        }
     });
 }
 

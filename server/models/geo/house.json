@@ -303,6 +303,11 @@
         "principalId": "$everyone",
         "permission": "ALLOW",
         "property": ["DownloadPicture", "GetPictureList"]
+    }, {
+        "principalType": "ROLE",
+        "principalId": "houseOwner",
+        "permission": "ALLOW",
+        "property": "toggleStatus"
     }],
     "methods": {}
 }
