@@ -49,6 +49,9 @@
         "spec": {
             "type": "HouseSpec"
         },
+        "dates": {
+            "type": "array"
+        },
         "prices": {
             "type": "HousePriceProfile"
         },
