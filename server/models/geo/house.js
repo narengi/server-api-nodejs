@@ -590,7 +590,7 @@ function defineMainServices(House) {
     House.beforeRemote("GetMyHouses", Pagination.RemoteHooks.refinePaginationParams);
 
     House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
-    House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
+    // House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'GetMyHouses', {
