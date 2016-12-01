@@ -573,7 +573,9 @@ function defineMainServices(House) {
                 filter.where = filter.where || {};
                 filter.where.deleted = false;
                 filter.where.ownerId = person.id;
-
+                if (req.params.filter && ['listed', 'unlisted', 'incomplete'].indexOf(req.params.filter) > -1) {
+                    filter.where.status = req.params.filter;
+                }
                 House.find(filter, callback);
             }
         ], cb);
@@ -586,8 +588,8 @@ function defineMainServices(House) {
      */
     House.beforeRemote("GetMyHouses", Pagination.RemoteHooks.refinePaginationParams);
 
-    // House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
-    // House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
+    House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'GetMyHouses', {
@@ -613,7 +615,7 @@ function defineMainServices(House) {
                 description: 'List of paginated `House` instances'
             },
             http: {
-                path: "/my-houses",
+                path: "/my-houses/:filter?",
                 verb: 'get',
                 status: 200
             }
