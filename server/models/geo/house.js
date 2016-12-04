@@ -724,6 +724,7 @@ function definePictureStuff(House) {
         }
 
         function houseNotFoundHandler(err) {
+            console.log("houseNotFoundHandler", err);
             cb(Persistency.Errors.NotFound());
         }
 

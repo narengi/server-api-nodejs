@@ -92,7 +92,7 @@ module.exports = function(options) {
     return function handler(req, res, next) {
         // console.log('authentication-middleware for %s [%s]', req.url, req.method);
         try {
-            console.log("==============================================================================\n", "AUTHENTICATION REQUEST HEADERS:\n---------------------------------\n", req.headers, "\n==============================================================================");
+            // console.log("==============================================================================\n", "AUTHENTICATION REQUEST HEADERS:\n---------------------------------\n", req.headers, "\n==============================================================================");
             //TODO: should add OAuth authorization
             var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || null;
             // added by aref: support access token for authorization
