@@ -37,12 +37,10 @@ exports.ensurePathExists = function (path, options) {
     return new Promise(function (resolve, reject) {
         function handleAccess(err) {
             if (err) {
-                console.log("handleAccess-1", err);
                 if (err.path) {
                     mkdirPath(err.path, mode).then(() => {
                         resolve(err.path);
-                    }).catch((err2) => {
-                        console.log("handleAccess-2", err2);
+                    }).catch(() => {
                         reject(FsErrors.NoAccess(err.path));
                     });
                 }

@@ -5,12 +5,12 @@
     "https": false,
     "hostExt": "api.narengi.xyz",
     "remoting": {
-        "context": {
-            "enableHttpContext": true
-        },
         "rest": {
             "normalizeHttpPath": false,
             "xml": false
+        },
+        "context": {
+            "enableHttpContext": true
         },
         "json": {
             "strict": false,
@@ -26,6 +26,13 @@
         }
     },
     "legacyExplorer": false,
+    "locale": {
+        "default": "fa",
+        "allowed": [
+            "fa",
+            "en"
+        ]
+    },
     "narengi": {
         "verificationCodeLen": 6,
         "verificationType": "Email",
@@ -33,26 +40,72 @@
     },
     "userProfile": {
         "picture": {
-            "root": "/opt/projects/server-assets"
+            "root": "uploads",
+            "dirName": "user-profile-images",
+            "fieldName": "picture",
+            "maxSize": 4194304,
+            "styles": {
+                "w64": 64,
+                "w128": 128,
+                "w480": 480,
+                "w1024": 1024
+            }
+        }
+    },
+    "pagination": {
+        "default": {
+            "limit": 10
+        },
+        "globalSearch": {
+            "limit": 10
         }
     },
     "city": {
         "picture": {
-            "root": "/opt/projects/server-assets"
+            "root": "./uploads",
+            "dirName": "city-images",
+            "maxSize": 4194304,
+            "styles": {
+                "w64": 64,
+                "w480": 480,
+                "w1024": 1024
+            }
         }
     },
     "attraction": {
         "picture": {
-            "root": "/opt/projects/server-assets"
+            "root": "./uploads",
+            "dirName": "attraction-images",
+            "maxSize": 4194304,
+            "styles": {
+                "w64": 64,
+                "w480": 480,
+                "w1024": 1024
+            }
         }
     },
     "house": {
         "picture": {
-            "root": "/opt/projects/server-assets"
+            "root": "./uploads",
+            "dirName": "house-images",
+            "maxSize": 4194304,
+            "styles": {
+                "w64": 64,
+                "w480": 480,
+                "w1024": 1024
+            }
         }
+    },
+    "currency": {
+        "default": "IRR",
+        "available": [
+            "IRR",
+            "USD"
+        ]
     },
     "notification": {
         "sms": {
+            "current": "kavenegar",
             "kavenegar": {
                 "baseUrl": "api.kavenegar.com/v1",
                 "apikey": "62534D59454530446F4C724935584D4938784E766F513D3D",
@@ -62,14 +115,17 @@
             }
         },
         "email": {
-            "smtp": {
-                "host": "smtp.gmail.com",
-                "port": 465,
-                "secure": true,
-                "pool": true,
-                "auth": {
-                    "user": "narengi.noreply@gmail.com",
-                    "pass": "MailNArengiG8ail"
+            "default": {
+                "sender": "narengi.noreply@gmail.com",
+                "smtp": {
+                    "host": "smtp.gmail.com",
+                    "port": 465,
+                    "secure": true,
+                    "pool": true,
+                    "auth": {
+                        "user": "narengi.noreply@gmail.com",
+                        "pass": "MailNArengiG8ail"
+                    }
                 }
             }
         },
@@ -85,7 +141,7 @@
         },
         "redis": {
             "host": "127.0.0.1",
-            "port": 1757
+            "port": 6379
         }
     }
 }
