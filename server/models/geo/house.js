@@ -691,7 +691,7 @@ function definePictureStuff(House) {
             .catch(houseNotFoundHandler);
 
         function houseFoundHandler(house) {
-            var totalPictures = house.pictures.length;
+            var totalPictures = house.pictures && house.pictures.length ? house.pictures.length : 0;
             if (totalPictures === 10) {
                 var err = new Error();
                 err.status = 400;
