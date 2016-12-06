@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export NODE_ENV=staging
+pm2 start ./server/server.js -i 2 -n nareng-main-api

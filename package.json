@@ -5,10 +5,11 @@
   "scripts": {
     "pretest": "jshint .",
     "rebind": "node ./bin/reinstall-package.js",
-    "startProduction": "./node_modules/forever/bin/forever -o out.log -e err.log start ./server/server.js",
-    "stopProduction": "./node_modules/forever/bin/forever stop ./server/server.js",
-    "startStaging": "export NODE_ENV=staging && ./node_modules/forever/bin/forever -o out.log -e err.log start ./server/server.js",
-    "stopStaging": "export NODE_ENV=staging && ./node_modules/forever/bin/forever stop ./server/server.js",
+    "startProduction": "forever -o out.log -e err.log start ./server/server.js",
+    "stopProduction": "forever stop ./server/server.js",
+    "staging": "bash ./bin/run-staging",
+    "restartStaging": "pm2 restart nareng-main-api",
+    "stopStaging": "pm2 stop nareng-main-api",
     "start": "node .",
     "dev": "NODE_ENV=development node-dev server/server.js",
     "gendoc": "./node_modules/grunt/bin/grunt jsdoc"
