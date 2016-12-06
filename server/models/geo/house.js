@@ -488,7 +488,7 @@ function defineMainServices(House) {
         }
         filter.where = filter.where || {};
         filter.where.deleted = false;
-        filter.where.status = 'listed';
+        // filter.where.status = 'listed';
         filter.order = "_id DESC";
         House
             .find(filter)
