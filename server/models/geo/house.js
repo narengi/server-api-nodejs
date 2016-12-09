@@ -702,8 +702,7 @@ function definePictureStuff(House) {
         cb = cb || promiseCallback();
 
         var ctx = loopback.getCurrentContext();
-        var currentUser = ctx && ctx.get('currentUser');
-        if (!currentUser) return cb(Security.Errors.NotAuthorized());
+        var currentUser = ctx.get('currentUser');
 
         House.findById(id)
             .then(houseFoundHandler)
@@ -717,6 +716,7 @@ function definePictureStuff(House) {
                 err.message = "you can not upoload more than 10 pictures for a house";
                 cb(err);
             } else {
+                console.log('uploading picture for house#' + house.id);
                 app.models.HouseImageContainer
                     .UploadPicture(house, data)
                     .then(uploadCompletedHandler)

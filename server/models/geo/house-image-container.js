@@ -58,7 +58,7 @@ function addServices(HouseImageContainer) {
             destDir: this.getPathFor(house.id.toString()),
             fieldName: "picture"
         };
-        return this.super_.UploadPicture(data, options, this.Config);
+        return this.super_.UploadPicture2(data, options, this.Config);
     };
 
     /**

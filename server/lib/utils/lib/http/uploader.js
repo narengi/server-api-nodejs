@@ -58,7 +58,7 @@ exports.upload = function(req, options) {
         }
 
         function fileUploadedHandler(fields, files) {
-            if (this.openedFiles) {
+            if (this.openedFiles && this.openedFiles.length) {
                 var uploadedFile = this.openedFiles[0];
                 console.time('handleImageStyles');
                 handleImageStyles(uploadedFile, options)
@@ -74,6 +74,7 @@ exports.upload = function(req, options) {
         }
 
         function fileDetectedHandler(name, file) {
+            console.log('fileDetectedHandler', name, file); return;
             try {
                 if (!options.fieldName) return; //prevent forcing upload field names
                 if (name.toLowerCase() !== options.fieldName.toLowerCase()) {

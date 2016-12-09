@@ -101,6 +101,9 @@ function addServices(ImageContainerBase) {
         options["hash"] = true;
         options["styles"] = underscore.extend({ original: "original" }, config.styles);
 
+        console.log('UploadPicture-options', options);
+        console.log('UploadPicture-configs', config);
+
         return new Promise(function(resolve, reject) {
             Http.Uploader.upload2(httpCtx.req, options)
                 .then(function(file) {
