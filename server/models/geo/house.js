@@ -390,6 +390,14 @@ function defineMainServices(House) {
     };
 
     House.afterRemote("GetById", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote("GetById", function(ctx, instance, next) {
+        let result = ctx.result;
+        if (result.prices) {
+            result.price = `${result.prices.price} تومان`;
+        }
+        ctx.result = result;
+        next();
+    });
 
     House.remoteMethod(
         'GetById', {
@@ -595,7 +603,18 @@ function defineMainServices(House) {
     House.beforeRemote("GetMyHouses", Pagination.RemoteHooks.refinePaginationParams);
 
     House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
-    // House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote("GetMyHouses", function(ctx, instance, next) {
+        var result = ctx.result;
+        result = underscore.map(result, function(item) {
+            if (item.prices) {
+                item.price = `${item.prices.price} تومان`;
+            }
+            return item;
+        });
+        ctx.result = result;
+        next();
+    });
 
     House.remoteMethod(
         'GetMyHouses', {

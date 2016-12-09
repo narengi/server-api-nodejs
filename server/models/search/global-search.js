@@ -161,6 +161,11 @@ function defineHooks(GlobalSearch) {
                 converted.pictures = pics;
             }
 
+            if (converted.prices) {
+                converted.price = `${converted.prices.price} تومان`;
+                delete converted.prices;
+            }
+
             return {
                 Type: item.Type,
                 Data: converted
