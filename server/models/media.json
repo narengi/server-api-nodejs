@@ -1,0 +1,61 @@
+{
+  "name": "Media",
+  "plural": "medias",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "uid": {
+      "type": "string",
+      "required": true,
+      "defaultFn": "uuidv4"
+    },
+    "type": {
+      "type": "string",
+      "required": true,
+      "default": "n/a"
+    },
+    "label": {
+      "type": "string",
+      "default": "n/a"
+    },
+    "owner_id": {
+      "type": "ObjectId",
+      "required": true
+    },
+    "assign_type": {
+      "type": "string",
+      "required": true,
+      "default": "n/a"
+    },
+    "assign_id": {
+      "type": "ObjectId",
+      "required": true
+    },
+    "deleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "created_date": {
+      "type": "date",
+      "required": true
+    },
+    "updated_date": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": "UploadMedia"
+    }
+  ],
+  "methods": {}
+}
