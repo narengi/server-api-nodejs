@@ -277,7 +277,7 @@ function handleImageStyles(uploadedFile, options, cb) {
     return cb.promise;
 
     function doEachFileForStyle(uploadedFile, styleName, styleValue, buffer) {
-        debug("Image manipulation - style : %s => %s", styleName, styleValue);
+        console.log("Image manipulation - style : %s => %s", styleName, styleValue);
         return function(callback) {
             var destDirPath = nodePath.join(options.destDir, uploadedFile.hash);
             emptyDir(destDirPath).then(doOperation).catch((err) => {
@@ -291,7 +291,7 @@ function handleImageStyles(uploadedFile, options, cb) {
                     extension = mime.extension(uploadedFile.type);
                 }
                 var destPath = nodePath.join(destDirPath, styleName) + "." + extension;
-                debug("destination : %s", destPath);
+                console.log("destination : %s", destPath);
                 if (styleName !== 'original') {
                     openImage(buffer, extension).then((image) => {
                         var batch = image.batch();
@@ -323,6 +323,7 @@ function handleImageStyles(uploadedFile, options, cb) {
                     style: {}
                 };
                 ret.style[styleName] = styleValue;
+                console.log("prepareForReturn", ret);
                 callback(null, ret);
                 return null;
             }
