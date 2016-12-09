@@ -104,21 +104,6 @@ function addServices(ImageContainerBase) {
         return new Promise(function(resolve, reject) {
             Http.Uploader.upload2(httpCtx.req, options)
                 .then(function(file) {
-                    // doStructureResultForOneUpload(file)
-                    //     .then((result) => {
-                    //         debugOne(JSON.stringify(result));
-                    //         var hashes = underscore.map(result.db, function(item) {
-                    //             return item.hash;
-                    //         });
-                    //         syncDbFromFs(options["destDir"], options["styles"], hashes, function(err, syncedResult) {
-                    //             if (err) syncedResult = [];
-                    //             result.db = result.db || [];
-                    //             result.db = result.db.concat(syncedResult);
-                    //             resolve(result);
-                    //         });
-                    //     }).catch((err) => {
-                    //         reject(err);
-                    //     });
                     resolve(file);
                 }).catch(function(err) {
                     debugOne(err);

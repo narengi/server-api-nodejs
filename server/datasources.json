@@ -10,5 +10,11 @@
     "name": "narengi",
     "connector": "mongodb",
     "debug": true
+  },
+  "container": {
+    "name": "container",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./uploads"
   }
 }

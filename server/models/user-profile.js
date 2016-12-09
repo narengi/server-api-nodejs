@@ -290,7 +290,7 @@ function defineProfilePictureMethods(UserProfile) {
             uid: currentUser.id
         };
 
-        app.models.UserProfileImageContainer.UploadPicture2(ctx, options, {})
+        app.models.ImageContainerBase.UploadPicture2(ctx, options, {})
             .then(function(file){
                 currentUser.profile.update({ picture: file });
                 // file.styles = [];

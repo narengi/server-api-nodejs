@@ -35,6 +35,7 @@
     "loopback": "^2.30.0",
     "loopback-boot": "^2.21.0",
     "loopback-component-explorer": "^2.4.0",
+    "loopback-component-storage": "^1.10.0",
     "loopback-connector-mongodb": "^1.15.2",
     "loopback-context": "strongloop/loopback-context#master",
     "loopback-datasource-juggler": "^2.19.1",

@@ -216,5 +216,9 @@
   "ProvinceCity": {
     "dataSource": "narengi",
     "public": true
+  },
+  "Media": {
+    "dataSource": "container",
+    "public": true
   }
 }

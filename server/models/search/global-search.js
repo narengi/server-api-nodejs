@@ -13,7 +13,7 @@ var Pagination = require('narengi-utils').Pagination;
  * This is main module for searching in the system
  * @param {Model} GlobalSearch
  */
-module.exports = function (GlobalSearch) {
+module.exports = function(GlobalSearch) {
     defineMethods(GlobalSearch);
     defineGeneralServices(GlobalSearch);
     defineHooks(GlobalSearch);
@@ -25,7 +25,7 @@ module.exports = function (GlobalSearch) {
  * @param GlobalSearch
  */
 function defineMethods(GlobalSearch) {
-    GlobalSearch.count = function (where) {
+    GlobalSearch.count = function(where) {
 
         function countModel(Model, where, asyncCallback) {
             Model.count(where).then((result) => {
@@ -35,22 +35,22 @@ function defineMethods(GlobalSearch) {
             });
         }
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             async.parallel([
-                function (houseCb) {
+                function(houseCb) {
                     //do nothing currently
                     houseCb(null, 0);
                 },
-                function (attractionCb) {
+                function(attractionCb) {
                     countModel(app.models.Attraction, where, attractionCb);
                 },
-                function (cityCb) {
+                function(cityCb) {
                     countModel(app.models.City, where, cityCb);
                 }
-            ], function (err, result) {
+            ], function(err, result) {
                 if (err) return reject(err);
 
-                var sum = underscore.reduce(result, function (memo, num) {
+                var sum = underscore.reduce(result, function(memo, num) {
                     return memo + num;
                 }, 0);
                 resolve(sum);
@@ -67,17 +67,18 @@ function defineGeneralServices(GlobalSearch) {
 
     function findInModel(Model, term, paging, req, res, asyncCallback) {
 
-        Model.Search(term, paging, req, res).then((result) => {
-            var ret = underscore.map(result, function (item) {
-                return {
-                    Type: Model.definition.name,
-                    Data: item
-                };
+        Model.Search(term, paging, req, res)
+            .then((result) => {
+                var ret = underscore.map(result, function(item) {
+                    return {
+                        Type: Model.definition.name,
+                        Data: item
+                    };
+                });
+                asyncCallback(null, ret);
+            }).catch((err) => {
+                asyncCallback(err);
             });
-            asyncCallback(null, ret);
-        }).catch((err) => {
-            asyncCallback(err);
-        });
     }
 
     /**
@@ -90,8 +91,9 @@ function defineGeneralServices(GlobalSearch) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    GlobalSearch.Search = function (term, paging, req, res, cb) {
+    GlobalSearch.Search = function(term, paging, req, res, cb) {
         cb = cb || promiseCallback();
+
 
         if (paging.limit === 0)
             paging.limit = app.settings.pagination.globalSearch.limit;
@@ -103,10 +105,10 @@ function defineGeneralServices(GlobalSearch) {
         //not to interfere in pagination remote hook
         var pagingCloned = underscore.clone(paging);
 
-        pagingCloned.limit = Math.floor(pagingCloned.limit / 3);
+        // pagingCloned.limit = Math.floor(pagingCloned.limit / 3);
 
         async.parallel([
-            function (houseCb) {
+            function(houseCb) {
                 findInModel(app.models.House, term, pagingCloned, req, res, houseCb);
             }
             // function (attractionCb) {
@@ -115,7 +117,7 @@ function defineGeneralServices(GlobalSearch) {
             // function (cityCb) {
             //     findInModel(app.models.City, term, pagingCloned, req, res, cityCb);
             // }
-        ], function (err, result) {
+        ], function(err, result) {
             if (err) return cb(err);
 
             result = result || [];
@@ -143,17 +145,17 @@ function defineHooks(GlobalSearch) {
 
     GlobalSearch.afterRemote("Search", Pagination.RemoteHooks.afterPaginatedService);
 
-    GlobalSearch.afterRemote("Search", function (ctx, instance, next) {
+    GlobalSearch.afterRemote("Search", function(ctx, instance, next) {
         var result = ctx.result;
-        console.log('total %d', result.length, result);
-        result = underscore.map(result, function (item) {
+        // console.log('total %d', result.length, result);
+        result = underscore.map(result, function(item) {
             var dtoModel = loopback.findModel(item.Type + "DTO");
             var converted = dtoModel.Convert(item.Data, {});
             
             // // @TODO -- find a better solution -- by Aref
             if (converted.pictures && converted.pictures.length) {
                 var pics = [];
-                converted.pictures.forEach(function(p){
+                converted.pictures.forEach(function(p) {
                     pics.push(p.url);
                 });
                 converted.pictures = pics;
@@ -176,55 +178,50 @@ function defineHooks(GlobalSearch) {
 function defineRemoteMethods(GlobalSearch) {
     GlobalSearch.remoteMethod("Search", {
         description: "Search in models",
-        accepts: [
-            {
-                arg: 'term',
-                type: 'string',
-                required: true,
-                http: function (ctx) {
-                    var req = ctx.req;
-                    return (req.query && req.query.term) ? req.query.term : "";
-                }
-            },
-            {
-                arg: 'paging',
-                type: 'object',
-                required: true,
-                http: function (ctx) {
-                    var req = ctx.req;
-                    var query = req.query;
-                    var ret = {limit: 0, skip: 0};
-                    if (!query || !query.filter) {
-                        return ret;
-                    }
-
-                    var filter = query.filter;
-                    if (filter.limit) {
-                        ret.limit = parseInt(filter.limit);
-                    }
-                    if (filter.skip) {
-                        ret.skip = parseInt(filter.skip);
-                    }
+        accepts: [{
+            arg: 'term',
+            type: 'string',
+            required: true,
+            http: function(ctx) {
+                var req = ctx.req;
+                return (req.query && req.query.term) ? req.query.term : "";
+            }
+        }, {
+            arg: 'paging',
+            type: 'object',
+            required: true,
+            http: function(ctx) {
+                var req = ctx.req;
+                var query = req.query;
+                var ret = { limit: 0, skip: 0 };
+                if (!query || !query.filter) {
                     return ret;
                 }
-            },
-            {
-                arg: 'req',
-                type: 'object',
-                required: true,
-                http: {
-                    source: 'req'
+
+                var filter = query.filter;
+                if (filter.limit) {
+                    ret.limit = parseInt(filter.limit);
                 }
-            },
-            {
-                arg: 'res',
-                type: 'object',
-                required: true,
-                http: {
-                    source: 'res'
+                if (filter.skip) {
+                    ret.skip = parseInt(filter.skip);
                 }
+                return ret;
             }
-        ],
+        }, {
+            arg: 'req',
+            type: 'object',
+            required: true,
+            http: {
+                source: 'req'
+            }
+        }, {
+            arg: 'res',
+            type: 'object',
+            required: true,
+            http: {
+                source: 'res'
+            }
+        }],
         returns: {
             arg: "result",
             type: "array",
