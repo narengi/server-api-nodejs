@@ -389,7 +389,7 @@ function defineMainServices(House) {
         return cb.promise;
     };
 
-    // House.afterRemote("GetById", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote("GetById", Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'GetById', {
