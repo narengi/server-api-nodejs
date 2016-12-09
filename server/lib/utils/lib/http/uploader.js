@@ -298,7 +298,10 @@ function handleImageStyles(uploadedFile, options, cb) {
                         //if (image.width() > styleValue) //TODO: this is a policy consideration
                         batch.scale(styleValue / image.width());
                         batch.writeFile(destPath, function(err) {
-                            if (err) return callback(err);
+                            if (err) {
+                                console.log("IMAGE SCALLING ERROR:", err)
+                                return callback(err);  
+                            } 
                             prepareForReturn(destPath);
                         });
                     }).catch((err) => {
