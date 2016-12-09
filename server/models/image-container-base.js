@@ -68,6 +68,9 @@ function addServices(ImageContainerBase) {
         options["hash"] = true;
         options["styles"] = underscore.extend({ original: "original" }, config.Styles);
 
+        console.log('UploadPicture-options', options);
+        console.log('UploadPicture-configs', config);
+
         return new Promise(function(resolve, reject) {
             Http.Uploader.upload(httpCtx.req, options).then(function(file) {
                 doStructureResultForOneUpload(file).then((result) => {
@@ -100,9 +103,6 @@ function addServices(ImageContainerBase) {
         options["maxSize"] = config.maxSize;
         options["hash"] = true;
         options["styles"] = underscore.extend({ original: "original" }, config.styles);
-
-        console.log('UploadPicture-options', options);
-        console.log('UploadPicture-configs', config);
 
         return new Promise(function(resolve, reject) {
             Http.Uploader.upload2(httpCtx.req, options)
