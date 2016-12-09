@@ -8,9 +8,9 @@
     "startProduction": "forever -o out.log -e err.log start ./server/server.js",
     "stopProduction": "forever stop ./server/server.js",
     "staging": "bash ./bin/run-staging",
-    "restartStaging": "pm2 restart nareng-main-api",
-    "stopStaging": "pm2 stop nareng-main-api",
-    "start": "node .",
+    "restart": "pm2 restart narengi-main-api",
+    "stop": "pm2 stop narengi-main-api",
+    "start": "bash ./bin/run-staging",
     "dev": "NODE_ENV=development node-dev server/server.js",
     "gendoc": "./node_modules/grunt/bin/grunt jsdoc"
   },
