@@ -305,6 +305,7 @@ function handleImageStyles(uploadedFile, options, cb) {
                             prepareForReturn(destPath);
                         });
                     }).catch((err) => {
+                        console.log("OPENIMAGE ERROR:", err)
                         callback(null, null);
                     });
                 } else {
