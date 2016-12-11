@@ -44,6 +44,7 @@
       "dirName": "user-profile-images",
       "fieldName": "picture",
       "maxSize": 4194304,
+      "key": ";32Co2r@4a'N}K]",
       "styles": {
         "w64": 64,
         "w128": 128,
@@ -89,6 +90,7 @@
       "root": "./uploads",
       "dirName": "house-images",
       "maxSize": 4194304,
+      "key": "yTw|>ojz9S%F4@9",
       "styles": {
         "w64": 64,
         "w480": 480,
