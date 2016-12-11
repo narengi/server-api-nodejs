@@ -47,7 +47,8 @@
       "default": "n/a"
     },
     "assign_id": {
-      "type": "object"
+      "type": "object",
+      "default": null
     },
     "deleted": {
       "type": "boolean",
