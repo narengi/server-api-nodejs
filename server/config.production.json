@@ -43,7 +43,8 @@
             "root": "./uploads",
             "dirName": "user-profile-images",
             "maxSize": 2097152,
-            "key": "Ja0(8?03fW@57n@"
+            "key": "Ja0(8?03fW@57n@",
+            "model": "UserProfile"
         }
     },
     "pagination": {
@@ -73,7 +74,8 @@
             "root": "./uploads",
             "dirName": "house-images",
             "maxSize": 2097152,
-            "key": "@L212,N~Wr~h0M"
+            "key": "@L212,N~Wr~h0M",
+            "model": "House"
         }
     },
     "communication": {

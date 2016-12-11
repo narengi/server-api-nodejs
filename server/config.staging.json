@@ -45,6 +45,7 @@
             "fieldName": "picture",
             "maxSize": 4194304,
             "key": "Gp(Y45$57y4l94q",
+            "model": "UserProfile",
             "styles": {
                 "w64": 64,
                 "w128": 128,
@@ -91,6 +92,7 @@
             "dirName": "house-images",
             "maxSize": 4194304,
             "key": "s#QQ0@WEZ_+!(+2",
+            "model": "House",
             "styles": {
                 "w64": 64,
                 "w480": 480,
