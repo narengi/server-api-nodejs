@@ -8,17 +8,19 @@ const Http = require('narengi-utils').Http;
 const lwip = require('lwip');
 const async = require('async');
 const crypto = require('crypto');
+const fs = require('fs');
 const _ = require('lodash');
 
 class Medias extends MainHandler {
 
-    constructor(Media) {
+    constructor (Media) {
         super(Media)
         // Register Methods
         this.upload()
+        this.download()
     }
 
-    upload() {
+    upload () {
 
         let Settings = {
             name: 'upload',
@@ -127,9 +129,64 @@ class Medias extends MainHandler {
             	else
             		cb(err)
             });
-            
+
             return cb.promise
         })
+    }
+
+    download () {
+
+    	let Settings = {
+            name: 'download',
+            description: 'download medias',
+            path: '/get/:uid',
+            method: 'get',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'res',
+                type: 'object',
+                http: {
+                    source: 'res'
+                }
+            }],
+            returns: {
+                arg: 'fileObject',
+                type: 'object',
+            	root: true
+            }
+        }
+
+        this.registerMethod(Settings, (req, res, cb) => {
+
+        	const uid = req.params.uid;
+
+        	async.waterfall([
+        		(callback) => {
+        			this.Model.findOne({
+        				where: {
+        					uid: uid
+        				}
+        			})
+    				.then((media) => callback(null, media))
+    				.catch((err) => callback(err))
+        		}
+        	], (err, media) => {
+        		if (!err) {
+        			res.setHeader('Content-type', media.type);
+    				let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
+    				readStream.pipe(res)
+        		}
+        		else cb(err)
+        	});
+
+        	return cb.promise;
+        });
     }
 
 }
