@@ -17,7 +17,8 @@ class Medias extends MainHandler {
         super(Media)
         // Register Methods
         this.upload()
-        this.download()
+        this.show()
+        this.assign()
     }
 
     upload () {
@@ -134,12 +135,12 @@ class Medias extends MainHandler {
         })
     }
 
-    download () {
+    show () {
 
     	let Settings = {
-            name: 'download',
-            description: 'download medias',
-            path: '/get/:uid',
+            name: 'show',
+            description: 'show medias',
+            path: '/show/:uid',
             method: 'get',
             status: 200,
             accepts: [{
@@ -173,7 +174,7 @@ class Medias extends MainHandler {
         					uid: uid
         				}
         			})
-    				.then((media) => callback(null, media))
+    				.then((media) => callback(media ? null : 'not-found', media))
     				.catch((err) => callback(err))
         		}
         	], (err, media) => {
@@ -187,6 +188,80 @@ class Medias extends MainHandler {
 
         	return cb.promise;
         });
+    }
+
+    assign () {
+
+    	let Settings = {
+            name: 'assign',
+            description: 'assign medias',
+            path: '/assign',
+            method: 'put',
+            status: 200,
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                http: {
+                    source: 'body'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object'
+            }
+        }
+
+        this.registerMethod(Settings, (data, cb) => {
+
+        	const uid = data.uid;
+        	const id = data.id;
+        	let ctx = loopback.getCurrentContext();
+            let currentUser = ctx.get('currentUser');
+
+        	async.waterfall([
+        		(callback) => {
+        			// GET MEDIA
+        			this.Model.findOne({
+        				where: {
+        					uid: uid,
+        					owner_id: currentUser.id
+        				}
+        			})
+    				.then((media) => callback(media ? null : 'not-found', media))
+    				.catch((err) => callback(err))
+        		},
+        		(media, callback) => {
+        			// CHECK IF ASSIGNED ID IS FOR CONTENT WITH SAME TYPE
+        			let contCfg = configs[media.assign_type].picture;
+        			app.models[contCfg.model].findOne({
+        				where: {
+        					id: id,
+        					$or: [
+        						{ ownerId: currentUser.personId },
+        						{ personId: currentUser.personId }
+        					]
+        				}
+        			})
+        			.then((data) => callback(data ? null : 'not-found', media, data.id))
+        			.catch((err) => callback(err))
+        		},
+        		(media, assign_id, callback) => {
+        			this.Model.update({ uid: uid }, { assign_id: assign_id })
+        				.then((result) => callback(null, result))
+        				.catch((err) => callback(err))
+        		}
+        	], (err, result) => {
+        		if (!err) 
+        			cb(null, {
+        				message: result.count ? 'assigned' : 'failed'
+        			})
+        		else 
+        			cb(err)
+        	});
+
+        	return cb.promise;
+        });
+
     }
 
 }
