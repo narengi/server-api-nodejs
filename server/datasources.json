@@ -15,6 +15,6 @@
     "name": "container",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
-    "root": "./uploads"
+    "root": "./storage"
   }
 }
