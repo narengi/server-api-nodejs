@@ -162,8 +162,23 @@ exports.upload2 = function(req, options) {
         form.on("end", fileUploadedHandler);
         form.on('file', fileDetectedHandler);
     });
+};
 
-
+exports.mediaUpload = function(req) {
+    return new Promise(function(resolve, reject) {
+        if (!req) return reject(HttpErrors.FileNotCorrectError());
+        function fileUploadedHandler() {
+            if (this.openedFiles) {
+                resolve(this.openedFiles[0]);
+            } else {
+                reject(HttpErrors.FileUploadFailure());
+            }
+        }
+        var form = new formidable.IncomingForm();
+        form.keepExtensions = true;
+        form.parse(req);
+        form.on("end", fileUploadedHandler);
+    });
 };
 
 /**
