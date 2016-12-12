@@ -22,7 +22,7 @@
         },
         "cors": false,
         "errorHandler": {
-            "disableStackTrace": false
+            "disableStackTrace": true
         }
     },
     "legacyExplorer": false,
