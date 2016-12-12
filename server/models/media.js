@@ -1,6 +1,7 @@
 'use strict'
 
 const loopback = require('loopback');
+const loopBackContext = require('loopback-context');
 const app = serverRequire('server');
 const configs = app.settings;
 const MainHandler = require('../Handlers/Main');
@@ -9,6 +10,7 @@ const lwip = require('lwip');
 const async = require('async');
 const crypto = require('crypto');
 const fs = require('fs');
+const debug = require('debug');
 const _ = require('lodash');
 
 class Medias extends MainHandler {
@@ -17,16 +19,18 @@ class Medias extends MainHandler {
         super(Media)
         // Register Methods
         this.upload()
-        this.show()
-        this.assign()
+        this.get()
+        this.set()
     }
 
     upload () {
 
+        const uploadDebugger = debug('narengi-media:upload')
+
         let Settings = {
             name: 'upload',
             description: 'upload new medias',
-            path: '/upload/:section?',
+            path: '/upload/:section',
             method: 'post',
             status: 201,
             accepts: [{
@@ -44,20 +48,51 @@ class Medias extends MainHandler {
 
         this.registerMethod(Settings, (req, cb) => {
 
+            uploadDebugger(`request params:`, req.params)
             const Storage = app.models.Storage;
-            let container = req.params.section && req.params.section.trim().length ? `${req.params.section.trim()}` : `cached`;
+            let container = req.params.section.trim();
             let contcfg = _.has(configs, container) ? configs[container].picture : {};
-            let ctx = loopback.getCurrentContext();
-            let currentUser = ctx.get('currentUser');
+            let ctx = loopBackContext.getCurrentContext();
+            let currentUser = ctx && ctx.get('currentUser');
 
             // VALIDATE CONFIGS
+            let Err = new Error();
             switch (true) {
             	case !Object.keys(contcfg).length:
+                    uploadDebugger(`validation failed: invalid 'contcfg' object keys length for ${container}`)
+                    Err.status = 400;
+                    Err.name = 'validation failed';
+                    Err.message = `invalid section '${container}'`;
+                    cb(Err);
+                break;
             	case !_.has(contcfg, 'dirName') || !contcfg.dirName.trim().length:
+                    uploadDebugger(`validation failed: 'contcfg' not include required key 'dirName'`)
+                    Err.status = 400;
+                    Err.name = 'validation failed';
+                    Err.message = `invalid configuration for '${container}'`;
+                    cb(Err);
+                break;
             	case !_.has(contcfg, 'maxSize') || typeof contcfg.maxSize !== "number":
+                    uploadDebugger(`validation failed: 'contcfg' not include required key 'maxSize'`)
+                    Err.status = 400;
+                    Err.name = 'validation failed';
+                    Err.message = `invalid configuration for '${container}'`;
+                    cb(Err);
+                break;
             	case !_.has(contcfg, 'key') || !contcfg.key.trim().length:
-            		cb('section configs is not valid');
+            		uploadDebugger(`validation failed: 'contcfg' not include required key 'key'`)
+                    Err.status = 400;
+                    Err.name = 'validation failed';
+                    Err.message = `invalid configuration for '${container}'`;
+                    cb(Err);
             	break;
+                case !_.has(contcfg, 'model') || !contcfg.model.trim().length:
+                    uploadDebugger(`validation failed: 'contcfg' not include required key 'model'`)
+                    Err.status = 400;
+                    Err.name = 'validation failed';
+                    Err.message = `invalid configuration for '${container}'`;
+                    cb(Err);
+                break;
             }
 
             async.waterfall([
@@ -82,27 +117,37 @@ class Medias extends MainHandler {
             	},
             	(file, callback) => {
             		// VALIDATE FILE BASE ON CONTAINER CONFIGS
-            		let isValid = true;
-            		let errMsg = null;
+                    if (file) {
+                        let isValid = true;
+                        let fileType = _.get(file, 'type');
 
-            		isValid = isValid && file.type.substring(0, file.type.indexOf('/')) === "image";
-            		if (!isValid && !errMsg) errMsg = "error-file-type";
+                		isValid = isValid && fileType.substring(0, fileType.indexOf('/')) === "image";
+                		if (!isValid) {
+                            Err.name = 'validation failed'
+                            Err.status = 400
+                            Err.message = `invalid uploaded file type '${fileType.substring(0, fileType.indexOf('/'))}'`
+                        }
 
-            		isValid = isValid && file.size <= contcfg.maxSize;
-            		if (!isValid && !errMsg) errMsg = "error-file-size";
+                		isValid = isValid && Number(_.get(file, 'size')) <= contcfg.maxSize;
+                		if (!isValid) {
+                            Err.name = 'validation failed'
+                            Err.status = 400
+                            Err.message = 'maximum uploaded file size exceeds'
+                        }
 
-            		callback(errMsg, isValid ? file : null);
+                		callback(!isValid ? Err : null, isValid ? file : null);
+                    }
 
             	},
             	(file, callback) => {
             		// CREATE IMAGE OBJECT FROM FILE
-            		lwip.open(file.path, (err, img) => {
+            		lwip.open(_.get(file, 'path'), (err, img) => {
             			if (!err)
             				callback(null, {
             					hash: crypto.createHmac('md5', `${contcfg.key}=${currentUser.id}`).update(file.path).digest('hex'),
-            					size: file.size,
-            					type: file.type,
-            					ext: file.type.substr(file.type.indexOf('/') + 1),
+            					size: _.get(file, 'size'),
+            					type: _.get(file, 'type'),
+            					ext: _.get(file, 'type').substr(_.get(file, 'type').indexOf('/') + 1),
             					owner_id: currentUser.id,
             					assign_type: container,
             					storage: contcfg.dirName
@@ -135,12 +180,12 @@ class Medias extends MainHandler {
         })
     }
 
-    show () {
+    get () {
 
     	let Settings = {
-            name: 'show',
-            description: 'show medias',
-            path: '/show/:uid',
+            name: 'get',
+            description: 'get medias',
+            path: '/get/:uid',
             method: 'get',
             status: 200,
             accepts: [{
@@ -171,7 +216,8 @@ class Medias extends MainHandler {
         		(callback) => {
         			this.Model.findOne({
         				where: {
-        					uid: uid
+        					uid: uid,
+                            deleted: false
         				}
         			})
     				.then((media) => callback(media ? null : 'not-found', media))
@@ -190,12 +236,12 @@ class Medias extends MainHandler {
         });
     }
 
-    assign () {
+    set () {
 
     	let Settings = {
-            name: 'assign',
-            description: 'assign medias',
-            path: '/assign',
+            name: 'set',
+            description: 'set medias to specified content',
+            path: '/set',
             method: 'put',
             status: 200,
             accepts: [{
@@ -224,7 +270,8 @@ class Medias extends MainHandler {
         			this.Model.findOne({
         				where: {
         					uid: uid,
-        					owner_id: currentUser.id
+        					owner_id: currentUser.id,
+                            deleted: false
         				}
         			})
     				.then((media) => callback(media ? null : 'not-found', media))
@@ -261,7 +308,6 @@ class Medias extends MainHandler {
 
         	return cb.promise;
         });
-
     }
 
 }

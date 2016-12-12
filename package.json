@@ -11,7 +11,7 @@
     "restart": "pm2 restart narengi-main-api",
     "stop": "pm2 stop narengi-main-api",
     "start": "bash ./bin/run-staging",
-    "dev": "NODE_ENV=development node-dev server/server.js",
+    "dev": "DEBUG=narengi-* NODE_ENV=development node-dev server/server.js",
     "gendoc": "./node_modules/grunt/bin/grunt jsdoc"
   },
   "dependencies": {
@@ -37,7 +37,7 @@
     "loopback-component-explorer": "^2.4.0",
     "loopback-component-storage": "^1.10.0",
     "loopback-connector-mongodb": "^1.15.2",
-    "loopback-context": "strongloop/loopback-context#master",
+    "loopback-context": "github:strongloop/loopback-context#master",
     "loopback-datasource-juggler": "^2.19.1",
     "lwip": "0.0.9",
     "mime": "^1.3.4",
@@ -58,6 +58,7 @@
     "underscore.string": "^3.3.4"
   },
   "devDependencies": {
+    "@risingstack/trace": "^2.36.0",
     "bunyan": "^1.5.1",
     "cross-spawn": "^2.1.0",
     "forever": "^0.15.2",

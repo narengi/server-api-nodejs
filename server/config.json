@@ -9,9 +9,7 @@
       "normalizeHttpPath": false,
       "xml": false
     },
-    "context": {
-      "enableHttpContext": true
-    },
+    "context": false,
     "json": {
       "strict": false,
       "limit": "200kb"
@@ -52,6 +50,14 @@
         "w480": 480,
         "w1024": 1024
       }
+    }
+  },
+  "userprofile": {
+    "picture": {
+      "dirName": "user-profile-images",
+      "maxSize": 4194304,
+      "key": ";32Co2r@4a'N}K]",
+      "model": "UserProfile"
     }
   },
   "pagination": {

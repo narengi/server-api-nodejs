@@ -30,7 +30,7 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
     if (searchObj) {
         // handle context -- added by Aref
         app.use(loopback.token()); // this calls getCurrentContext
-        app.use(loopback.context()); // the context is started here
+        // app.use(loopback.context()); // the context is started here
         // end
         app.models.Account.find({
                 include: "authToken",
@@ -67,7 +67,7 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
                     };
 
                     // added by aref
-                    var ctx = loopback.getCurrentContext();
+                    var ctx = LoopBackContext.getCurrentContext();
                     if (ctx) {
                         ctx.set('currentUser', accs[0]);
                     }
