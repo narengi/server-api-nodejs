@@ -42,7 +42,7 @@
             "dirName": "user-profile-images",
             "fieldName": "picture",
             "maxSize": 4194304,
-            "key": "Gp(Y45$57y4l94q",
+            "key": "",
             "model": "UserProfile",
             "styles": {
                 "w64": 64,
@@ -50,6 +50,14 @@
                 "w480": 480,
                 "w1024": 1024
             }
+        }
+    },
+    "userprofile": {
+        "picture": {
+            "dirName": "user-profile-images",
+            "maxSize": 4194304,
+            "key": "Gp(Y45$57y4l94q",
+            "model": "UserProfile"
         }
     },
     "pagination": {

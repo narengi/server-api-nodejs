@@ -40,7 +40,15 @@
         "picture": {
             "root": "./uploads",
             "dirName": "user-profile-images",
-            "maxSize": 2097152,
+            "maxSize": 4194304,
+            "key": "Ja0(8?03fW@57n@",
+            "model": "UserProfile"
+        }
+    },
+    "userprofile": {
+        "picture": {
+            "dirName": "user-profile-images",
+            "maxSize": 4194304,
             "key": "Ja0(8?03fW@57n@",
             "model": "UserProfile"
         }
