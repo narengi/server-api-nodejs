@@ -22,6 +22,7 @@ class Medias extends MainHandler {
         this.get()
         this.set()
         this.unset()
+        this.remove()
     }
 
     upload () {
