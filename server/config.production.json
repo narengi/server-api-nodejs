@@ -1,13 +1,11 @@
 {
-    "restApiRoot": "/api",
+    "restApiRoot": "/v1",
     "host": "0.0.0.0",
     "port": 3200,
     "https": true,
     "hostExt": "api.narengi.com",
     "remoting": {
-        "context": {
-            "enableHttpContext": true
-        },
+        "context": false,
         "rest": {
             "normalizeHttpPath": false,
             "xml": false

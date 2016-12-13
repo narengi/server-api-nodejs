@@ -167,7 +167,7 @@ var defineServices = function(UserProfile) {
      */
     UserProfile.CreateProfile = function(data, cb) {
         var ctx = LoopBackContext.getCurrentContext();
-        var currentUser = ctx.get('currentUser');
+        var currentUser = ctx && ctx.get('currentUser');
         return createProfile(currentUser.id, data, cb);
     };
 
@@ -196,7 +196,7 @@ var defineServices = function(UserProfile) {
      */
     UserProfile.UpdateProfile = function(data, cb) {
         var ctx = LoopBackContext.getCurrentContext();
-        var currentUser = ctx.get('currentUser');
+        var currentUser = ctx && ctx.get('currentUser');
         return updateProfile(currentUser.id, data, cb);
     };
 
@@ -312,7 +312,7 @@ function defineProfilePictureMethods(UserProfile) {
     UserProfile.UploadPicture = function(data, cb) {
         cb = cb || promiseCallback();
 
-        var ctx = loopback.getCurrentContext();
+        var ctx = LoopBackContext.getCurrentContext();
         var currentUser = ctx && ctx.get('currentUser');
         if (!currentUser) return cb(Security.Errors.NotAuthorized());
 

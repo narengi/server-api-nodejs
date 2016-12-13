@@ -29,9 +29,10 @@ function authWithJWT(req, loopbackCtx, token, username, next) {
 
     if (searchObj) {
         // handle context -- added by Aref
+        app.use(LoopBackContext.perRequest());
         app.use(loopback.token()); // this calls getCurrentContext
-        // app.use(loopback.context()); // the context is started here
         // end
+
         app.models.Account.find({
                 include: "authToken",
                 where: searchObj
@@ -94,20 +95,20 @@ module.exports = function(options) {
         try {
             // console.log("==============================================================================\n", "AUTHENTICATION REQUEST HEADERS:\n---------------------------------\n", req.headers, "\n==============================================================================");
             //TODO: should add OAuth authorization
-            var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || null;
+            // var authHeader = (req.headers.authorization && JSON.parse("{" + req.headers.authorization + "}")) || null;
+            let authHeader = req.headers.authorization ? req.headers.authorization.trim().split(" ") : null;
+            if (authHeader && authHeader[0].toLowerCase() === 'bearer' && authHeader[1].length > 0) {
+                authHeader = {
+                    token: authHeader[1],
+                    username: null
+                }
+            }
             // added by aref: support access token for authorization
             if (!Boolean(authHeader)) {
                 authHeader = req.headers['access-token'] ? {
                     token: req.headers['access-token'],
                     username: null
                 } : null;
-            }
-
-            if (!Boolean(authHeader)) {
-                authHeader = req.headers['token'] ? {
-                    token: req.headers['token'],
-                    username: null
-                } : {};
             }
 
             //This is `plain` login mechanism

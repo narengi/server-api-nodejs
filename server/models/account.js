@@ -461,8 +461,8 @@ var addLoginLogoutMethods = function(Account) {
         cb = cb || promiseCallback();
 
         var ctx = LoopBackContext.getCurrentContext();
-        var authToken = ctx.get('currentToken');
-        var currentUser = ctx.get('currentUser');
+        var currentUser = ctx && ctx.get('currentUser');
+
         if (currentUser && authToken && authToken.token) {
             Account.findByUsernameOrEmail(currentUser.username, function(err, acc) {
                 if (err) {
@@ -1206,7 +1206,7 @@ var addExtraMethods = function(Account) {
     Account.UpdateProfile = function(data, cb) {
         cb = cb || promiseCallback();
 
-        var ctx = loopback.getCurrentContext();
+        var ctx = LoopBackContext.getCurrentContext()
         var currentUser = ctx && ctx.get('currentUser');
         if (!currentUser) return cb(Security.Errors.NotAuthorized());
 

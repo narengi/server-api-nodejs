@@ -701,8 +701,8 @@ function definePictureStuff(House) {
     House.UploadPicture2 = function(id, data, cb) {
         cb = cb || promiseCallback();
 
-        var ctx = loopback.getCurrentContext();
-        var currentUser = ctx.get('currentUser');
+        var ctx = LoopBackContext.getCurrentContext();
+        var currentUser = ctx && ctx.get('currentUser');
 
         House.findById(id)
             .then(houseFoundHandler)
@@ -1450,7 +1450,8 @@ function defineAvailableDateServiceStuff(House) {
     House.AddAvailableDates = function(id, data, cb) {
         cb = cb || Common.PromiseCallback();
 
-        var currentUser = LoopBackContext.getCurrentContext().get("currentUser");
+        var ctx = LoopBackContext.getCurrentContext();
+        var currentUser = ctx && ctx.get('currentUser');
 
         var accessCtx = {
             model: House,
