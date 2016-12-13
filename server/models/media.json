@@ -77,29 +77,29 @@
         }
     },
     "acls": [{
-        "accessType": "*",
+        "accessType": "EXECUTE",
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
-        "property": "upload"
+        "property": "UploadMedia"
     }, {
-        "accessType": "*",
+        "accessType": "EXECUTE",
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
-        "property": "set"
+        "property": "SetMedia"
     }, {
-        "accessType": "*",
+        "accessType": "EXECUTE",
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
-        "property": "unset"
+        "property": "UnsetMedia"
     }, {
-        "accessType": "*",
+        "accessType": "EXECUTE",
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
-        "property": "remove"
+        "property": "RemoveMedia"
     }],
     "methods": {}
 }

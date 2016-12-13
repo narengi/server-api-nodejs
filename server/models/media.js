@@ -30,7 +30,7 @@ class Medias extends MainHandler {
         const uploadDebugger = debug('narengi-media:upload')
 
         let Settings = {
-            name: 'upload',
+            name: 'UploadMedia',
             description: 'upload new medias',
             path: '/upload/:section',
             method: 'post',
@@ -61,6 +61,7 @@ class Medias extends MainHandler {
             let contcfg = _.has(configs, container) ? configs[container].picture : {};
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
+            if (!currentUser) cb({ status: 401, message: 'unauthorized' })
 
             // VALIDATE CONFIGS
             let Err = null;
@@ -175,7 +176,7 @@ class Medias extends MainHandler {
     get () {
 
         let Settings = {
-            name: 'get',
+            name: 'GetMedia',
             description: 'get medias',
             path: '/get/:uid',
             method: 'get',
@@ -214,7 +215,7 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : 'not-found', media))
+                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }, media))
                         .catch((err) => callback(err))
                 }
             ], (err, media) => {
@@ -237,7 +238,7 @@ class Medias extends MainHandler {
     set () {
 
         let Settings = {
-            name: 'set',
+            name: 'SetMedia',
             description: 'set medias to specified content',
             path: '/set',
             method: 'put',
@@ -261,6 +262,7 @@ class Medias extends MainHandler {
             const cid = data.cid;
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
+            if (!currentUser) cb({ status: 401, message: 'unauthorized' })
 
             async.waterfall([
                 (callback) => {
@@ -272,7 +274,7 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : 'not-found', media))
+                        .then((media) => callback(media ? null : { status: 404, message: 'not found'}, media))
                         .catch((err) => callback(err))
                 },
                 (media, callback) => {
@@ -315,7 +317,7 @@ class Medias extends MainHandler {
     unset () {
 
         let Settings = {
-            name: 'unset',
+            name: 'UnsetMedia',
             description: 'unset medias from specified content',
             path: '/unset',
             method: 'put',
@@ -338,6 +340,7 @@ class Medias extends MainHandler {
             const uid = data.uid; // media id
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
+            if (!currentUser) cb({ status: 401, message: 'unauthorized' })
 
             async.waterfall([
                 (callback) => {
@@ -349,7 +352,7 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : 'not-found'))
+                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }))
                         .catch((err) => callback(err))
                 },
                 (callback) => {
@@ -373,8 +376,8 @@ class Medias extends MainHandler {
     remove () {
 
         let Settings = {
-            name: 'remove',
-            description: 'unset medias from specified content',
+            name: 'RemoveMedia',
+            description: 'remove medias from specified content',
             path: '/remove/:uid',
             method: 'delete',
             status: 200,
@@ -396,6 +399,7 @@ class Medias extends MainHandler {
             const uid = req.params.uid; // media id
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
+            if (!currentUser) cb({ status: 401, message: 'unauthorized' })
 
             async.waterfall([
                 (callback) => {
@@ -407,7 +411,7 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : 'not-found'))
+                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }))
                         .catch((err) => callback(err))
                 },
                 (callback) => {
