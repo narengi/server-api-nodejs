@@ -15,15 +15,16 @@ const _ = require('lodash');
 
 class Medias extends MainHandler {
 
-    constructor(Media) {
+    constructor (Media) {
         super(Media)
             // Register Methods
         this.upload()
         this.get()
         this.set()
+        this.unset()
     }
 
-    upload() {
+    upload () {
 
         const uploadDebugger = debug('narengi-media:upload')
 
@@ -170,7 +171,7 @@ class Medias extends MainHandler {
         })
     }
 
-    get() {
+    get () {
 
         let Settings = {
             name: 'get',
@@ -232,7 +233,7 @@ class Medias extends MainHandler {
         });
     }
 
-    set() {
+    set () {
 
         let Settings = {
             name: 'set',
@@ -256,7 +257,7 @@ class Medias extends MainHandler {
         this.registerMethod(Settings, (data, cb) => {
 
             const uid = data.uid;
-            const id = data.id;
+            const cid = data.cid;
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
 
@@ -281,7 +282,7 @@ class Medias extends MainHandler {
                         let contCfg = configs[media.assign_type].picture;
                         app.models[contCfg.model].findOne({
                             where: {
-                                id: id,
+                                id: cid,
                                 $or: [
                                     { ownerId: currentUser.personId },
                                     { personId: currentUser.personId }
@@ -300,7 +301,123 @@ class Medias extends MainHandler {
             ], (err, result) => {
                 if (!err)
                     cb(null, {
-                        status: result.count ? 'assigned' : 'failed'
+                        message: result.count ? 'assigned' : 'failed'
+                    })
+                else
+                    cb(err)
+            });
+
+            return cb.promise;
+        });
+    }
+
+    unset () {
+
+        let Settings = {
+            name: 'unset',
+            description: 'unset medias from specified content',
+            path: '/unset',
+            method: 'put',
+            status: 200,
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                http: {
+                    source: 'body'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object'
+            }
+        }
+
+        this.registerMethod(Settings, (data, cb) => {
+
+            const uid = data.uid; // media id
+            let ctx = loopBackContext.getCurrentContext();
+            let currentUser = ctx && ctx.get('currentUser');
+
+            async.waterfall([
+                (callback) => {
+                    // GET MEDIA
+                    this.Model.findOne({
+                            where: {
+                                uid: uid,
+                                owner_id: currentUser.id,
+                                deleted: false
+                            }
+                        })
+                        .then((media) => callback(media ? null : 'not-found'))
+                        .catch((err) => callback(err))
+                },
+                (callback) => {
+                    this.Model.update({ uid: uid }, { assign_id: null })
+                        .then((result) => callback(null, result))
+                        .catch((err) => callback(err))
+                }
+            ], (err, result) => {
+                if (!err)
+                    cb(null, {
+                        message: result.count ? 'unassigned' : 'failed'
+                    })
+                else
+                    cb(err)
+            });
+
+            return cb.promise;
+        });
+    }
+
+    remove () {
+
+        let Settings = {
+            name: 'remove',
+            description: 'unset medias from specified content',
+            path: '/remove/:uid',
+            method: 'delete',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object'
+            }
+        }
+
+        this.registerMethod(Settings, (req, cb) => {
+
+            const uid = req.params.uid; // media id
+            let ctx = loopBackContext.getCurrentContext();
+            let currentUser = ctx && ctx.get('currentUser');
+
+            async.waterfall([
+                (callback) => {
+                    // GET MEDIA
+                    this.Model.findOne({
+                            where: {
+                                uid: uid,
+                                owner_id: currentUser.id,
+                                deleted: false
+                            }
+                        })
+                        .then((media) => callback(media ? null : 'not-found'))
+                        .catch((err) => callback(err))
+                },
+                (callback) => {
+                    this.Model.update({ uid: uid }, { deleted: true })
+                        .then((result) => callback(null, result))
+                        .catch((err) => callback(err))
+                }
+            ], (err, result) => {
+                if (!err)
+                    cb(null, {
+                        message: result.count ? 'removed' : 'failed'
                     })
                 else
                     cb(err)
