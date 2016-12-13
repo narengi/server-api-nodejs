@@ -50,6 +50,10 @@
       "type": "object",
       "default": null
     },
+    "is_private": {
+      "type": "boolean",
+      "default": false
+    },
     "deleted": {
       "type": "boolean",
       "default": false

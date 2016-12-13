@@ -168,16 +168,28 @@ exports.mediaUpload = function(req) {
     return new Promise(function(resolve, reject) {
         if (!req) return reject(HttpErrors.FileNotCorrectError());
         function fileUploadedHandler() {
-            if (this.openedFiles) {
+            if (this.openedFiles && this.openedFiles.length) {
                 resolve(this.openedFiles[0]);
             } else {
                 reject(HttpErrors.FileUploadFailure());
             }
         }
+        function fileDetectedHandler(name, file) {
+            try {
+                if (name !== 'file') return reject(HttpErrors.FileNotCorrectError());
+                //check image type
+                if (file.type.substring(0, file.type.indexOf('/')) !== 'image') {
+                    return reject(HttpErrors.FileNotCorrectError());
+                }
+            } catch (ex) {
+                return reject(HttpErrors.FileNotCorrectError());
+            }
+        }
         var form = new formidable.IncomingForm();
         form.keepExtensions = true;
         form.parse(req);
-        form.on("end", fileUploadedHandler);
+        form.on('end', fileUploadedHandler);
+        form.on('file', fileDetectedHandler);
     });
 };
 
