@@ -153,7 +153,6 @@ exports.upload2 = function(req, options) {
             }
         }
 
-        console.time('uploading');
         var form = new formidable.IncomingForm();
         form.keepExtensions = true;
         if (!!options.hash)
@@ -164,34 +163,13 @@ exports.upload2 = function(req, options) {
     });
 };
 
-exports.mediaUpload = function(req) {
-    return new Promise(function(resolve, reject) {
-        if (!req) return reject(HttpErrors.FileNotCorrectError());
-        function fileUploadedHandler() {
-            if (this.openedFiles && this.openedFiles.length) {
-                resolve(this.openedFiles[0]);
-            } else {
-                reject(HttpErrors.FileUploadFailure());
-            }
-        }
-        function fileDetectedHandler(name, file) {
-            try {
-                if (name !== 'file') return reject(HttpErrors.FileNotCorrectError());
-                //check image type
-                if (file.type.substring(0, file.type.indexOf('/')) !== 'image') {
-                    return reject(HttpErrors.FileNotCorrectError());
-                }
-            } catch (ex) {
-                return reject(HttpErrors.FileNotCorrectError());
-            }
-        }
-        var form = new formidable.IncomingForm();
-        form.keepExtensions = true;
-        form.parse(req);
-        form.on('end', fileUploadedHandler);
-        form.on('file', fileDetectedHandler);
-    });
-};
+exports.mediaUpload = function(req, cb) {
+    const Form = new formidable.IncomingForm();
+    Form.keepExtensions = true;
+    Form.encoding = 'utf-8';
+    Form.multiples = true;
+    Form.parse(req, cb);
+}
 
 /**
  * Uploads files with remote `fieldname` to `destPath`
