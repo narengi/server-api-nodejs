@@ -17,7 +17,7 @@ class Medias extends MainHandler {
 
     constructor(Media) {
         super(Media)
-            // Register Methods
+        // Register Methods
         this.UploadMedias();
         this.GetMedia();
         this.GetHouseMedias();
@@ -132,6 +132,11 @@ class Medias extends MainHandler {
                     uploadDebugger('VALIDATE FILE BASE ON CONTAINER CONFIGS');
                     let isValid = true;
                     let files = [];
+
+                    let formDataType = Object.prototype.toString.call(formData.files);
+                    	formDataType = formDataType.substr(formDataType.indexOf(' ') + 1, 3).toLowerCase();
+                    
+                    formData.files = formDataType === 'obj' ? [formData.files] : formData.files;
 
                     _.each(formData.files, (file, idx) => {
                         isValid = isValid && file.type.substring(0, file.type.indexOf('/')) === "image";
