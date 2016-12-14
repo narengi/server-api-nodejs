@@ -15,6 +15,7 @@ var async = require('async');
 var debug = require('debug')('narengi:geo:house');
 var moment = require('moment');
 var _ = require('lodash');
+var ObjectID = require('mongodb').ObjectID;
 
 /**
  * @namespace Models.House
@@ -406,7 +407,7 @@ function defineMainServices(House) {
                 app.models.Media.find({
                     where: {
                         assign_type: 'house',
-                        assign_id: result.id,
+                        assign_id: ObjectID(result.id),
                         is_private: false,
                         deleted: false
                     },
@@ -658,7 +659,7 @@ function defineMainServices(House) {
                     limit: 10
                 }
                 _.each(result, (house) => {
-                    query.where.or.push({ assign_id: house.id })
+                    query.where.or.push({ assign_id: ObjectID(house.id) })
                 })
 
                 app.models.Media.find(query)
