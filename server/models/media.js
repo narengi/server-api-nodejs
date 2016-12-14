@@ -34,7 +34,7 @@ class Medias extends MainHandler {
         let Settings = {
             name: 'UploadMedias',
             description: 'upload new medias',
-            path: '/upload/:section',
+            path: '/upload/:section/:id?',
             method: 'post',
             status: 201,
             accepts: [{
@@ -55,6 +55,7 @@ class Medias extends MainHandler {
             uploadDebugger(`request params:`, req.params)
             const Storage = app.models.Storage;
             let container = req.params.section.trim();
+            let cid = req.params.id ? req.params.id : null;
             let contcfg = _.has(configs, container) ? configs[container].picture : {};
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
@@ -192,7 +193,6 @@ class Medias extends MainHandler {
                 (files, callback) => {
                     // WRITE FILES
                     let idx = 0;
-                    1
                     _.each(files, (file) => {
                         file.img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {
                             if (idx < files.length - 1) idx++;
@@ -209,6 +209,9 @@ class Medias extends MainHandler {
                     _.each(files, (file) => {
                         delete file.img;
                         delete file.path;
+                        if (file.assign_type === 'house' && cid) {
+                        	file.assign_id = cid;
+                        }
                         this.Model.create(file)
                             .then((media) => {
                                 uploaded.push(media.id);
