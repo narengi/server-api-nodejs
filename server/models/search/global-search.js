@@ -178,7 +178,6 @@ function defineHooks(GlobalSearch) {
 
     GlobalSearch.afterRemote("Search", function(ctx, instance, next) {
         let result = ctx.result;
-
         async.waterfall([
             (callback) => {
                 let query = {
@@ -194,7 +193,6 @@ function defineHooks(GlobalSearch) {
                 _.each(result, (house) => {
                     query.where.or.push({ assign_id: house.Data.id })
                 })
-
                 app.models.Media.find(query)
                     .then((medias) => {
                         callback(null, medias);
@@ -202,11 +200,12 @@ function defineHooks(GlobalSearch) {
             }
         ], (err, pics) => {
             _.each(pics, (pic) => {
-                let resultIndex = _.findIndex(result, { id: pic.assign_id })
+                let resultIndex = _.findIndex(result, { Data: { id: pic.assign_id } })
+                let reg = new RegExp('^\/houses\/.*', 'ig')
                 _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
-                    if (_.has(oldPic, 'styles')) result[resultIndex].Data.pictures.splice(idx, 1);
+                    if (reg.test(oldPic)) result[resultIndex].Data.pictures.splice(idx, 1);
                 });
-                result[resultIndex].Data.pictures.push({ url: `/v1/medias/house/${pic.uid}` });
+                result[resultIndex].Data.pictures.push(`/v1/medias/house/${pic.uid}`);
             })
             ctx.result = result;
             next();
