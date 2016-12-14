@@ -210,8 +210,9 @@ class Medias extends MainHandler {
                         delete file.img;
                         delete file.path;
                         if (file.assign_type === 'house' && cid) {
-                        	file.assign_id = cid;
+                        	file.assign_id = ObjectID(cid);
                         }
+                        uploadDebugger("file.assign_type", file.assign_type, cid, file)
                         this.Model.create(file)
                             .then((media) => {
                                 uploaded.push(media.id);
