@@ -1,31 +1,30 @@
 'use strict'
 
-const loopback = require('loopback');
-const loopBackContext = require('loopback-context');
-const app = serverRequire('server');
-const configs = app.settings;
-const MainHandler = require('../Handlers/Main');
-const Http = require('narengi-utils').Http;
-const lwip = require('lwip');
-const async = require('async');
-const crypto = require('crypto');
-const fs = require('fs');
-const debug = require('debug');
-const _ = require('lodash');
+const loopBackContext = require('loopback-context'),
+    app = serverRequire('server'),
+    configs = app.settings,
+    MainHandler = require('../Handlers/Main'),
+    Http = require('narengi-utils').Http,
+    lwip = require('lwip'),
+    async = require('async'),
+    crypto = require('crypto'),
+    fs = require('fs'),
+    debug = require('debug'),
+    _ = require('lodash');
 
 class Medias extends MainHandler {
 
-    constructor (Media) {
+    constructor(Media) {
         super(Media)
             // Register Methods
-        this.upload()
-        this.get()
-        this.set()
-        this.unset()
-        this.remove()
+        this.UploadMedia();
+        this.GetMedia();
+        this.SetMedia();
+        this.UnsetMedia();
+        this.RemoveMedia();
     }
 
-    upload () {
+    UploadMedia() {
 
         const uploadDebugger = debug('narengi-media:upload')
 
@@ -45,11 +44,6 @@ class Medias extends MainHandler {
             returns: {
                 arg: 'result',
                 type: 'object'
-            },
-            error: {
-                status: 'number',
-                code: 'string',
-                message: 'string'
             }
         }
 
@@ -61,119 +55,182 @@ class Medias extends MainHandler {
             let contcfg = _.has(configs, container) ? configs[container].picture : {};
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
-            if (!currentUser) cb({ status: 401, message: 'unauthorized' })
+            if (!currentUser) this.Error({ status: 401, message: 'unauthorized' }, cb);
 
             // VALIDATE CONFIGS
-            let Err = null;
             switch (true) {
                 case !Object.keys(contcfg).length:
                     uploadDebugger(`validation failed: invalid 'contcfg' object keys length for ${container}`)
-                    Err = this.Error(400, 'validation failed', `invalid section '${container}'`)
+                    this.Error({
+                        status: 400,
+                        code: 'validation failed',
+                        message: `invalid section '${container}'`
+                    }, cb)
                     break;
                 case !_.has(contcfg, 'dirName') || !contcfg.dirName.trim().length:
                     uploadDebugger(`validation failed: 'contcfg' not include required key 'dirName'`)
-                    Err = this.Error(400, 'validation failed', `invalid configuration for '${container}'`);
+                    this.Error({
+                        status: 400,
+                        code: 'validation failed',
+                        message: `invalid configuration for '${container}'`
+                    }, cb)
                     break;
                 case !_.has(contcfg, 'maxSize') || typeof contcfg.maxSize !== "number":
                     uploadDebugger(`validation failed: 'contcfg' not include required key 'maxSize'`)
-                    Err = this.Error(400, 'validation failed', `invalid configuration for '${container}'`)
+                    this.Error({
+                        status: 400,
+                        code: 'validation failed',
+                        message: `invalid configuration for '${container}'`
+                    }, cb)
                     break;
                 case !_.has(contcfg, 'key') || !contcfg.key.trim().length:
                     uploadDebugger(`validation failed: 'contcfg' not include required key 'key'`)
-                    Err = this.Error(400, 'validation failed', `invalid configuration for '${container}'`)
+                    this.Error({
+                        status: 400,
+                        code: 'validation failed',
+                        message: `invalid configuration for '${container}'`
+                    }, cb)
                     break;
                 case !_.has(contcfg, 'model') || !contcfg.model.trim().length:
                     uploadDebugger(`validation failed: 'contcfg' not include required key 'model'`)
-                    Err = this.Error(400, 'validation failed', `invalid configuration for '${container}'`)
+                    this.Error({
+                        status: 400,
+                        code: 'validation failed',
+                        message: `invalid configuration for '${container}'`
+                    }, cb)
                     break;
             }
-
-            if (Err) cb(Err);
 
             async.waterfall([
                 (callback) => {
                     // CHECK IF CONTAINER IS EXISTS
+                    uploadDebugger('CHECK IF CONTAINER IS EXISTS');
                     Storage.getContainer(contcfg.dirName, (err) => callback(null, err ? err.code : 'OK'))
                 },
                 (cont, callback) => {
                     // CREATE CONTAINER IF IT IS NOT EXISTS
+                    uploadDebugger('CREATE CONTAINER IF IT IS NOT EXISTS');
                     switch (cont) {
                         case 'OK':
                             callback(null)
+                            break;
                         case 'ENOENT':
                             Storage.createContainer({ name: contcfg.dirName }, () => callback(null))
                             break;
                     }
                 },
                 (callback) => {
-                    // GET FILE FROM REQUEST
-                    Http.Uploader.mediaUpload(req)
-                        .then((file) => callback(null, file))
-                        .catch((err) => callback(err))
+                    // GET FILE DATA FROM REQUEST
+                    uploadDebugger('GET FILE DATA FROM REQUEST');
+                    Http.Uploader.mediaUpload(req, callback);
                 },
-                (file, callback) => {
+                (fileds, formData, callback) => {
                     // VALIDATE FILE BASE ON CONTAINER CONFIGS
+                    uploadDebugger('VALIDATE FILE BASE ON CONTAINER CONFIGS');
                     let isValid = true;
-                    let Err = null;
+                    let files = [];
 
-                    isValid = isValid && file.type.substring(0, file.type.indexOf('/')) === "image";
-                    if (!isValid && !Err) {
-                        Err = this.Error(400,
-                            'validation failed',
-                            `invalid uploaded file type '${file.type.substring(0, file.type.indexOf('/'))}'`);
-                    }
+                    _.each(formData.files, (file, idx) => {
+                        isValid = isValid && file.type.substring(0, file.type.indexOf('/')) === "image";
+                        uploadDebugger(`check file type: ${file.type.substring(0, file.type.indexOf('/'))} = ${isValid}`)
+                        if (!isValid) {
+                            uploadDebugger(`invalid uploaded file type '${file.type.substring(0, file.type.indexOf('/'))}'`)
+                            this.Error({
+                                status: 400,
+                                code: 'validation failed',
+                                message: `invalid uploaded file type '${file.type.substring(0, file.type.indexOf('/'))}'`
+                            }, cb);
+                        }
 
-                    isValid = isValid && Number(file.size) <= contcfg.maxSize;
-                    if (!isValid && !Err) {
-                        Err = this.Error(400,
-                            'validation failed',
-                            'maximum uploaded file size exceeds')
-                    }
+                        isValid = isValid && Number(file.size) <= contcfg.maxSize;
+                        uploadDebugger(`check file size: ${Number(file.size)}/${contcfg.maxSize} = ${isValid}`)
+                        if (!isValid) {
+                            uploadDebugger('maximum uploaded file size exceeds')
+                            this.Error({
+                                status: 400,
+                                code: 'validation failed',
+                                message: 'maximum uploaded file size exceeds'
+                            }, cb);
+                        }
 
-                    callback(!isValid ? Err : null, isValid ? file : null);
+                        files.push({
+                            hash: crypto.createHmac('md5', `${contcfg.key}=${currentUser.id}`).update(file.path).digest('hex'),
+                            path: file.path,
+                            size: file.size,
+                            type: file.type,
+                            ext: file.type.substr(file.type.indexOf('/') + 1),
+                            owner_id: currentUser.id,
+                            assign_type: container,
+                            storage: contcfg.dirName
+                        })
+                    });
+
+                    callback(files.length ? null : {
+                        status: 400
+                    }, files.length ? files : null);
                 },
-                (file, callback) => {
-                    // CREATE IMAGE OBJECT FROM FILE
-                    lwip.open(file.path, (err, img) => {
-                        if (!err)
-                            callback(null, {
-                                hash: crypto.createHmac('md5', `${contcfg.key}=${currentUser.id}`).update(file.path).digest('hex'),
-                                size: file.size,
-                                type: file.type,
-                                ext: file.type.substr(file.type.indexOf('/') + 1),
-                                owner_id: currentUser.id,
-                                assign_type: container,
-                                storage: contcfg.dirName
-                            }, img)
-                        else
-                            callback(err)
-                    })
+                (files, callback) => {
+                    // CREATE IMAGE OBJECTS FROM FILES
+            		uploadDebugger('CREATE IMAGE OBJECTS FROM FILES');
+                    let idx = 0;
+                    _.each(files, (file) => {
+                        lwip.open(file.path, (err, img) => {
+                            file.img = img;
+                            if (idx < files.length - 1) idx++;
+                            else callback(null, files);
+                        })
+                    });
                 },
-                (file, img, callback) => {
-                    // WRITE FILE
-                    img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {
-                        // SAVE FILE
-                        this.Model.create(file)
-                            .then((media) => callback(null, media.uid))
-                            .catch((err) => callback(err))
+                (files, callback) => {
+                    // WRITE FILES
+                    let idx = 0;1
+                    _.each(files, (file) => {
+                        file.img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {
+                            if (idx < files.length - 1) idx++;
+                            else callback(null, files);
+                        });
+                    });
+                },
+                (files, callback) => {
+                    // SAVE FILE TO DB
+                    uploadDebugger('SAVE FILES TO DB');
+                    let uploaded = [];
+                    let idx = 0;
+
+                    _.each(files, (file) => {
+                    	delete file.img;
+	                    this.Model.create(file)
+	                        .then((media) => {
+	                            uploaded.push(media.id);
+	                            if (idx < files.length - 1) idx++;
+	                            else callback(null, uploaded);
+	                        })
+	                        .catch((err) => {
+	                            uploadDebugger('SAVE FILE TO DB ERR');
+	                            if (idx < files.length - 1) idx++;
+	                            else callback(err);
+	                        });
                     });
                 }
             ], (err, result) => {
                 // DONE
-                if (!err)
+                if (!err) {
+                    uploadDebugger('DONE')
                     cb(null, {
-                        uid: result,
-                        message: 'image uploaded'
+                        uids: result,
+                        message: `${result.length} images uploaded`
                     })
-                else
+                } else {
+                    uploadDebugger('ERR')
                     cb(err)
+                }
             });
 
             return cb.promise
         })
     }
 
-    get () {
+    GetMedia() {
 
         let Settings = {
             name: 'GetMedia',
@@ -235,7 +292,7 @@ class Medias extends MainHandler {
         });
     }
 
-    set () {
+    SetMedia() {
 
         let Settings = {
             name: 'SetMedia',
@@ -274,7 +331,7 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : { status: 404, message: 'not found'}, media))
+                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }, media))
                         .catch((err) => callback(err))
                 },
                 (media, callback) => {
@@ -284,16 +341,16 @@ class Medias extends MainHandler {
                     } else {
                         let contCfg = configs[media.assign_type].picture;
                         app.models[contCfg.model].findOne({
-                            where: {
-                                id: cid,
-                                $or: [
-                                    { ownerId: currentUser.personId },
-                                    { personId: currentUser.personId }
-                                ]
-                            }
-                        })
-                        .then((data) => callback(data ? null : 'not-found', data.id))
-                        .catch((err) => callback(err))
+                                where: {
+                                    id: cid,
+                                    $or: [
+                                        { ownerId: currentUser.personId },
+                                        { personId: currentUser.personId }
+                                    ]
+                                }
+                            })
+                            .then((data) => callback(data ? null : 'not-found', data.id))
+                            .catch((err) => callback(err))
                     }
                 },
                 (assign_id, callback) => {
@@ -314,7 +371,7 @@ class Medias extends MainHandler {
         });
     }
 
-    unset () {
+    UnsetMedia() {
 
         let Settings = {
             name: 'UnsetMedia',
@@ -373,7 +430,7 @@ class Medias extends MainHandler {
         });
     }
 
-    remove () {
+    RemoveMedia() {
 
         let Settings = {
             name: 'RemoveMedia',
