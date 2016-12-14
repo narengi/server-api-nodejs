@@ -81,7 +81,13 @@
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
-        "property": "UploadMedia"
+        "property": "GetMyMedias"
+    }, {
+        "accessType": "EXECUTE",
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "UploadMedias"
     }, {
         "accessType": "EXECUTE",
         "principalType": "ROLE",

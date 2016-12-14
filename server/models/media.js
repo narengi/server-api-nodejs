@@ -10,6 +10,7 @@ const loopBackContext = require('loopback-context'),
     crypto = require('crypto'),
     fs = require('fs'),
     debug = require('debug'),
+    ObjectID = require('mongodb').ObjectID,
     _ = require('lodash');
 
 class Medias extends MainHandler {
@@ -17,19 +18,21 @@ class Medias extends MainHandler {
     constructor(Media) {
         super(Media)
             // Register Methods
-        this.UploadMedia();
+        this.UploadMedias();
         this.GetMedia();
+        this.GetHouseMedias();
+        this.GetMyMedias();
         this.SetMedia();
         this.UnsetMedia();
         this.RemoveMedia();
     }
 
-    UploadMedia() {
+    UploadMedias() {
 
         const uploadDebugger = debug('narengi-media:upload')
 
         let Settings = {
-            name: 'UploadMedia',
+            name: 'UploadMedias',
             description: 'upload new medias',
             path: '/upload/:section',
             method: 'post',
@@ -171,7 +174,7 @@ class Medias extends MainHandler {
                 },
                 (files, callback) => {
                     // CREATE IMAGE OBJECTS FROM FILES
-            		uploadDebugger('CREATE IMAGE OBJECTS FROM FILES');
+                    uploadDebugger('CREATE IMAGE OBJECTS FROM FILES');
                     let idx = 0;
                     _.each(files, (file) => {
                         lwip.open(file.path, (err, img) => {
@@ -183,7 +186,8 @@ class Medias extends MainHandler {
                 },
                 (files, callback) => {
                     // WRITE FILES
-                    let idx = 0;1
+                    let idx = 0;
+                    1
                     _.each(files, (file) => {
                         file.img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {
                             if (idx < files.length - 1) idx++;
@@ -198,18 +202,19 @@ class Medias extends MainHandler {
                     let idx = 0;
 
                     _.each(files, (file) => {
-                    	delete file.img;
-	                    this.Model.create(file)
-	                        .then((media) => {
-	                            uploaded.push(media.id);
-	                            if (idx < files.length - 1) idx++;
-	                            else callback(null, uploaded);
-	                        })
-	                        .catch((err) => {
-	                            uploadDebugger('SAVE FILE TO DB ERR');
-	                            if (idx < files.length - 1) idx++;
-	                            else callback(err);
-	                        });
+                        delete file.img;
+                        delete file.path;
+                        this.Model.create(file)
+                            .then((media) => {
+                                uploaded.push(media.id);
+                                if (idx < files.length - 1) idx++;
+                                else callback(null, uploaded);
+                            })
+                            .catch((err) => {
+                                uploadDebugger('SAVE FILE TO DB ERR');
+                                if (idx < files.length - 1) idx++;
+                                else callback(err);
+                            });
                     });
                 }
             ], (err, result) => {
@@ -292,19 +297,19 @@ class Medias extends MainHandler {
         });
     }
 
-    SetMedia() {
+    GetHouseMedias() {
 
         let Settings = {
-            name: 'SetMedia',
-            description: 'set medias to specified content',
-            path: '/set',
-            method: 'put',
+            name: 'GetHouseMedias',
+            description: 'get house medias',
+            path: '/house/:houseid',
+            method: 'get',
             status: 200,
             accepts: [{
-                arg: 'data',
+                arg: 'req',
                 type: 'object',
                 http: {
-                    source: 'body'
+                    source: 'req'
                 }
             }],
             returns: {
@@ -313,10 +318,178 @@ class Medias extends MainHandler {
             }
         }
 
-        this.registerMethod(Settings, (data, cb) => {
+        this.registerMethod(Settings, (req, cb) => {
 
-            const uid = data.uid;
-            const cid = data.cid;
+            const houseid = req.params.houseid;
+            let ctx = loopBackContext.getCurrentContext();
+            let currentUser = ctx && ctx.get('currentUser');
+
+            async.waterfall([
+                (callback) => {
+                    this.Model.find({
+                            where: {
+                                assign_type: "house",
+                                assign_id: ObjectID(houseid),
+                                is_private: false,
+                                deleted: false
+                            },
+                            fields: [
+                                'uid',
+                                'type',
+                                'size',
+                                'created_date'
+                            ],
+                            limit: 10,
+                        })
+                        .then((medias) => callback(null, medias))
+                        .catch((err) => callback(err))
+                }
+            ], (err, medias) => {
+                if (!err) {
+                    cb(null, {
+                        data: medias
+                    })
+                } else cb(err)
+            });
+
+            return cb.promise;
+        });
+    }
+
+    GetMyMedias() {
+
+        let Settings = {
+            name: 'GetMyMedias',
+            description: 'get currentUser medias',
+            path: '/',
+            method: 'get',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'res',
+                type: 'object',
+                http: {
+                    source: 'res'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object'
+            }
+        }
+
+        this.registerMethod(Settings, (req, res, cb) => {
+
+            // pagination settings
+            const qs = req.query;
+            const type = qs.type && _.has(configs, qs.type) ? qs.type : null;
+            const perpage = qs.perpage && qs.perpage >= 3 && qs.perpage <= 25 ? qs.perpage : 10;
+            const page = qs.page && qs.page > 0 ? qs.page : 1;
+            const time = qs.time;
+            const timeConjuction = _.has(qs, 'after') ? 'after' : _.has(qs, 'before') ? 'before' : null;
+            const paginationMethod = timeConjuction ? 'time-conjuction' : 'normal';
+
+            const mediaDebugger = debug('narengi-media:get-my-medias')
+
+            let ctx = loopBackContext.getCurrentContext();
+            let currentUser = ctx && ctx.get('currentUser');
+            if (!currentUser) this.Error({ status: 401, message: 'unauthorized' }, cb);
+
+            mediaDebugger('qs', perpage)
+
+            async.waterfall([
+                (callback) => {
+                    let query = {
+                        where: {
+                            owner_id: currentUser.id,
+                            deleted: false
+                        },
+                        fields: [
+                            'uid',
+                            'type',
+                            'size',
+                            'assign_type',
+                            'assign_id',
+                            'is_private',
+                            'created_date'
+                        ],
+                        limit: perpage
+                    }
+                    if (type) {
+                        query.where.assign_type = type;
+                    }
+
+                    if (paginationMethod === 'normal') {
+                        let skip = (page - 1) * query.limit;
+                        query.skip = skip >= 0 ? skip : 0;
+                    } else {
+                        if (timeConjuction === 'after') {
+                            query.where.created_date = {
+                                $gt: new ISODate(time)
+                            }
+                        } else {
+                            query.where.created_date = {
+                                $lt: new ISODate(time)
+                            }
+                        }
+                    }
+
+                    this.Model.find(query)
+                        .then((medias) => callback(medias ? null : {
+                            status: 404,
+                            message: 'not found'
+                        }, medias))
+                        .catch((err) => callback(err))
+                }
+            ], (err, medias) => {
+                if (!err) {
+                    cb(medias.length ? null : {
+                        status: 204,
+                        message: 'there isn\'t any media on this range'
+                    }, medias.length ? {
+                        info: {
+                            page: paginationMethod === 'normal' ? Number(page) : 'base-on-time-conjection',
+                            perPage: Number(perpage)
+                        },
+                        data: medias
+                    } : null)
+                } else cb(err)
+            });
+
+            return cb.promise;
+        });
+    }
+
+    SetMedia() {
+
+        let Settings = {
+            name: 'SetMedia',
+            description: 'assign medias to specified content',
+            path: '/set',
+            method: 'put',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object'
+            }
+        }
+
+        this.registerMethod(Settings, (req, cb) => {
+
+            const uid = req.body.uid;
+            const cid = req.body.id;
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
             if (!currentUser) cb({ status: 401, message: 'unauthorized' })
@@ -349,19 +522,17 @@ class Medias extends MainHandler {
                                     ]
                                 }
                             })
-                            .then((data) => callback(data ? null : 'not-found', data.id))
+                            .then((data) => callback(data ? null : 'not-found', media, data.id))
                             .catch((err) => callback(err))
                     }
                 },
-                (assign_id, callback) => {
-                    this.Model.update({ uid: uid }, { assign_id: assign_id })
-                        .then((result) => callback(null, result))
-                        .catch((err) => callback(err))
+                (media, assign_id, callback) => {
+                    media.updateAttribute('assign_id', assign_id, callback);
                 }
             ], (err, result) => {
                 if (!err)
                     cb(null, {
-                        message: result.count ? 'assigned' : 'failed'
+                        message: 'assigned'
                     })
                 else
                     cb(err)
@@ -380,10 +551,10 @@ class Medias extends MainHandler {
             method: 'put',
             status: 200,
             accepts: [{
-                arg: 'data',
+                arg: 'req',
                 type: 'object',
                 http: {
-                    source: 'body'
+                    source: 'req'
                 }
             }],
             returns: {
@@ -392,9 +563,9 @@ class Medias extends MainHandler {
             }
         }
 
-        this.registerMethod(Settings, (data, cb) => {
+        this.registerMethod(Settings, (req, cb) => {
 
-            const uid = data.uid; // media id
+            const uid = req.body.uid; // media id
             let ctx = loopBackContext.getCurrentContext();
             let currentUser = ctx && ctx.get('currentUser');
             if (!currentUser) cb({ status: 401, message: 'unauthorized' })
@@ -409,18 +580,20 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }))
+                        .then((media) => {
+                            callback(media ? null : {
+                                status: 404
+                            }, media ? media : null)
+                        })
                         .catch((err) => callback(err))
                 },
-                (callback) => {
-                    this.Model.update({ uid: uid }, { assign_id: null })
-                        .then((result) => callback(null, result))
-                        .catch((err) => callback(err))
+                (media, callback) => {
+                    media.updateAttribute('assign_id', null, callback);
                 }
             ], (err, result) => {
                 if (!err)
                     cb(null, {
-                        message: result.count ? 'unassigned' : 'failed'
+                        message: 'unassigned'
                     })
                 else
                     cb(err)
@@ -468,18 +641,18 @@ class Medias extends MainHandler {
                                 deleted: false
                             }
                         })
-                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }))
+                        .then((media) => callback(media ? null : {
+                            status: 404
+                        }, media ? media : null))
                         .catch((err) => callback(err))
                 },
-                (callback) => {
-                    this.Model.update({ uid: uid }, { deleted: true })
-                        .then((result) => callback(null, result))
-                        .catch((err) => callback(err))
+                (media, callback) => {
+                    media.updateAttribute('deleted', true, callback);
                 }
             ], (err, result) => {
                 if (!err)
                     cb(null, {
-                        message: result.count ? 'removed' : 'failed'
+                        message: 'removed'
                     })
                 else
                     cb(err)
