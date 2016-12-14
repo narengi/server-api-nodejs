@@ -8,6 +8,7 @@ var promiseCallback = require('narengi-utils').Common.PromiseCallback;
 var async = require('async');
 var underscore = require('underscore');
 var Pagination = require('narengi-utils').Pagination;
+var _ = require('lodash');
 
 /**
  * This is main module for searching in the system
@@ -173,6 +174,43 @@ function defineHooks(GlobalSearch) {
         });
         ctx.result = result;
         next();
+    });
+
+    GlobalSearch.afterRemote("Search", function(ctx, instance, next) {
+        let result = ctx.result;
+
+        async.waterfall([
+            (callback) => {
+                let query = {
+                    where: {
+                        assign_type: 'house',
+                        or: [],
+                        is_private: false,
+                        deleted: false
+                    },
+                    fields: ['uid', 'assign_id'],
+                    limit: 10
+                }
+                _.each(result, (house) => {
+                    query.where.or.push({ assign_id: house.Data.id })
+                })
+
+                app.models.Media.find(query)
+                    .then((medias) => {
+                        callback(null, medias);
+                    })
+            }
+        ], (err, pics) => {
+            _.each(pics, (pic) => {
+                let resultIndex = _.findIndex(result, { id: pic.assign_id })
+                _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
+                    if (_.has(oldPic, 'styles')) result[resultIndex].Data.pictures.splice(idx, 1);
+                });
+                result[resultIndex].Data.pictures.push({ url: `/v1/medias/house/${pic.uid}` });
+            })
+            ctx.result = result;
+            next();
+        })
     });
 }
 

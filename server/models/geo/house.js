@@ -14,6 +14,7 @@ var randomString = require('randomstring');
 var async = require('async');
 var debug = require('debug')('narengi:geo:house');
 var moment = require('moment');
+var _ = require('lodash');
 
 /**
  * @namespace Models.House
@@ -398,6 +399,33 @@ function defineMainServices(House) {
         ctx.result = result;
         next();
     });
+    House.afterRemote("GetById", function(ctx, instance, next) {
+        let result = ctx.result;
+        async.waterfall([
+            (callback) => {
+                app.models.Media.find({
+                    where: {
+                        assign_type: 'house',
+                        assign_id: result.id,
+                        is_private: false,
+                        deleted: false
+                    },
+                    fields: ['uid'],
+                    limit: 10
+                }).then((medias) => {
+                    let pics = [];
+                    _.each(medias, (media) => {
+                        pics.push({ url: `/v1/medias/house/${media.uid}` })
+                    })
+                    callback(null, pics);
+                })
+            }
+        ], (err, pics) => {
+            result.pictures = pics;
+            ctx.result = result;
+            next();
+        })
+    });
 
     House.remoteMethod(
         'GetById', {
@@ -614,6 +642,41 @@ function defineMainServices(House) {
         });
         ctx.result = result;
         next();
+    });
+    House.afterRemote("GetMyHouses", function(ctx, instance, next) {
+        let result = ctx.result;
+        async.waterfall([
+            (callback) => {
+                let query = {
+                    where: {
+                        assign_type: 'house',
+                        or: [],
+                        is_private: false,
+                        deleted: false
+                    },
+                    fields: ['uid', 'assign_id'],
+                    limit: 10
+                }
+                _.each(result, (house) => {
+                    query.where.or.push({ assign_id: house.id })
+                })
+
+                app.models.Media.find(query)
+                    .then((medias) => {
+                        callback(null, medias);
+                    })
+            }
+        ], (err, pics) => {
+            _.each(pics, (pic) => {
+                let resultIndex = _.findIndex(result, { id: pic.assign_id })
+                _.each(result[resultIndex].pictures, function(oldPic, idx) {
+                    if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
+                });
+                result[resultIndex].pictures.push({ url: `/v1/medias/house/${pic.uid}` });
+            })
+            ctx.result = result;
+            next();
+        })
     });
 
     House.remoteMethod(

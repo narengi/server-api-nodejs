@@ -27,6 +27,7 @@ module.exports = function (HouseDTO) {
         dto.pictures = getPictures(house);
         dto.type = house.type;
         dto.detailUrl = house.getDetailUrl();
+        dto.dates = house.dates;
         return dto;
     };
 
