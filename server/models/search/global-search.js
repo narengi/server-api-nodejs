@@ -205,7 +205,7 @@ function defineHooks(GlobalSearch) {
                 _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
                     if (reg.test(oldPic)) result[resultIndex].Data.pictures.splice(idx, 1);
                 });
-                result[resultIndex].Data.pictures.push(`/v1/medias/house/${pic.uid}`);
+                result[resultIndex].Data.pictures.push(`/v1/medias/${pic.uid}`);
             })
             ctx.result = result;
             next();
