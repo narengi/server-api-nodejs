@@ -665,7 +665,7 @@ function defineMainServices(House) {
                 _.each(result, (house) => {
                     query.where.or.push({ assign_id: ObjectID(house.id) })
                 })
-
+                if (!query.where.or.length) delete query.where.or;
                 app.models.Media.find(query)
                     .then((medias) => {
                         callback(null, medias);
