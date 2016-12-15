@@ -23,7 +23,7 @@ class Medias extends MainHandler {
         this.GetHouseMedias();
         this.GetMyMedias();
         this.SetMedia();
-        this.UnsetMedia();
+        // this.UnsetMedia(); // use RemoveMedia instead
         this.RemoveMedia();
     }
 
@@ -365,38 +365,6 @@ class Medias extends MainHandler {
         });
     }
 
-    GetHouseMediasByHouseId (houseid) {
-    	return new Promise((resolve, reject) => {
-            async.waterfall([
-                (callback) => {
-                    this.Model.find({
-                            where: {
-                                assign_type: "house",
-                                assign_id: ObjectID(houseid),
-                                is_private: false,
-                                deleted: false
-                            },
-                            fields: [
-                                'uid',
-                                'type',
-                                'size',
-                                'created_date'
-                            ],
-                            limit: 10,
-                        })
-                        .then((medias) => callback(null, medias))
-                        .catch((err) => callback(err))
-                }
-            ], (err, medias) => {
-                if (!err) {
-                    resolve({
-                        data: medias
-                    })
-                } else reject(err)
-            });
-    	})
-    }
-
     GetMyMedias() {
 
         let Settings = {
@@ -678,7 +646,7 @@ class Medias extends MainHandler {
                     this.Model.findOne({
                             where: {
                                 uid: uid,
-                                owner_id: currentUser.id,
+                                owner_id: ObjectID(currentUser.id),
                                 deleted: false
                             }
                         })
