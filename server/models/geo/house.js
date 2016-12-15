@@ -416,7 +416,7 @@ function defineMainServices(House) {
                 }).then((medias) => {
                     let pics = [];
                     _.each(medias, (media) => {
-                        pics.push({ url: `/v1/medias/get/${media.uid}` })
+                        pics.push({ url: `/medias/get/${media.uid}` })
                     })
                     callback(null, pics);
                 })
@@ -673,7 +673,7 @@ function defineMainServices(House) {
                 _.each(result[resultIndex].pictures, function(oldPic, idx) {
                     if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
                 });
-                result[resultIndex].pictures.push({ url: `/v1/medias/get/${pic.uid}` });
+                result[resultIndex].pictures.push({ url: `/medias/get/${pic.uid}` });
             })
             ctx.result = result;
             next();
