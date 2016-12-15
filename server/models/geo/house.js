@@ -427,7 +427,6 @@ function defineMainServices(House) {
             }
         ], (err, pics) => {
             result.pictures = pics;
-            console.log('result', result);
             ctx.result = result;
             next();
         })

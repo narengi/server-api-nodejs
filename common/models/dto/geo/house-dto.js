@@ -24,7 +24,6 @@ module.exports = function (HouseDTO) {
 
     HouseDTO.convertForMobile = function (house, options) {
         var dto = this.base.convert_internal(house, HouseDTO, options);
-        console.log('houseDTO', house)
         dto.pictures = getPictures(house);
         dto.type = house.type;
         dto.detailUrl = house.getDetailUrl();
