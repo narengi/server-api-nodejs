@@ -24,10 +24,15 @@ module.exports = function (HouseDTO) {
 
     HouseDTO.convertForMobile = function (house, options) {
         var dto = this.base.convert_internal(house, HouseDTO, options);
+        console.log('houseDTO', house)
         dto.pictures = getPictures(house);
         dto.type = house.type;
         dto.detailUrl = house.getDetailUrl();
-        dto.dates = house.dates;
+        dto.dates = house.dates || [];
+        if (dto.dates.length) {
+            dto.dates = dto.dates.sort();
+            dto.first_date = dto.dates[0];
+        }
         return dto;
     };
 
