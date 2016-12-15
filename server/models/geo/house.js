@@ -674,13 +674,15 @@ function defineMainServices(House) {
         ], (err, pics) => {
             _.each(pics, (pic) => {
                 let resultIndex = _.findIndex(result, { id: pic.assign_id })
-                _.each(result[resultIndex].pictures, function(oldPic, idx) {
-                    if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
-                });
-                result[resultIndex].pictures.push({ 
-                    uid: pic.uid,
-                    url: `/medias/get/${pic.uid}` 
-                });
+                if (result[resultIndex].pictures) {
+                    _.each(result[resultIndex].pictures, function(oldPic, idx) {
+                        if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
+                    });
+                    result[resultIndex].pictures.push({ 
+                        uid: pic.uid,
+                        url: `/medias/get/${pic.uid}` 
+                    });
+                }
             })
             ctx.result = result;
             next();
