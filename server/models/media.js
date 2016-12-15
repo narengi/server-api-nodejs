@@ -215,7 +215,7 @@ class Medias extends MainHandler {
                         uploadDebugger("file.assign_type", file.assign_type, cid, file)
                         this.Model.create(file)
                             .then((media) => {
-                                uploaded.push(media.id);
+                                uploaded.push(media.uid);
                                 if (idx < files.length - 1) idx++;
                                 else callback(null, uploaded);
                             })
