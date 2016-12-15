@@ -15,18 +15,20 @@ const loopBackContext = require('loopback-context'),
     async = require('async'),
     crypto = require('crypto'),
     fs = require('fs'),
+    mime = require('mime'),
+    googleMaps = require('googlemaps'),
     debug = require('debug'),
     ObjectID = require('mongodb').ObjectID,
     _ = require('lodash');
 
 class Medias extends MainHandler {
 
-	/**
-	 * Main Class Constructor
-	 */
+    /**
+     * Main Class Constructor
+     */
     constructor(Media) {
         super(Media)
-        // Register Methods
+            // Register Methods
         this.UploadMedias();
         this.GetMedia();
         this.GetHouseMedias();
@@ -34,6 +36,7 @@ class Medias extends MainHandler {
         this.SetMedia();
         // this.UnsetMedia(); // use RemoveMedia instead
         this.RemoveMedia();
+        this.GoogleMapForHouse();
     }
 
     /**
@@ -153,8 +156,8 @@ class Medias extends MainHandler {
                     let files = [];
 
                     let formDataType = Object.prototype.toString.call(formData.files);
-                    	formDataType = formDataType.substr(formDataType.indexOf(' ') + 1, 3).toLowerCase();
-                    
+                    formDataType = formDataType.substr(formDataType.indexOf(' ') + 1, 3).toLowerCase();
+
                     formData.files = formDataType === 'obj' ? [formData.files] : formData.files;
 
                     _.each(formData.files, (file, idx) => {
@@ -228,7 +231,7 @@ class Medias extends MainHandler {
                         delete file.img;
                         delete file.path;
                         if (file.assign_type === 'house' && cid) {
-                        	file.assign_id = ObjectID(cid);
+                            file.assign_id = ObjectID(cid);
                         }
                         uploadDebugger("file.assign_type", file.assign_type, cid, file)
                         this.Model.create(file)
@@ -722,6 +725,92 @@ class Medias extends MainHandler {
                     })
                 else
                     cb(err)
+            });
+
+            return cb.promise;
+        });
+    }
+
+    /**
+     * Generate Google Maps Image from House Geo-Position
+     * @url /v1/medias/googlemap/house/:houseid
+     * @method GET
+     * @param {string} houseid
+     * @return {fileobject} image
+     */
+    GoogleMapForHouse() {
+
+        let Settings = {
+            name: 'GoogleMapForHouse',
+            description: 'Generate Google Maps Image from House Geo-Position',
+            path: '/googlemap/house/:houseid',
+            method: 'get',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'res',
+                type: 'object',
+                http: {
+                    source: 'res'
+                }
+            }],
+            returns: {
+                arg: 'fileobject',
+                type: 'object',
+                root: true
+            }
+        }
+
+        this.registerMethod(Settings, (req, res, cb) => {
+
+            const houseid = req.params.houseid,
+                imgsize = req.query.size || '500x200';
+
+            async.waterfall([
+                (callback) => {
+                    // GET HOUSE
+                    app.models.House.findById(houseid)
+                        .then((house) => {
+                            let posVals = _.values(house.position);
+                            posVals = posVals.splice(posVals.length - 2);
+                            if (posVals.length) callback(null, posVals);
+                            else callback('house does not have coordinates');
+                        });
+                },
+                (pos, callback) => {
+                    let gm = new googleMaps({
+                        key: "AIzaSyCiLAqll37o6D3ZY-wUw7i_GPrcUQ3owFE"
+                    });
+                    let params = {
+                        // center: pos.join(', '),
+                        zoom: 15,
+                        size: imgsize,
+                        maptype: 'roadmap',
+                        markers: [{
+                            location: pos.join(', '),
+                            icon: 'http://amirhassan.com/circle.png'
+                        }],
+                        path: [{
+                            color: '0x0000ff',
+                            weight: '5',
+                            points: [pos.join(', ')]
+                        }]
+                    };
+
+                    let imgUrl = gm.staticMap(params)
+                    callback(null, imgUrl);
+                }
+            ], (err, imgUrl) => {
+                if (err) {
+                    cb({ status: 404, message: err })
+                } else {
+                    res.redirect(imgUrl)
+                }
             });
 
             return cb.promise;
