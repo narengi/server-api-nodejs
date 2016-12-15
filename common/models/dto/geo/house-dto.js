@@ -27,6 +27,7 @@ module.exports = function (HouseDTO) {
         dto.pictures = getPictures(house);
         dto.type = house.type;
         dto.detailUrl = house.getDetailUrl();
+        dto.position = house.position;
         dto.dates = house.dates || [];
         if (dto.dates.length) {
             dto.dates = dto.dates.sort();
