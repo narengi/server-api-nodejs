@@ -109,7 +109,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                     if (!Boolean(Number(spec[s]))) spec[s] = 0;
                 });
                 house.spec = spec;
-                console.log('house', house);
+                // console.log('house', house);
             }
             callback(null, house);
         },
@@ -396,7 +396,7 @@ function defineMainServices(House) {
     House.afterRemote("GetById", function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            result.price = `${result.prices.price} تومان`;
+            result.price = `${result.prices.price || 0} تومان`;
         }
         ctx.result = result;
         next();
@@ -789,7 +789,7 @@ function definePictureStuff(House) {
                 err.message = "you can not upoload more than 10 pictures for a house";
                 cb(err);
             } else {
-                console.log('uploading picture for house#' + house.id);
+                // console.log('uploading picture for house#' + house.id);
                 app.models.HouseImageContainer
                     .UploadPicture(house, data)
                     .then(uploadCompletedHandler)
@@ -816,7 +816,7 @@ function definePictureStuff(House) {
         }
 
         function houseNotFoundHandler(err) {
-            console.log("houseNotFoundHandler", err);
+            // console.log("houseNotFoundHandler", err);
             cb(Persistency.Errors.NotFound());
         }
 
@@ -900,7 +900,7 @@ function definePictureStuff(House) {
         }
 
         function houseNotFoundHandler(err) {
-            console.log(err);
+            // console.log(err);
             cb(Persistency.Errors.NotFound());
         }
     };
