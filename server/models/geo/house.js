@@ -104,6 +104,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                 var spec = app.models.HouseSpec.RefineInput(data.spec);
                 house.spec = house.spec || {};
                 spec = underscore.defaults(spec, house.spec.toJSON());
+                console.log('spec', spec);
                 // console.log(spec);
                 lodash.keys(spec).map(function(s) {
                     if (!Boolean(Number(spec[s]))) spec[s] = 0;
@@ -416,7 +417,10 @@ function defineMainServices(House) {
                 }).then((medias) => {
                     let pics = [];
                     _.each(medias, (media) => {
-                        pics.push({ url: `/medias/get/${media.uid}` })
+                        pics.push({ 
+                            uid: media.uid,
+                            url: `/medias/get/${media.uid}` 
+                        })
                     })
                     callback(null, pics);
                 })
@@ -673,7 +677,10 @@ function defineMainServices(House) {
                 _.each(result[resultIndex].pictures, function(oldPic, idx) {
                     if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
                 });
-                result[resultIndex].pictures.push({ url: `/medias/get/${pic.uid}` });
+                result[resultIndex].pictures.push({ 
+                    uid: pic.uid,
+                    url: `/medias/get/${pic.uid}` 
+                });
             })
             ctx.result = result;
             next();
