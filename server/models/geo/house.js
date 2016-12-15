@@ -674,7 +674,7 @@ function defineMainServices(House) {
         ], (err, pics) => {
             _.each(pics, (pic) => {
                 let resultIndex = _.findIndex(result, { id: pic.assign_id })
-                if (result[resultIndex].pictures) {
+                if (result[resultIndex]) {
                     _.each(result[resultIndex].pictures, function(oldPic, idx) {
                         if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
                     });
