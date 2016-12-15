@@ -641,7 +641,7 @@ function defineMainServices(House) {
         var result = ctx.result;
         result = underscore.map(result, function(item) {
             if (item.prices) {
-                item.price = `${item.prices.price} تومان`;
+                item.price = `${item.prices.price || 0} تومان`;
             }
             return item;
         });
