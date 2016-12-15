@@ -1,3 +1,9 @@
+/**
+ * Narengi Media Model: Handle Image Actions
+ * @author Aref Mirhosseini <code@arefmirhosseini.com> (http://arefmirhosseini.com)
+ * @update Thu Dec. 15 2016
+ */
+
 'use strict'
 
 const loopBackContext = require('loopback-context'),
@@ -15,6 +21,9 @@ const loopBackContext = require('loopback-context'),
 
 class Medias extends MainHandler {
 
+	/**
+	 * Main Class Constructor
+	 */
     constructor(Media) {
         super(Media)
         // Register Methods
@@ -27,6 +36,15 @@ class Medias extends MainHandler {
         this.RemoveMedia();
     }
 
+    /**
+     * Upload Single/Multiple Images
+     * @url /v1/medias/upload/:section/:id?
+     * @method POST
+     * @param {string} section
+     * @param {objectid} id
+     * @body {fileobject} files
+     * @return {object} result
+     */
     UploadMedias() {
 
         const uploadDebugger = debug('narengi-media:upload')
@@ -244,6 +262,13 @@ class Medias extends MainHandler {
         })
     }
 
+    /**
+     * Get/Download Images
+     * @url /v1/medias/get/:uid
+     * @method GET
+     * @param {uuidv4} uid
+     * @return {fileobject}
+     */
     GetMedia() {
 
         let Settings = {
@@ -306,6 +331,13 @@ class Medias extends MainHandler {
         });
     }
 
+    /**
+     * Get House Images
+     * @url /v1/medias/house/:houseid
+     * @method GET
+     * @param {objectid} houseid
+     * @return {object} result
+     */
     GetHouseMedias() {
 
         let Settings = {
@@ -365,6 +397,11 @@ class Medias extends MainHandler {
         });
     }
 
+    /**
+     * Get Current User Uploaded Medias
+     * @url /v1/medias
+     * @method GET
+     */
     GetMyMedias() {
 
         let Settings = {
@@ -474,6 +511,14 @@ class Medias extends MainHandler {
         });
     }
 
+    /**
+     * Set/Assign Media to House or UserProfile
+     * @url /v1/medias/set
+     * @method PUT
+     * @body {uuidv4} uid
+     * @body {id} house id / userprofile id
+     * @return {object} result
+     */
     SetMedia() {
 
         let Settings = {
@@ -551,6 +596,11 @@ class Medias extends MainHandler {
         });
     }
 
+    /**
+     * Unset/Unassign Medias From Houses -- DEPRECTED SERVICE, USE RemoveMedia INSTEAD
+     * @url /v1/medias/unset
+     * @method PUT
+     */
     UnsetMedia() {
 
         let Settings = {
@@ -612,6 +662,13 @@ class Medias extends MainHandler {
         });
     }
 
+    /**
+     * Remove/Delete Media (Images)
+     * @url /v1/medias/remove/:uid
+     * @method DELETE
+     * @param {uuidv4} uid
+     * @return {object} result
+     */
     RemoveMedia() {
 
         let Settings = {
