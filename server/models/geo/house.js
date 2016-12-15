@@ -416,7 +416,7 @@ function defineMainServices(House) {
                 }).then((medias) => {
                     let pics = [];
                     _.each(medias, (media) => {
-                        pics.push({ url: `/v1/medias/${media.uid}` })
+                        pics.push({ url: `/v1/medias/get/${media.uid}` })
                     })
                     callback(null, pics);
                 })
