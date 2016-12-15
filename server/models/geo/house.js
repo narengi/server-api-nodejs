@@ -104,12 +104,12 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                 var spec = app.models.HouseSpec.RefineInput(data.spec);
                 house.spec = house.spec || {};
                 spec = underscore.defaults(spec, house.spec.toJSON());
-                console.log('spec', spec);
                 // console.log(spec);
                 lodash.keys(spec).map(function(s) {
                     if (!Boolean(Number(spec[s]))) spec[s] = 0;
                 });
                 house.spec = spec;
+                console.log('house', house);
             }
             callback(null, house);
         },
