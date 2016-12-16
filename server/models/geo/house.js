@@ -299,7 +299,7 @@ function defineMainServices(House) {
     House.afterRemote('Update', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            result.price = `${result.prices.price || 0} تومان`;
+            Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
         }
         ctx.result = result;
         next();
@@ -432,7 +432,7 @@ function defineMainServices(House) {
     House.afterRemote('GetById', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            result.price = `${result.prices.price || 0} تومان`;
+            result.price = Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
         }
         ctx.result = result;
         next();
@@ -464,6 +464,29 @@ function defineMainServices(House) {
             }
         ], (err, pics) => {
             result.pictures = pics;
+            ctx.result = result;
+            next();
+        })
+    });
+    House.afterRemote('GetById', function(ctx, instance, next) {
+        let result = ctx.result;
+        async.waterfall([
+            (callback) => {
+                app.models.Account.findOne({
+                    where: {
+                        personId: result.ownerId
+                    }
+                }, callback)
+            }
+        ], (err, owner) => {
+            result.owner = {
+                uid: owner.id,
+                fullName: `${owner.user_profile.firstName} ${owner.user_profile.lastName}`,
+                detailUrl: `/accounts/${owner.id}`,
+                picture: {
+                    url: `/user-profiles/${owner.id}/picture/${owner.user_profile.picture.hash}`
+                }
+            }
             ctx.result = result;
             next();
         })
