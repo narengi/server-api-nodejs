@@ -163,7 +163,7 @@ function defineHooks(GlobalSearch) {
                 }
 
                 if (converted.prices) {
-                    converted.price = `${converted.prices.price} تومان`;
+                    converted.price = Number(converted.prices.price) > 0 ? `${Math.ceil(Number(converted.prices.price) / 1000)} هزار تومان` : 'رایگان';
                     delete converted.prices;
                 }
 

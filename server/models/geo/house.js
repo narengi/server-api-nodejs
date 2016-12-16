@@ -299,7 +299,7 @@ function defineMainServices(House) {
     House.afterRemote('Update', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
+            Number(result.prices.price) > 0 ? `${Math.ceil(Number(result.prices.price) / 1000)} هزار تومان` : `رایگان`;
         }
         ctx.result = result;
         next();
@@ -432,7 +432,7 @@ function defineMainServices(House) {
     House.afterRemote('GetById', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            result.price = Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
+            result.price = Number(result.prices.price) > 0 ? `${Math.ceil(Number(result.prices.price) / 1000)} هزار تومان` : `رایگان`;
         }
         ctx.result = result;
         next();
