@@ -531,6 +531,8 @@ function defineMainServices(House) {
                     'location.city': { like: term, options: 'i' }
                 }, {
                     'location.province': { like: term, options: 'i' }
+                }, {
+                    'location.address': { like: term, options: 'i' }
                 }]
             }; // i denotes insensitivity
         }
@@ -538,7 +540,7 @@ function defineMainServices(House) {
         filter.where.deleted = false;
         // filter.where.status = 'listed';
         filter.order = '_id DESC';
-        console.log('filter', filter)
+        debug('filter', filter)
         House
             .find(filter)
             .then(Persistency.CrudHandlers.successHandler(cb))
