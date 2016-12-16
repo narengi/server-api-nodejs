@@ -5,5 +5,5 @@
 module.exports = exports;
 
 exports.RemoteHooks = require('./remote-hooks');
-
+exports.RemoteAccepts = require('./remote-accepts');
 exports.Common = require('./common');

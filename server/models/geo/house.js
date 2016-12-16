@@ -525,12 +525,22 @@ function defineMainServices(House) {
 
         //type of argument is string so we test it by empty string
         if (term !== "") {
-            filter["where"] = { name: { like: term, options: "i" } }; // i denotes insensitivity
+            // filter.where = { name: { like: term, options: "i" } }; // i denotes insensitivity
+            filter.where = {
+                or: [{
+                    name: { like: term, options: "i" }
+                }, {
+                    "location.city": { like: term, options: "i" }
+                }, {
+                    "location.province": { like: term, options: "i" }
+                }]
+            }; // i denotes insensitivity
         }
         filter.where = filter.where || {};
         filter.where.deleted = false;
         // filter.where.status = 'listed';
         filter.order = "_id DESC";
+        console.log('filter', filter)
         House
             .find(filter)
             .then(Persistency.CrudHandlers.successHandler(cb))

@@ -92,9 +92,8 @@ function defineGeneralServices(GlobalSearch) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    GlobalSearch.Search = function(term, paging, req, res, cb) {
+    GlobalSearch.Search = function(term, paging, paging2, req, res, cb) {
         cb = cb || promiseCallback();
-
 
         if (paging.limit === 0)
             paging.limit = app.settings.pagination.globalSearch.limit;
@@ -104,7 +103,8 @@ function defineGeneralServices(GlobalSearch) {
             paging.limit = 3;
 
         //not to interfere in pagination remote hook
-        var pagingCloned = underscore.clone(paging);
+        // var pagingCloned = underscore.clone(paging);
+        var pagingCloned = _.merge(paging, paging2);
 
         // pagingCloned.limit = Math.floor(pagingCloned.limit / 3);
 
@@ -250,6 +250,10 @@ function defineRemoteMethods(GlobalSearch) {
                 }
                 return ret;
             }
+        }, {
+            arg: 'paging2',
+            type: 'object',
+            http: Pagination.RemoteAccepts.analyzeRequest 
         }, {
             arg: 'req',
             type: 'object',
