@@ -29,6 +29,9 @@ module.exports = function (app) {
         if (!userId) {
             return reject(); // do not allow anonymous users
         }
+        if (!context.modelId) {
+            return cb(null, false)
+        }
         context.model.findById(context.modelId, function (err, house) {
             if (err)
                 return reject(err);

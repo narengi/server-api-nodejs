@@ -211,7 +211,12 @@
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
-        "property": ["GetSpec", "GetMyHouses"]
+        "property": "GetSpec"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "GetMyHouses"
     }, {
         "principalType": "ROLE",
         "principalId": "houseOwner",

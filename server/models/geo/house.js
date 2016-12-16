@@ -416,9 +416,9 @@ function defineMainServices(House) {
                 }).then((medias) => {
                     let pics = [];
                     _.each(medias, (media) => {
-                        pics.push({ 
+                        pics.push({
                             uid: media.uid,
-                            url: `/medias/get/${media.uid}` 
+                            url: `/medias/get/${media.uid}`
                         })
                     })
                     callback(null, pics);
@@ -612,27 +612,30 @@ function defineMainServices(House) {
      * @param {Callback} cb
      * @returns {HouseDTO[]}
      */
-    House.GetMyHouses = function(paging, req, cb) {
+    House.GetMyHouses = function(paging, paging2, req, cb) {
         cb = cb || PromiseCallback();
 
-        var currentUser = req.getNarengiContext().getUser();
-        if (!currentUser) return cb(Security.Errors.NotAuthorized());
+        paging = _.merge(paging, paging2);
+        let specHouse = req.query.house || null;
+
+        let ctx = LoopBackContext.getCurrentContext();
+        let currentUser = ctx && ctx.get('currentUser');
+        if (!currentUser) cb({ status: 401, message: 'unauthorized' });
 
         var self = this;
 
         async.waterfall([
             function(callback) {
-                app.models.Person.findById(currentUser.personId, callback);
-            },
-            function(person, callback) {
-                if (!person) return callback(Security.Errors.NotAuthorized());
                 var filter = paging;
                 self.injectLangToFilter(filter);
                 filter.where = filter.where || {};
                 filter.where.deleted = false;
-                filter.where.ownerId = person.id;
+                filter.where.ownerId = currentUser.personId;
                 if (req.params.filter && ['listed', 'unlisted', 'incomplete'].indexOf(req.params.filter) > -1) {
                     filter.where.status = req.params.filter;
+                }
+                if (specHouse) {
+                    filter.where.id = specHouse;
                 }
                 House.find(filter, callback);
             }
@@ -650,52 +653,61 @@ function defineMainServices(House) {
     House.afterRemote('GetMyHouses', Common.RemoteHooks.convert2Dto(House));
     House.afterRemote('GetMyHouses', function(ctx, instance, next) {
         var result = ctx.result;
-        result = underscore.map(result, function(item) {
-            if (item.prices) {
-                item.price = `${item.prices.price || 0} تومان`;
-            }
-            return item;
-        });
-        ctx.result = result;
+        if (result.length) {
+            result = underscore.map(result, function(item) {
+                if (item.prices) {
+                    item.price = `${item.prices.price || 0} تومان`;
+                }
+                return item;
+            });
+            ctx.result = result;
+        }
         next();
     });
     House.afterRemote('GetMyHouses', function(ctx, instance, next) {
         let result = ctx.result;
         async.waterfall([
             (callback) => {
-                let query = {
-                    where: {
-                        assign_type: 'house',
-                        or: [],
-                        is_private: false,
-                        deleted: false
-                    },
-                    fields: ['uid', 'assign_id'],
-                    limit: 10
-                }
-                _.each(result, (house) => {
-                    query.where.or.push({ assign_id: ObjectID(house.id) })
-                })
-                if (!query.where.or.length) delete query.where.or;
-                app.models.Media.find(query)
-                    .then((medias) => {
-                        callback(null, medias);
+                if (result.length) {
+                    let query = {
+                        where: {
+                            assign_type: 'house',
+                            or: [],
+                            is_private: false,
+                            deleted: false
+                        },
+                        fields: ['uid', 'assign_id'],
+                        limit: 10,
+                        order: '_id ASC'
+                    }
+                    _.each(result, (house) => {
+                        query.where.or.push({ assign_id: ObjectID(house.id) })
                     })
+                    if (!query.where.or.length) delete query.where.or;
+                    app.models.Media.find(query)
+                        .then((medias) => {
+                            callback(null, medias);
+                        })
+                } else {
+                    callback(null, []);
+                }
             }
         ], (err, pics) => {
-            _.each(pics, (pic) => {
-                let resultIndex = _.findIndex(result, { id: pic.assign_id })
-                if (result[resultIndex]) {
-                    _.each(result[resultIndex].pictures, function(oldPic, idx) {
-                        if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
-                    });
-                    result[resultIndex].pictures.push({ 
-                        uid: pic.uid,
-                        url: `/medias/get/${pic.uid}` 
-                    });
-                }
-            })
-            ctx.result = result;
+            if (pics.length) {
+                _.each(pics, (pic) => {
+                    let resultIndex = _.findIndex(result, { id: pic.assign_id })
+                    if (result[resultIndex]) {
+                        _.each(result[resultIndex].pictures, function(oldPic, idx) {
+                            if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
+                        });
+                        result[resultIndex].pictures.push({
+                            uid: pic.uid,
+                            url: `/medias/get/${pic.uid}`
+                        });
+                    }
+                })
+                ctx.result = result;
+            }
             next();
         })
     });
@@ -711,6 +723,10 @@ function defineMainServices(House) {
                 description: ['Calculated parameter.',
                     'In REST call should be like : `/houses?limit=25&skip=150`'
                 ]
+            }, {
+                arg: 'paging2',
+                type: 'object',
+                http: Pagination.RemoteAccepts.analyzeRequest
             }, {
                 arg: 'req',
                 type: 'object',
