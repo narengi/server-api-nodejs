@@ -296,6 +296,45 @@ function defineMainServices(House) {
     House.beforeRemote('Update', Common.RemoteHooks.correctCaseOfKeysInArg('data', true));
     House.beforeRemote('Update', Common.RemoteHooks.injectLangToRequestData);
     House.afterRemote('Update', Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('Update', function(ctx, instance, next) {
+        let result = ctx.result;
+        if (result.prices) {
+            result.price = `${result.prices.price || 0} تومان`;
+        }
+        ctx.result = result;
+        next();
+    });
+    House.afterRemote('Update', function(ctx, instance, next) {
+        let result = ctx.result;
+        async.waterfall([
+            (callback) => {
+                app.models.Media.find({
+                    where: {
+                        assign_type: 'house',
+                        assign_id: ObjectID(result.id),
+                        is_private: false,
+                        deleted: false
+                    },
+                    fields: ['uid'],
+                    limit: 10,
+                    order: '_id DESC'
+                }).then((medias) => {
+                    let pics = [];
+                    _.each(medias, (media) => {
+                        pics.push({
+                            uid: media.uid,
+                            url: `/medias/get/${media.uid}`
+                        })
+                    })
+                    callback(null, pics);
+                })
+            }
+        ], (err, pics) => {
+            result.pictures = pics;
+            ctx.result = result;
+            next();
+        })
+    });
 
     House.remoteMethod(
         'Update', {

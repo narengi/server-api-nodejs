@@ -2,11 +2,11 @@
 // Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
-var debug = require('debug')('narengi:role:houseOwner');
+var debug = require('debug')('narengi-role:houseOwner');
 
-module.exports = function (app) {
+module.exports = function(app) {
     var Role = app.models.Role;
-    Role.registerResolver('houseOwner', function (role, context, cb) {
+    Role.registerResolver('houseOwner', function(role, context, cb) {
         function reject(err) {
             if (err) {
                 return cb(err);
@@ -29,28 +29,30 @@ module.exports = function (app) {
         if (!userId) {
             return reject(); // do not allow anonymous users
         }
+        debug("model id : %s", context.modelId);
         if (!context.modelId) {
             return cb(null, false)
         }
-        context.model.findById(context.modelId, function (err, house) {
-            if (err)
+        context.model.findById(context.modelId, function(err, house) {
+            debug("err", err);
+            if (err) {
                 return reject(err);
-            if (!house)
+            }
+            if (!house) {
                 return reject(require('narengi-utils').Persistency.Errors.NotFound());
+            }
 
-            house.__get__owner(function (ex, owner) {
-                if (!owner)
-                    return cb(null, false);
-
-                app.models.Account.count({
-                    personId: owner.id,
-                    id: userId
-                }, function (err, count) {
-                    if (err)
-                        return reject(err);
-                    cb(null, count > 0);
-                });
+            app.models.Account.count({
+                personId: house.ownerId,
+                id: userId
+            }, function(err, count) {
+                if (err) {
+                    return reject(err);
+                }
+                debug('is_owner', count > 0);
+                cb(null, count > 0);
             });
         });
+
     });
 };
