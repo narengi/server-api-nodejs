@@ -2,20 +2,20 @@
 // Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
-var Common = require('narengi-utils').Common;
-var Pagination = require('narengi-utils').Pagination;
-var Persistency = require('narengi-utils').Persistency;
-var app = serverRequire('server');
-var underscore = require('underscore');
-var lodash = require('lodash');
-var loopback = require('loopback');
-var LoopBackContext = require('loopback-context');
-var randomString = require('randomstring');
-var async = require('async');
-var debug = require('debug')('narengi:geo:house');
-var moment = require('moment');
-var _ = require('lodash');
-var ObjectID = require('mongodb').ObjectID;
+const Common = require('narengi-utils').Common,
+    Pagination = require('narengi-utils').Pagination,
+    Persistency = require('narengi-utils').Persistency,
+    app = serverRequire('server'),
+    underscore = require('underscore'),
+    lodash = require('lodash'),
+    loopback = require('loopback'),
+    LoopBackContext = require('loopback-context'),
+    randomString = require('randomstring'),
+    async = require('async'),
+    debug = require('debug')('narengi-house'),
+    moment = require('moment'),
+    _ = require('lodash'),
+    ObjectID = require('mongodb').ObjectID;
 
 /**
  * @namespace Models.House
@@ -48,22 +48,19 @@ module.exports = function(House) {
  */
 function createOrUpdateHouse(req, houseId, data, cb) {
     var plainProps = [
-        "name",
-        "summary",
-        "location",
-        "position",
-        // "type",
-        "spec",
-        // "price",
-        "feature_list",
-        "available_dates",
-        "lang"
+        'name',
+        'summary',
+        'location',
+        'position',
+        // 'type',
+        'spec',
+        // 'price',
+        'features',
+        'available_dates',
+        'lang'
     ];
     // validate Data
     var plainData = underscore.pick(data, plainProps);
-
-    // console.log("plainData", plainData);
-    // return;
 
     async.waterfall([
         function(callback) { //create or update instance by plain properties
@@ -157,7 +154,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         }
     ], function(err, house) {
         if (err) return cb(err);
-        // console.log("NEW HOUSE WILL BE SAVE!", house);
+        // console.log('NEW HOUSE WILL BE SAVE!', house);
         house.save(cb);
     });
 
@@ -234,7 +231,7 @@ function defineMainServices(House) {
 
     House.beforeRemote('Create', Common.RemoteHooks.correctCaseOfKeysInArg('data', true));
     House.beforeRemote('Create', Common.RemoteHooks.injectLangToRequestData);
-    House.afterRemote("Create", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('Create', Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'Create', {
@@ -257,7 +254,7 @@ function defineMainServices(House) {
                 root: true
             },
             http: {
-                path: "/",
+                path: '/',
                 verb: 'post',
                 status: 201
             }
@@ -292,12 +289,13 @@ function defineMainServices(House) {
      */
     House.Update = function(id, data, req, cb) {
         cb = cb || Common.PromiseCallback();
+        debug('update-data:', data);
         return createOrUpdateHouse(req, id, data, cb);
     };
 
     House.beforeRemote('Update', Common.RemoteHooks.correctCaseOfKeysInArg('data', true));
     House.beforeRemote('Update', Common.RemoteHooks.injectLangToRequestData);
-    House.afterRemote("Update", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('Update', Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'Update', {
@@ -330,7 +328,7 @@ function defineMainServices(House) {
                 root: true
             },
             http: {
-                path: "/:id",
+                path: '/:id',
                 verb: 'put',
                 status: 201
             }
@@ -364,7 +362,7 @@ function defineMainServices(House) {
                 }
             }],
             http: {
-                path: "/:id",
+                path: '/:id',
                 verb: 'delete',
                 status: 204
             }
@@ -392,8 +390,8 @@ function defineMainServices(House) {
         return cb.promise;
     };
 
-    House.afterRemote("GetById", Common.RemoteHooks.convert2Dto(House));
-    House.afterRemote("GetById", function(ctx, instance, next) {
+    House.afterRemote('GetById', Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('GetById', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
             result.price = `${result.prices.price || 0} تومان`;
@@ -401,7 +399,7 @@ function defineMainServices(House) {
         ctx.result = result;
         next();
     });
-    House.afterRemote("GetById", function(ctx, instance, next) {
+    House.afterRemote('GetById', function(ctx, instance, next) {
         let result = ctx.result;
         async.waterfall([
             (callback) => {
@@ -449,7 +447,7 @@ function defineMainServices(House) {
                 root: true
             },
             http: {
-                path: "/:id",
+                path: '/:id',
                 verb: 'get',
                 status: 200
             }
@@ -477,10 +475,10 @@ function defineMainServices(House) {
     /**
      * Refine pagination arg
      */
-    House.beforeRemote("GetAll", Pagination.RemoteHooks.refinePaginationParams);
+    House.beforeRemote('GetAll', Pagination.RemoteHooks.refinePaginationParams);
 
-    House.afterRemote("GetAll", Pagination.RemoteHooks.afterPaginatedService);
-    House.afterRemote("GetAll", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('GetAll', Pagination.RemoteHooks.afterPaginatedService);
+    House.afterRemote('GetAll', Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'GetAll', {
@@ -501,7 +499,7 @@ function defineMainServices(House) {
                 description: 'List of paginated `House` instances'
             },
             http: {
-                path: "/",
+                path: '/',
                 verb: 'get',
                 status: 200
             }
@@ -524,22 +522,22 @@ function defineMainServices(House) {
         var filter = paging;
 
         //type of argument is string so we test it by empty string
-        if (term !== "") {
-            // filter.where = { name: { like: term, options: "i" } }; // i denotes insensitivity
+        if (term !== '') {
+            // filter.where = { name: { like: term, options: 'i' } }; // i denotes insensitivity
             filter.where = {
                 or: [{
-                    name: { like: term, options: "i" }
+                    name: { like: term, options: 'i' }
                 }, {
-                    "location.city": { like: term, options: "i" }
+                    'location.city': { like: term, options: 'i' }
                 }, {
-                    "location.province": { like: term, options: "i" }
+                    'location.province': { like: term, options: 'i' }
                 }]
             }; // i denotes insensitivity
         }
         filter.where = filter.where || {};
         filter.where.deleted = false;
         // filter.where.status = 'listed';
-        filter.order = "_id DESC";
+        filter.order = '_id DESC';
         console.log('filter', filter)
         House
             .find(filter)
@@ -548,15 +546,15 @@ function defineMainServices(House) {
         return cb.promise;
     };
 
-    House.beforeRemote("Search", Pagination.RemoteHooks.argumentWrapper(['term']));
+    House.beforeRemote('Search', Pagination.RemoteHooks.argumentWrapper(['term']));
 
     /**
      * Refine pagination arg
      */
-    House.beforeRemote("Search", Pagination.RemoteHooks.refinePaginationParams);
+    House.beforeRemote('Search', Pagination.RemoteHooks.refinePaginationParams);
 
-    House.afterRemote("Search", Pagination.RemoteHooks.afterPaginatedService);
-    House.afterRemote("Search", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('Search', Pagination.RemoteHooks.afterPaginatedService);
+    House.afterRemote('Search', Common.RemoteHooks.convert2Dto(House));
 
     House.remoteMethod(
         'Search', {
@@ -567,7 +565,7 @@ function defineMainServices(House) {
                 required: true,
                 http: function(ctx) {
                     var req = ctx.req;
-                    return (req.query && req.query.term) ? req.query.term : "";
+                    return (req.query && req.query.term) ? req.query.term : '';
                 }
             }, {
                 arg: 'paging',
@@ -595,7 +593,7 @@ function defineMainServices(House) {
                 root: true,
             },
             http: {
-                path: "/search",
+                path: '/search',
                 verb: 'get',
                 status: 200
             }
@@ -643,11 +641,11 @@ function defineMainServices(House) {
     /**
      * Refine pagination arg
      */
-    House.beforeRemote("GetMyHouses", Pagination.RemoteHooks.refinePaginationParams);
+    House.beforeRemote('GetMyHouses', Pagination.RemoteHooks.refinePaginationParams);
 
-    House.afterRemote("GetMyHouses", Pagination.RemoteHooks.afterPaginatedService);
-    House.afterRemote("GetMyHouses", Common.RemoteHooks.convert2Dto(House));
-    House.afterRemote("GetMyHouses", function(ctx, instance, next) {
+    House.afterRemote('GetMyHouses', Pagination.RemoteHooks.afterPaginatedService);
+    House.afterRemote('GetMyHouses', Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('GetMyHouses', function(ctx, instance, next) {
         var result = ctx.result;
         result = underscore.map(result, function(item) {
             if (item.prices) {
@@ -658,7 +656,7 @@ function defineMainServices(House) {
         ctx.result = result;
         next();
     });
-    House.afterRemote("GetMyHouses", function(ctx, instance, next) {
+    House.afterRemote('GetMyHouses', function(ctx, instance, next) {
         let result = ctx.result;
         async.waterfall([
             (callback) => {
@@ -723,7 +721,7 @@ function defineMainServices(House) {
                 description: 'List of paginated `House` instances'
             },
             http: {
-                path: "/my-houses/:filter?",
+                path: '/my-houses/:filter?',
                 verb: 'get',
                 status: 200
             }
@@ -796,7 +794,7 @@ function definePictureStuff(House) {
             if (totalPictures === 10) {
                 var err = new Error();
                 err.status = 400;
-                err.message = "you can not upoload more than 10 pictures for a house";
+                err.message = 'you can not upoload more than 10 pictures for a house';
                 cb(err);
             } else {
                 // console.log('uploading picture for house#' + house.id);
@@ -826,7 +824,7 @@ function definePictureStuff(House) {
         }
 
         function houseNotFoundHandler(err) {
-            // console.log("houseNotFoundHandler", err);
+            // console.log('houseNotFoundHandler', err);
             cb(Persistency.Errors.NotFound());
         }
 
@@ -837,7 +835,7 @@ function definePictureStuff(House) {
      * Defines uploading picture service method as a REST API
      * @ignore
      */
-    House.remoteMethod("UploadPicture2", {
+    House.remoteMethod('UploadPicture2', {
         // accepts: [
         //     { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
         //     { arg: 'ctx', type: 'object', http: { source: 'context' } }
@@ -864,7 +862,7 @@ function definePictureStuff(House) {
         http: {
             verb: 'post',
             status: 201,
-            path: "/:id/picture"
+            path: '/:id/picture'
         }
     });
 
@@ -919,7 +917,7 @@ function definePictureStuff(House) {
      * Defines uploading picture service method as a REST API
      * @ignore
      */
-    House.remoteMethod("UploadPictureAll", {
+    House.remoteMethod('UploadPictureAll', {
         accepts: [
             { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
             { arg: 'ctx', type: 'object', http: { source: 'context' } }
@@ -929,7 +927,7 @@ function definePictureStuff(House) {
             type: 'array',
             root: true
         },
-        http: { verb: 'post', status: 201, path: "/:id/pictures" }
+        http: { verb: 'post', status: 201, path: '/:id/pictures' }
     });
 
     /**
@@ -967,7 +965,7 @@ function definePictureStuff(House) {
      * Defines uploading picture service method as a REST API
      * @ignore
      */
-    House.remoteMethod("DownloadPicture", {
+    House.remoteMethod('DownloadPicture', {
         accepts: [
             { arg: 'id', type: 'string', required: true, http: { source: 'path' } },
             { arg: 'hash', type: 'string', required: true, http: { source: 'path' } }, {
@@ -977,7 +975,7 @@ function definePictureStuff(House) {
                     var req = ctx.req;
                     var query = req.query || {};
                     var style = query['style'] ? query['style'] : null;
-                    return style ? style.trim() : "";
+                    return style ? style.trim() : '';
                 }
             },
             { arg: 'ctx', type: 'object', http: { source: 'context' } }
@@ -987,7 +985,7 @@ function definePictureStuff(House) {
             type: 'object',
             root: true
         },
-        http: { verb: 'get', path: "/:id/pictures/:hash" }
+        http: { verb: 'get', path: '/:id/pictures/:hash' }
     });
 
     /**
@@ -1025,7 +1023,7 @@ function definePictureStuff(House) {
     /**
      * Defines uploading picture service method as a REST API
      */
-    House.remoteMethod("GetPictureList", {
+    House.remoteMethod('GetPictureList', {
         accepts: [
             { arg: 'houseId', type: 'string', http: { source: 'path' } },
             { arg: 'ctx', type: 'object', http: { source: 'context' } }
@@ -1035,7 +1033,7 @@ function definePictureStuff(House) {
             type: 'array',
             root: true
         },
-        http: { verb: 'get', path: "/:houseId/pictures" }
+        http: { verb: 'get', path: '/:houseId/pictures' }
     });
 }
 
@@ -1096,9 +1094,9 @@ function defineFeatureStuff(House) {
         return cb.promise;
     };
 
-    House.afterRemote("AddFeature", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('AddFeature', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("AddFeature", {
+    House.remoteMethod('AddFeature', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'ids', type: 'array', http: { source: 'path' } }
@@ -1108,7 +1106,7 @@ function defineFeatureStuff(House) {
             type: 'HouseDTO',
             root: true
         },
-        http: { verb: 'post', status: 201, path: "/:id/features/:ids" }
+        http: { verb: 'post', status: 201, path: '/:id/features/:ids' }
     });
 
     /**
@@ -1123,9 +1121,9 @@ function defineFeatureStuff(House) {
         return cb.promise;
     };
 
-    House.afterRemote("DeleteFeature", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('DeleteFeature', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("DeleteFeature", {
+    House.remoteMethod('DeleteFeature', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'key', type: 'string', http: { source: 'path' } }
@@ -1135,7 +1133,7 @@ function defineFeatureStuff(House) {
             type: 'HouseDTO',
             root: true
         },
-        http: { verb: 'delete', status: 201, path: "/:id/features/:key" }
+        http: { verb: 'delete', status: 201, path: '/:id/features/:key' }
     });
 }
 
@@ -1146,7 +1144,7 @@ function defineExtraServicesStuff(House) {
         if (args) {
             if (args.data) {
                 args.data.id = randomString.generate({
-                    charset: "hex"
+                    charset: 'hex'
                 });
                 if (args.data.price && !args.data.price.currency) {
                     args.data.price.currency = app.settings.currency.default;
@@ -1183,12 +1181,12 @@ function defineExtraServicesStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("CreateExtraService", {
+    House.remoteMethod('CreateExtraService', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'data', type: 'object', http: { source: 'body' } }
         ],
-        http: { verb: 'post', status: 204, path: "/:id/extra-services" }
+        http: { verb: 'post', status: 204, path: '/:id/extra-services' }
     });
 
     /**
@@ -1209,12 +1207,12 @@ function defineExtraServicesStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("DeleteExtraService", {
+    House.remoteMethod('DeleteExtraService', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'extraServiceId', type: 'string', http: { source: 'path' } }
         ],
-        http: { verb: 'delete', status: 204, path: "/:id/extra-services/:extraServiceId" }
+        http: { verb: 'delete', status: 204, path: '/:id/extra-services/:extraServiceId' }
     });
 
     /**
@@ -1235,7 +1233,7 @@ function defineExtraServicesStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetAllExtraServices", {
+    House.remoteMethod('GetAllExtraServices', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
@@ -1244,7 +1242,7 @@ function defineExtraServicesStuff(House) {
             type: 'array',
             root: true
         }],
-        http: { verb: 'get', status: 200, path: "/:id/extra-services" }
+        http: { verb: 'get', status: 200, path: '/:id/extra-services' }
     });
 
     /**
@@ -1271,7 +1269,7 @@ function defineExtraServicesStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetExtraServiceById", {
+    House.remoteMethod('GetExtraServiceById', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'extraServiceId', type: 'string', http: { source: 'path' } }
@@ -1281,7 +1279,7 @@ function defineExtraServicesStuff(House) {
             type: 'object',
             root: true
         }],
-        http: { verb: 'get', status: 200, path: "/:id/extra-services/:extraServiceId" }
+        http: { verb: 'get', status: 200, path: '/:id/extra-services/:extraServiceId' }
     });
 }
 
@@ -1315,9 +1313,9 @@ function defineHouseTypeServiceStuff(House) {
         return cb.promise;
     };
 
-    House.afterRemote("SetType", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('SetType', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("SetType", {
+    House.remoteMethod('SetType', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'typeId', type: 'string', http: { source: 'path' } }
@@ -1327,7 +1325,7 @@ function defineHouseTypeServiceStuff(House) {
             type: 'HouseDTO',
             root: true
         }],
-        http: { verb: 'put', status: 201, path: "/:id/type/:typeId" }
+        http: { verb: 'put', status: 201, path: '/:id/type/:typeId' }
     });
 
     /**
@@ -1347,9 +1345,9 @@ function defineHouseTypeServiceStuff(House) {
         return cb.promise;
     };
 
-    House.afterRemote("UnsetType", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('UnsetType', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("UnsetType", {
+    House.remoteMethod('UnsetType', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
@@ -1358,7 +1356,7 @@ function defineHouseTypeServiceStuff(House) {
             type: 'HouseDTO',
             root: true
         }],
-        http: { verb: 'delete', status: 201, path: "/:id/type" }
+        http: { verb: 'delete', status: 201, path: '/:id/type' }
     });
 }
 
@@ -1394,9 +1392,9 @@ function defineHouseStatusServiceStuff(House) {
         return cb.promise;
     };
 
-    // House.afterRemote("toggleStatus", Common.RemoteHooks.convert2Dto(House));
+    // House.afterRemote('toggleStatus', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("toggleStatus", {
+    House.remoteMethod('toggleStatus', {
         accepts: [{
             arg: 'id',
             type: 'string',
@@ -1417,7 +1415,7 @@ function defineHouseStatusServiceStuff(House) {
         http: {
             verb: 'put',
             status: 201,
-            path: "/:id/status/:status?"
+            path: '/:id/status/:status?'
         }
     });
 }
@@ -1452,12 +1450,12 @@ function defineHouseSpecServiceStuff(House) {
         return cb.promise;
     };
 
-    House.beforeRemote('UpdateSpec', Common.RemoteHooks.argShouldNotEmpty("spec"));
-    House.beforeRemote('UpdateSpec', Common.RemoteHooks.correctCaseOfKeysInArg("spec", "HouseSpec"));
-    House.beforeRemote('UpdateSpec', Common.RemoteHooks.dataOwnerCorrectorInArg("spec", "HouseSpec"));
-    House.afterRemote("UpdateSpec", Common.RemoteHooks.convert2Dto(House));
+    House.beforeRemote('UpdateSpec', Common.RemoteHooks.argShouldNotEmpty('spec'));
+    House.beforeRemote('UpdateSpec', Common.RemoteHooks.correctCaseOfKeysInArg('spec', 'HouseSpec'));
+    House.beforeRemote('UpdateSpec', Common.RemoteHooks.dataOwnerCorrectorInArg('spec', 'HouseSpec'));
+    House.afterRemote('UpdateSpec', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("UpdateSpec", {
+    House.remoteMethod('UpdateSpec', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'spec', type: 'object', http: { source: 'body' } }
@@ -1467,7 +1465,7 @@ function defineHouseSpecServiceStuff(House) {
             type: 'HouseDTO',
             root: true
         }],
-        http: { verb: 'post', status: 201, path: "/:id/spec" }
+        http: { verb: 'post', status: 201, path: '/:id/spec' }
     });
 
     //========================================================================================
@@ -1477,16 +1475,16 @@ function defineHouseSpecServiceStuff(House) {
         House.GetById(id).then((house) => {
             if (!house) return cb(Persistency.Errors.NotFound());
 
-            house.updateAttribute("spec", app.models.HouseSpec.Create(), cb);
+            house.updateAttribute('spec', app.models.HouseSpec.Create(), cb);
 
         }).catch(Persistency.CrudHandlers.failureHandler(cb));
 
         return cb.promise;
     };
 
-    House.afterRemote("ResetSpec", Common.RemoteHooks.convert2Dto(House));
+    House.afterRemote('ResetSpec', Common.RemoteHooks.convert2Dto(House));
 
-    House.remoteMethod("ResetSpec", {
+    House.remoteMethod('ResetSpec', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
@@ -1495,7 +1493,7 @@ function defineHouseSpecServiceStuff(House) {
             type: 'HouseDTO',
             root: true
         }],
-        http: { verb: 'delete', status: 204, path: "/:id/spec" }
+        http: { verb: 'delete', status: 204, path: '/:id/spec' }
     });
 
     //========================================================================================
@@ -1511,14 +1509,14 @@ function defineHouseSpecServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetSpec", {
+    House.remoteMethod('GetSpec', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } }
         ],
         returns: [
             { arg: 'spec', type: 'HouseSpec', root: true }
         ],
-        http: { verb: 'get', status: 200, path: "/:id/spec" }
+        http: { verb: 'get', status: 200, path: '/:id/spec' }
     });
 }
 
@@ -1539,7 +1537,7 @@ function defineAvailableDateServiceStuff(House) {
         var accessCtx = {
             model: House,
             modelId: id,
-            principalType: "Account",
+            principalType: 'Account',
             principalId: currentUser.id,
             accessToken: LoopBackContext.getCurrentContext().active.http.req.accessToken
         };
@@ -1562,7 +1560,7 @@ function defineAvailableDateServiceStuff(House) {
             var isHouseOwner = result[0];
             var isAdmin = result[1];
 
-            debug("AddAvailableDates() => [isOwner, isAdmin] = [%s, %s]", isHouseOwner, isAdmin);
+            debug('AddAvailableDates() => [isOwner, isAdmin] = [%s, %s]', isHouseOwner, isAdmin);
 
             House.GetById(id).then((house) => {
                 if (!house) return cb(Persistency.Errors.NotFound());
@@ -1574,20 +1572,20 @@ function defineAvailableDateServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("AddAvailableDates", {
+    House.remoteMethod('AddAvailableDates', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'data', type: 'object', http: { source: 'body' } }
         ],
-        http: { verb: 'put', status: 204, path: "/:id/available-dates" }
+        http: { verb: 'put', status: 204, path: '/:id/available-dates' }
     });
 
-    House.beforeRemote('AddAvailableDates', Common.RemoteHooks.argShouldNotEmpty("data"));
+    House.beforeRemote('AddAvailableDates', Common.RemoteHooks.argShouldNotEmpty('data'));
     House.beforeRemote('AddAvailableDates', function(ctx, instance, next) {
-        var dates = ctx.args["data"].dates || [];
+        var dates = ctx.args['data'].dates || [];
         dates = underscore.map(dates, function(strDate) {
             try {
-                return moment(strDate).format("YYYY-MM-DD");
+                return moment(strDate).format('YYYY-MM-DD');
             } catch (ex) {
                 return null;
             }
@@ -1595,7 +1593,7 @@ function defineAvailableDateServiceStuff(House) {
         dates = underscore.filter(dates, function(date) {
             return date != null;
         });
-        ctx.args["data"].dates = dates;
+        ctx.args['data'].dates = dates;
         next();
     });
 
@@ -1620,20 +1618,20 @@ function defineAvailableDateServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("RemoveAvailableDates", {
+    House.remoteMethod('RemoveAvailableDates', {
         accepts: [
             { arg: 'id', type: 'string', http: { source: 'path' } },
             { arg: 'data', type: 'object', http: { source: 'body' } }
         ],
-        http: { verb: 'put', status: 204, path: "/:id/available-dates/remove" }
+        http: { verb: 'put', status: 204, path: '/:id/available-dates/remove' }
     });
 
-    House.beforeRemote('RemoveAvailableDates', Common.RemoteHooks.argShouldNotEmpty("data"));
+    House.beforeRemote('RemoveAvailableDates', Common.RemoteHooks.argShouldNotEmpty('data'));
     House.beforeRemote('RemoveAvailableDates', function(ctx, instance, next) {
-        var dates = ctx.args["data"].dates || [];
+        var dates = ctx.args['data'].dates || [];
         dates = underscore.map(dates, function(strDate) {
             try {
-                return moment(strDate).format("YYYY-MM-DD");
+                return moment(strDate).format('YYYY-MM-DD');
             } catch (ex) {
                 return null;
             }
@@ -1641,7 +1639,7 @@ function defineAvailableDateServiceStuff(House) {
         dates = underscore.filter(dates, function(date) {
             return date != null;
         });
-        ctx.args["data"].dates = dates;
+        ctx.args['data'].dates = dates;
         next();
     });
 
@@ -1672,25 +1670,25 @@ function defineAvailableDateServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetAvailableDates", {
+    House.remoteMethod('GetAvailableDates', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" },
-            { arg: 'startDate', type: 'string', http: { source: 'path' }, description: "Start date in ISO format" },
-            { arg: 'endDate', type: 'string', http: { source: 'path' }, description: "End date in ISO format" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' },
+            { arg: 'startDate', type: 'string', http: { source: 'path' }, description: 'Start date in ISO format' },
+            { arg: 'endDate', type: 'string', http: { source: 'path' }, description: 'End date in ISO format' }
         ],
         returns: [{
             arg: 'availableDates',
             type: 'array',
             root: true,
-            description: ["Dates which are available in date range between `startDate` and `endDate` inputs."]
+            description: ['Dates which are available in date range between `startDate` and `endDate` inputs.']
         }],
-        http: { verb: 'get', status: 200, path: "/:id/available-dates/start-:startDate/end-:endDate" },
-        description: ["Returns dates which are available in date range starting ",
-            "from `startDate` and `endDate` input parameters."
+        http: { verb: 'get', status: 200, path: '/:id/available-dates/start-:startDate/end-:endDate' },
+        description: ['Returns dates which are available in date range starting ',
+            'from `startDate` and `endDate` input parameters.'
         ]
     });
 
-    House.afterRemote("GetAvailableDates", Common.RemoteHooks.convert2Dto("HouseAvailableDate"));
+    House.afterRemote('GetAvailableDates', Common.RemoteHooks.convert2Dto('HouseAvailableDate'));
 }
 
 function definePriceDateServiceStuff(House) {
@@ -1710,28 +1708,28 @@ function definePriceDateServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("AddOrUpdateDatePrices", {
+    House.remoteMethod('AddOrUpdateDatePrices', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }, {
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }, {
                 arg: 'data',
                 type: 'array',
                 http: { source: 'body' },
                 description: [
-                    "`data` should be an array containing objects like :",
-                    "```",
-                    "{",
-                    "date: JSDate,",
-                    "price: {",
-                    "amount: Number,",
-                    "currency:: String",
-                    "}",
-                    "}",
-                    "```"
+                    '`data` should be an array containing objects like :',
+                    '```',
+                    '{',
+                    'date: JSDate,',
+                    'price: {',
+                    'amount: Number,',
+                    'currency:: String',
+                    '}',
+                    '}',
+                    '```'
                 ]
             }
         ],
-        http: { verb: 'put', status: 201, path: "/:id/date-prices" },
-        description: ["Adds new instances or updates existing entities based on input `data`."]
+        http: { verb: 'put', status: 201, path: '/:id/date-prices' },
+        description: ['Adds new instances or updates existing entities based on input `data`.']
     });
 
     //========================================================================================
@@ -1753,20 +1751,20 @@ function definePriceDateServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetDatePricesInRange", {
+    House.remoteMethod('GetDatePricesInRange', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" },
-            { arg: 'startDate', type: 'string', http: { source: 'path' }, description: "Start date string in ISO format" },
-            { arg: 'endDate', type: 'string', http: { source: 'path' }, description: "End date string in ISO format" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' },
+            { arg: 'startDate', type: 'string', http: { source: 'path' }, description: 'Start date string in ISO format' },
+            { arg: 'endDate', type: 'string', http: { source: 'path' }, description: 'End date string in ISO format' }
         ],
         returns: [{
             arg: 'datePrices',
             type: '[HouseDatePrice]',
             root: true,
-            description: ["Date prices objects which are available in date range between `startDate` and `endDate` inputs."]
+            description: ['Date prices objects which are available in date range between `startDate` and `endDate` inputs.']
         }],
-        http: { verb: 'get', status: 200, path: "/:id/date-prices/start-:startDate/end-:endDate" },
-        description: ["Returns date prices which are available between `startDate` and `endDate`."]
+        http: { verb: 'get', status: 200, path: '/:id/date-prices/start-:startDate/end-:endDate' },
+        description: ['Returns date prices which are available between `startDate` and `endDate`.']
     });
 
     //========================================================================================
@@ -1787,13 +1785,13 @@ function definePriceDateServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("UnsetDatePricesInRange", {
+    House.remoteMethod('UnsetDatePricesInRange', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" },
-            { arg: 'dates', type: 'array', http: { source: 'body' }, description: "Array of dates in ISO format" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' },
+            { arg: 'dates', type: 'array', http: { source: 'body' }, description: 'Array of dates in ISO format' }
         ],
-        http: { verb: 'put', status: 201, path: "/:id/date-prices/unset" },
-        description: ["Set prices of dates which are in `dates` array to default "]
+        http: { verb: 'put', status: 201, path: '/:id/date-prices/unset' },
+        description: ['Set prices of dates which are in `dates` array to default ']
     });
 
 }
@@ -1816,22 +1814,22 @@ function definePriceProfileServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("SetPriceProfile", {
+    House.remoteMethod('SetPriceProfile', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }, {
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }, {
                 arg: 'data',
                 type: 'object',
                 http: { source: 'body' },
-                description: "Input profile data as `HousePriceProfile`"
+                description: 'Input profile data as `HousePriceProfile`'
             }
         ],
-        http: { verb: 'put', status: 201, path: "/:id/price-profile" },
-        description: ["Set price profile for the house."]
+        http: { verb: 'put', status: 201, path: '/:id/price-profile' },
+        description: ['Set price profile for the house.']
     });
 
-    House.beforeRemote('SetPriceProfile', Common.RemoteHooks.argShouldNotEmpty("data"));
-    House.beforeRemote('SetPriceProfile', Common.RemoteHooks.correctCaseOfKeysInArg("data", "HousePriceProfile"));
-    House.beforeRemote('SetPriceProfile', Common.RemoteHooks.dataOwnerCorrectorInArg("data", "HousePriceProfile"));
+    House.beforeRemote('SetPriceProfile', Common.RemoteHooks.argShouldNotEmpty('data'));
+    House.beforeRemote('SetPriceProfile', Common.RemoteHooks.correctCaseOfKeysInArg('data', 'HousePriceProfile'));
+    House.beforeRemote('SetPriceProfile', Common.RemoteHooks.dataOwnerCorrectorInArg('data', 'HousePriceProfile'));
 
     //========================================================================================
 
@@ -1850,12 +1848,12 @@ function definePriceProfileServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("UnsetPriceProfile", {
+    House.remoteMethod('UnsetPriceProfile', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }
         ],
-        http: { verb: 'delete', status: 201, path: "/:id/price-profile" },
-        description: ["Unset price profile for the house."]
+        http: { verb: 'delete', status: 201, path: '/:id/price-profile' },
+        description: ['Unset price profile for the house.']
     });
 
     //========================================================================================
@@ -1877,20 +1875,20 @@ function definePriceProfileServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetPriceProfile", {
+    House.remoteMethod('GetPriceProfile', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }
         ],
         returns: [{
             arg: 'priceProfile',
             type: 'HousePriceProfile',
             root: true,
-            description: ["Price profile of the house.",
-                "It is configuration of price of the house."
+            description: ['Price profile of the house.',
+                'It is configuration of price of the house.'
             ]
         }],
-        http: { verb: 'get', status: 200, path: "/:id/price-profile" },
-        description: ["Get price profile for the house."]
+        http: { verb: 'get', status: 200, path: '/:id/price-profile' },
+        description: ['Get price profile for the house.']
     });
 }
 
@@ -1923,18 +1921,18 @@ function defineCancellationPolicyServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("SetCancellationPolicy", {
+    House.remoteMethod('SetCancellationPolicy', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }, {
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }, {
                 arg: 'policyId',
                 type: 'string',
                 http: { source: 'path' },
-                description: "Cancellation policy ID. `HouseCancellationPolicy` model"
+                description: 'Cancellation policy ID. `HouseCancellationPolicy` model'
             }
         ],
-        http: { verb: 'put', status: 204, path: "/:id/cancellation-policy/:policyId" },
-        description: ["Set cancellation policy for the house.",
-            "It should be selected from existing `HouseCancellationPolicy` instances."
+        http: { verb: 'put', status: 204, path: '/:id/cancellation-policy/:policyId' },
+        description: ['Set cancellation policy for the house.',
+            'It should be selected from existing `HouseCancellationPolicy` instances.'
         ]
     });
 
@@ -1955,12 +1953,12 @@ function defineCancellationPolicyServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("UnsetCancellationPolicy", {
+    House.remoteMethod('UnsetCancellationPolicy', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }
         ],
-        http: { verb: 'delete', status: 204, path: "/:id/cancellation-policy" },
-        description: ["Unset cancellation policy for the house."]
+        http: { verb: 'delete', status: 204, path: '/:id/cancellation-policy' },
+        description: ['Unset cancellation policy for the house.']
     });
 
     //========================================================================================
@@ -1980,19 +1978,19 @@ function defineCancellationPolicyServiceStuff(House) {
         return cb.promise;
     };
 
-    House.remoteMethod("GetCancellationPolicy", {
+    House.remoteMethod('GetCancellationPolicy', {
         accepts: [
-            { arg: 'id', type: 'string', http: { source: 'path' }, description: "House ID" }
+            { arg: 'id', type: 'string', http: { source: 'path' }, description: 'House ID' }
         ],
         returns: [{
             arg: 'cancellationPolicy',
             type: 'HouseCancellationPolicyDTO',
             root: true,
-            description: ["Cancellation policy of the house."]
+            description: ['Cancellation policy of the house.']
         }],
-        http: { verb: 'get', status: 200, path: "/:id/cancellation-policy" },
-        description: ["Returns cancellation policy for the house. If nothing existed returns empty object."]
+        http: { verb: 'get', status: 200, path: '/:id/cancellation-policy' },
+        description: ['Returns cancellation policy for the house. If nothing existed returns empty object.']
     });
 
-    House.afterRemote("GetCancellationPolicy", Common.RemoteHooks.convert2Dto("HouseCancellationPolicy"));
+    House.afterRemote('GetCancellationPolicy', Common.RemoteHooks.convert2Dto('HouseCancellationPolicy'));
 }
