@@ -316,8 +316,7 @@ function defineMainServices(House) {
                         deleted: false
                     },
                     fields: ['uid'],
-                    limit: 10,
-                    order: '_id DESC'
+                    limit: 10
                 }).then((medias) => {
                     let pics = [];
                     _.each(medias, (media) => {
@@ -451,7 +450,7 @@ function defineMainServices(House) {
                     },
                     fields: ['uid'],
                     limit: 10,
-                    order: '_id DESC'
+                    order: '_id ASC'
                 }).then((medias) => {
                     let pics = [];
                     _.each(medias, (media) => {
