@@ -28,6 +28,7 @@ module.exports = function (HouseDTO) {
             dto.pictures = getPictures(house);
             dto.type = house.type;
             dto.detailUrl = house.getDetailUrl();
+            dto.googleMap = `/medias/googlemap/house/${house.id}`;
             dto.position = house.position;
             dto.dates = house.dates || [];
             if (dto.dates.length) {

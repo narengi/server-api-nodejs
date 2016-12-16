@@ -384,6 +384,7 @@ class Medias extends MainHandler {
                                 'created_date'
                             ],
                             limit: 10,
+                            order: '_id DESC'
                         })
                         .then((medias) => callback(null, medias))
                         .catch((err) => callback(err))
@@ -391,6 +392,9 @@ class Medias extends MainHandler {
             ], (err, medias) => {
                 if (!err) {
                     cb(null, {
+                        info: {
+                            total: medias.length
+                        },
                         data: medias
                     })
                 } else cb(err)
