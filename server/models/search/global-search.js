@@ -122,7 +122,7 @@ function defineGeneralServices(GlobalSearch) {
 
             result = result || [];
             result = underscore.flatten(result);
-            result = underscore.shuffle(result);
+            result = result.length ? underscore.shuffle(result) : result;
             cb(null, result);
         });
 
@@ -147,31 +147,33 @@ function defineHooks(GlobalSearch) {
 
     GlobalSearch.afterRemote("Search", function(ctx, instance, next) {
         var result = ctx.result;
-        // console.log('total %d', result.length, result);
-        result = underscore.map(result, function(item) {
-            var dtoModel = loopback.findModel(item.Type + "DTO");
-            var converted = dtoModel.Convert(item.Data, {});
-            
-            // // @TODO -- find a better solution -- by Aref
-            if (converted.pictures && converted.pictures.length) {
-                var pics = [];
-                converted.pictures.forEach(function(p) {
-                    pics.push(p.url);
-                });
-                converted.pictures = pics;
-            }
+        if (result.length) {
+            // console.log('total %d', result.length, result);
+            result = underscore.map(result, function(item) {
+                var dtoModel = loopback.findModel(item.Type + "DTO");
+                var converted = dtoModel.Convert(item.Data, {});
+                
+                // // @TODO -- find a better solution -- by Aref
+                if (converted.pictures && converted.pictures.length) {
+                    var pics = [];
+                    converted.pictures.forEach(function(p) {
+                        pics.push(p.url);
+                    });
+                    converted.pictures = pics;
+                }
 
-            if (converted.prices) {
-                converted.price = `${converted.prices.price} تومان`;
-                delete converted.prices;
-            }
+                if (converted.prices) {
+                    converted.price = `${converted.prices.price} تومان`;
+                    delete converted.prices;
+                }
 
-            return {
-                Type: item.Type,
-                Data: converted
-            };
-        });
-        ctx.result = result;
+                return {
+                    Type: item.Type,
+                    Data: converted
+                };
+            });
+            ctx.result = result;
+        }
         next();
     });
 
@@ -179,35 +181,41 @@ function defineHooks(GlobalSearch) {
         let result = ctx.result;
         async.waterfall([
             (callback) => {
-                let query = {
-                    where: {
-                        assign_type: 'house',
-                        or: [],
-                        is_private: false,
-                        deleted: false
-                    },
-                    fields: ['uid', 'assign_id'],
-                    limit: 10
-                }
-                _.each(result, (house) => {
-                    query.where.or.push({ assign_id: house.Data.id })
-                })
-                if (!query.where.or.length) delete query.where.or;
-                app.models.Media.find(query)
-                    .then((medias) => {
-                        callback(null, medias);
+                if (result.length) {
+                    let query = {
+                        where: {
+                            assign_type: 'house',
+                            or: [],
+                            is_private: false,
+                            deleted: false
+                        },
+                        fields: ['uid', 'assign_id'],
+                        limit: 10
+                    }
+                    _.each(result, (house) => {
+                        query.where.or.push({ assign_id: house.Data.id })
                     })
+                    if (!query.where.or.length) delete query.where.or;
+                    app.models.Media.find(query)
+                        .then((medias) => {
+                            callback(null, medias);
+                        })
+                } else {
+                    callback(null, []);
+                }
             }
         ], (err, pics) => {
-            _.each(pics, (pic) => {
-                let resultIndex = _.findIndex(result, { Data: { id: pic.assign_id } })
-                let reg = new RegExp('^\/houses\/.*', 'ig')
-                _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
-                    if (reg.test(oldPic)) result[resultIndex].Data.pictures.splice(idx, 1);
-                });
-                result[resultIndex].Data.pictures.push(`/medias/get/${pic.uid}`);
-            })
-            ctx.result = result;
+            if (pics.length) {
+                _.each(pics, (pic) => {
+                    let resultIndex = _.findIndex(result, { Data: { id: pic.assign_id } })
+                    let reg = new RegExp('^\/houses\/.*', 'ig')
+                    _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
+                        if (reg.test(oldPic)) result[resultIndex].Data.pictures.splice(idx, 1);
+                    });
+                    result[resultIndex].Data.pictures.push(`/medias/get/${pic.uid}`);
+                })
+                ctx.result = result;
+            }
             next();
         })
     });

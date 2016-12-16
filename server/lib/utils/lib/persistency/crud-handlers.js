@@ -13,8 +13,18 @@ module .exports = exports;
 exports.successHandler = function(cb) {
     var callback = cb;
     return function(obj) {
-        if(!obj) return callback(Persistency.Errors.NotFound());
-        callback(null, obj);
+        let objType = Object.prototype.toString.call(obj);
+            objType = objType.substr(objType.indexOf(' ') + 1, 3).toLowerCase().trim();
+        switch (true) {
+            case objType === 'arr' && !obj.length:
+                return callback(null, []);
+            break;
+            case !obj:
+                return callback(Persistency.Errors.NotFound());
+            break;
+            default:
+                callback(null, obj);
+        }
     };
 };
 
