@@ -103,8 +103,9 @@ function defineGeneralServices(GlobalSearch) {
             paging.limit = 3;
 
         //not to interfere in pagination remote hook
-        // var pagingCloned = underscore.clone(paging);
-        var pagingCloned = _.merge(paging, paging2);
+        var pagingCloned = underscore.clone(paging2);
+        console.log('pagingCloned', pagingCloned)
+        // var pagingCloned = _.merge(paging, paging2);
 
         // pagingCloned.limit = Math.floor(pagingCloned.limit / 3);
 
