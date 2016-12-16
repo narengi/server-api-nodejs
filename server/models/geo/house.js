@@ -677,7 +677,6 @@ function defineMainServices(House) {
                             deleted: false
                         },
                         fields: ['uid', 'assign_id'],
-                        limit: 10,
                         order: '_id ASC'
                     }
                     _.each(result, (house) => {
@@ -700,12 +699,14 @@ function defineMainServices(House) {
                         _.each(result[resultIndex].pictures, function(oldPic, idx) {
                             if (_.has(oldPic, 'styles')) result[resultIndex].pictures.splice(idx, 1);
                         });
-                        result[resultIndex].pictures.push({
-                            uid: pic.uid,
-                            url: `/medias/get/${pic.uid}`
-                        });
+                        if (result[resultIndex].pictures.length < 10) {
+                            result[resultIndex].pictures.push({
+                                uid: pic.uid,
+                                url: `/medias/get/${pic.uid}`
+                            });
+                        }
                     }
-                })
+                });
                 ctx.result = result;
             }
             next();
