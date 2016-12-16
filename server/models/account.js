@@ -457,14 +457,15 @@ var addLoginLogoutMethods = function(Account) {
      * Current user is authorized user by data sent in `request` header.
      * It is silent about non logged in users or undefined users.
      **/
-    Account.CustomLogout = function(cb) {
+    Account.CustomLogout = function(req, cb) {
         cb = cb || promiseCallback();
 
-        var ctx = LoopBackContext.getCurrentContext();
-        var currentUser = ctx && ctx.get('currentUser');
+        let ctx = LoopBackContext.getCurrentContext(),
+            currentUser = ctx && ctx.get('currentUser'),
+            authToken = currentUser.authToken() || null;
 
         if (currentUser && authToken && authToken.token) {
-            Account.findByUsernameOrEmail(currentUser.username, function(err, acc) {
+            Account.findById(currentUser.id, function (err, acc) {
                 if (err) {
                     cb(err);
                 } else if (acc) {
@@ -486,10 +487,24 @@ var addLoginLogoutMethods = function(Account) {
 
     Account.remoteMethod(
         'CustomLogout', {
-            description: 'Logout current user',
+            description: 'Logout Current User',
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'req'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object',
+                root: true
+            },
             http: {
                 path: "/logout",
-                verb: 'all'
+                verb: 'get',
+                status: 200
             }
         }
     );

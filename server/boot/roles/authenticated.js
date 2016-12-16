@@ -2,7 +2,7 @@
 // Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
-var debug = require('debug')('narengi:role:authenticated');
+var debug = require('debug')('narengi-role:authenticated');
 
 module.exports = function (app) {
     var Role = app.models.Role;
