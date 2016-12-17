@@ -183,17 +183,17 @@ var initMethods = function(Account) {
         cb = cb || promiseCallback();
 
         Account.findById(id)
-        .then((account) => {
-            if (!account) return cb(Persistency.Errors.NotFound());
-            account.displayName = ((account.profile().firstName || '') + ' ' + (account.profile().lastName || '')).trim();
-            cb(null, account);
-        }).catch((e) => {
-            cb(e);
-        });
+            .then((account) => {
+                if (!account) return cb(Persistency.Errors.NotFound());
+                account.displayName = ((account.profile().firstName || '') + ' ' + (account.profile().lastName || '')).trim();
+                cb(null, account);
+            }).catch((e) => {
+                cb(e);
+            });
         return cb.promise;
     };
 
-    Account.afterRemote("GetById", Common.RemoteHooks.convert2Dto(Account, { justProfile: true }));    
+    Account.afterRemote("GetById", Common.RemoteHooks.convert2Dto(Account, { justProfile: true }));
     Account.afterRemote("GetById", (ctx, instance, next) => {
         let result = {};
         let requiredFields = [
@@ -207,59 +207,59 @@ var initMethods = function(Account) {
             { fld: 'houses', label: 'houses' }
         ];
         _.map(_.keyBy(requiredFields, 'fld'), (fld) => {
-            if (fld.label === 'avatar') {
-                result[fld.label] = `/medias/get/${ctx.result.id}`
-                result.picture = { url: result[fld.label] }
-            } else {
-                result[fld.label] = _.get(ctx.result, fld.fld);
-            }
-        })
-        // GET HOUSES
+                if (fld.label === 'avatar') {
+                    result[fld.label] = `/medias/get/${ctx.result.id}`
+                    result.picture = { url: result[fld.label] }
+                } else {
+                    result[fld.label] = _.get(ctx.result, fld.fld);
+                }
+            })
+            // GET HOUSES
         app.models.House.find({
-            where: {
-                ownerId: ctx.result.personId
-            },
-            limit: 3,
-            skip: 0,
-            order: '_id DESC',
-            fields: ['id', 'name', 'status', 'summary', 'prices']
-        })
-        .then((houses) => {
-            if (houses && houses.length) {
-                _.map(houses, (house, idx) => {
-                    house.price = house.prices && Number(house.prices.price) > 0 ? `${house.prices.price} هزار تومان` : 'رایگان';
-                    house.pictures = [];
-                    // Get House Pitures -- I know this method is not good but we are in release night!!
-                    app.models.Media.find({
-                        where: {
-                            assign_type: 'house',
-                            assign_id: house.id,
-                            is_private: false,
-                            deleted: false
-                        },
-                        order: '_id DESC',
-                        fields: ['uid']
-                    })
-                    .then((medias) => {
-                        if (medias && medias.length) {
-                            _.each(medias, (media) => house.pictures.push({ url: `/medias/get/${media.uid}` }))
-                        }
-                        if (idx === houses.length - 1) {
-                            result = _.merge(result, { houses: houses });
-                            ctx.result = result;
-                            next();
-                        }
-                    })
-                    .catch((err) => next(err));
-                });
-            } else {
-                ctx.result = result;
-                next();
-            }
-        })
-        .catch((err) => {
-            next(err);
-        })
+                where: {
+                    ownerId: ctx.result.personId
+                },
+                limit: 3,
+                skip: 0,
+                order: '_id DESC',
+                fields: ['id', 'name', 'status', 'summary', 'prices']
+            })
+            .then((houses) => {
+                if (houses && houses.length) {
+                    _.map(houses, (house, idx) => {
+                        house.price = house.prices && Number(house.prices.price) > 0 ? `${house.prices.price} هزار تومان` : 'رایگان';
+                        house.pictures = [];
+                        // Get House Pitures -- I know this method is not good but we are in release night!!
+                        app.models.Media.find({
+                                where: {
+                                    assign_type: 'house',
+                                    assign_id: house.id,
+                                    is_private: false,
+                                    deleted: false
+                                },
+                                order: '_id DESC',
+                                fields: ['uid']
+                            })
+                            .then((medias) => {
+                                if (medias && medias.length) {
+                                    _.each(medias, (media) => house.pictures.push({ url: `/medias/get/${media.uid}` }))
+                                }
+                                if (idx === houses.length - 1) {
+                                    result = _.merge(result, { houses: houses });
+                                    ctx.result = result;
+                                    next();
+                                }
+                            })
+                            .catch((err) => next(err));
+                    });
+                } else {
+                    ctx.result = result;
+                    next();
+                }
+            })
+            .catch((err) => {
+                next(err);
+            })
     });
 
     Account.remoteMethod(
@@ -280,6 +280,89 @@ var initMethods = function(Account) {
             },
             http: {
                 path: "/:id",
+                verb: 'get'
+            }
+        }
+    );
+
+    /**
+     * GET USERS HOUSES
+     */
+    Account.GetHouses = function(req, paging, cb) {
+
+        const owner = req.params.uid || null;
+
+        async.waterfall([
+            (callback) => {
+                // GET OWNER
+                Account.findById(owner, callback);
+            },
+            (Owner, callback) => {
+                // GET OWNER HOUSES BASE ON PAGING
+                let cond = _.merge(paging, {
+                    where: { ownerId: ObjectID(Owner.personId) },
+                    order: '_id DESC',
+                    fields: ['id', 'name', 'status', 'summary', 'prices']
+                })
+                app.models.House.find(cond, callback);
+            },
+            (Houses, callback) => {
+                if (Houses && Houses.length) {
+                    _.map(Houses, (house, idx) => {
+                        house.price = house.prices && Number(house.prices.price) > 0 ? `${house.prices.price} هزار تومان` : 'رایگان';
+                        house.pictures = [];
+                        app.models.Media.find({
+                                where: {
+                                    assign_type: 'house',
+                                    assign_id: house.id,
+                                    is_private: false,
+                                    deleted: false
+                                },
+                                order: '_id DESC',
+                                fields: ['uid']
+                            })
+                            .then((medias) => {
+                                if (medias && medias.length) {
+                                    _.each(medias, (media) => house.pictures.push({ url: `/medias/get/${media.uid}` }))
+                                }
+                                if (idx === Houses.length - 1) {
+                                    cb(null, Houses)
+                                }
+                            })
+                            .catch((err) => callback(err));
+                    });
+                } else {
+                    callback(null, Houses);
+                }
+            }
+        ], (err, result) => {
+            cb(err ? err : null, err ? null : result);
+        });
+
+        return cb.promise;
+    }
+
+    Account.remoteMethod(
+        'GetHouses', {
+            description: 'Get Houses By Owner ID',
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'paging',
+                type: 'object',
+                http: Pagination.RemoteAccepts.analyzeRequest
+            }],
+            returns: {
+                arg: 'houses',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/:uid/houses",
                 verb: 'get'
             }
         }
@@ -1120,20 +1203,20 @@ var addExtraMethods = function(Account) {
             url: '/medias/avatar'
         }
         app.models.Media.findOne({
-            where: {
-                owner_id: ctx.result.id,
-                assign_type: 'userprofile',
-                deleted: false
-            },
-            fields: ['uid'],
-            order: '_id DESC'
-        })
-        .then((media) => {
-            if (media) {
-                ctx.result.avatar = `/medias/get/${media.uid}`;
-            }
-            next();
-        })
+                where: {
+                    owner_id: ctx.result.id,
+                    assign_type: 'userprofile',
+                    deleted: false
+                },
+                fields: ['uid'],
+                order: '_id DESC'
+            })
+            .then((media) => {
+                if (media) {
+                    ctx.result.avatar = `/medias/get/${media.uid}`;
+                }
+                next();
+            })
     });
 
     Account.remoteMethod(

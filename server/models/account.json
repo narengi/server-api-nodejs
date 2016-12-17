@@ -225,6 +225,12 @@
       "principalId": "authenticated",
       "permission": "ALLOW",
       "property": "GetById"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "GetHouses"
     }
   ],
   "methods": {}
