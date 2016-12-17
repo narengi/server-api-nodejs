@@ -15,6 +15,7 @@ const LoopBackContext = require('loopback-context'),
     Pagination = require('narengi-utils').Pagination,
     Security = require('narengi-utils').Security,
     makeError = Common.Errors.makeError,
+    ObjectID = require('mongodb').ObjectID,
     _ = require('lodash');
 
 /**
@@ -180,18 +181,41 @@ var initMethods = function(Account) {
 
     Account.GetById = function(id, cb) {
         cb = cb || promiseCallback();
-        Account.findOne({
-            where: {
-                id: id
+
+        async.waterfall([
+            (callback) => {
+                // Get User
+                Account.findById(id)
+                .then((account) => {
+                    if (!account) return cb(Persistency.Errors.NotFound());
+                    account.displayName = ((account.profile().firstName || '') + ' ' + (account.profile().lastName || '')).trim();
+                    callback(null, account);
+                }).catch((e) => {
+                    callback(e);
+                });
+            },
+            (account, callback) => {
+                // Get User Houses
+                app.models.House.find({
+                    where: {
+                        ownerId: account.personId
+                    },
+                    limit: 3,
+                    skip: 0,
+                    order: '_id DESC',
+                    fields: ['name', 'status', 'summary', 'prices', 'pictures']
+                })
+                .then((houses) => {
+                    account.houses = houses;
+                    callback(null, account);
+                })
+                .catch((err) => {
+                    callback(err);
+                })
             }
+        ], (err, result) => {
+            cb(err ? err : null, err ? null : result);
         })
-        .then((account) => {
-            if (!account) return cb(Persistency.Errors.NotFound());
-            account.displayName = ((account.profile().firstName || '') + ' ' + (account.profile().lastName || '')).trim();
-            cb(null, account);
-        }).catch((e) => {
-            cb(e);
-        });
         return cb.promise;
     };
 
@@ -213,6 +237,24 @@ var initMethods = function(Account) {
                 result[fld.label] = _.get(ctx.result, fld.fld);
             }
         })
+        // async.waterfall([
+        //     (callback) => {
+        //         // Get Person ID
+        //         console.log('get user personId by id', ctx.result)
+        //         // app.models.Person.findById(ObjectID(result.uid), callback);
+        //     },
+        //     (Person, callback) => {
+        //         console.log('Person', Person)
+        //     }
+        // ])
+        // app.models.Media.find({
+        //     where: {
+        //         owner_id: result.uid,
+        //     }
+        // })
+        // .then((medias) => {
+        //     console.log('medias', medias)
+        // })
         ctx.result = result;
         next();
     });
@@ -1070,6 +1112,21 @@ var addExtraMethods = function(Account) {
     };
 
     Account.afterRemote("ShowProfileMe", Common.RemoteHooks.convert2Dto(Account));
+    Account.afterRemote("ShowProfileMe", (ctx, instance, next) => {
+        app.models.Media.findOne({
+            where: {
+                owner_id: ctx.result.id,
+                assign_type: 'userprofile',
+                deleted: false
+            },
+            fields: ['uid'],
+            order: '_id DESC'
+        })
+        .then((media) => {
+            ctx.result.avatar = `/medias/get/${media.uid}`;
+            next();
+        })
+    });
 
     Account.remoteMethod(
         'ShowProfileMe', {
