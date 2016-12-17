@@ -32,6 +32,7 @@ module.exports = function (AccountDTO) {
         var justProfile = options.justProfile === true;
         var dto = this.base.convert_internal(account, AccountDTO, options);
         dto.profile = refineProfile(account, account.profile.value());
+        dto.personId = account.personId;
 
         if (!justProfile) {
             var authToken = account.authToken.value() || {};
