@@ -922,7 +922,7 @@ class Medias extends MainHandler {
      * Get Current User Avatar
      * @return {fileobject}
      */
-    getAvatar(res, cb) {
+    getAvatar(req, res, cb) {
 
         let uid = req.params.uid || null;
         let ctx = loopBackContext.getCurrentContext();
