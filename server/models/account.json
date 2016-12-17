@@ -219,6 +219,12 @@
       "principalId": "authenticated",
       "permission": "ALLOW",
       "property": "UpdateProfile"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": "GetById"
     }
   ],
   "methods": {}

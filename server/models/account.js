@@ -2,20 +2,20 @@
 // Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
-var loopback = require('loopback');
-var LoopBackContext = require('loopback-context');
-var underscore = require('underscore');
-var randomString = require("randomstring");
-var app = serverRequire('server');
-var moment = require('moment');
-var async = require('async');
-var promiseCallback = require('narengi-utils').Common.PromiseCallback;
-var crudHandler = require('narengi-utils').Persistency.CrudHandlers;
-var Common = require('narengi-utils').Common;
-var Persistency = require('narengi-utils').Persistency;
-var Pagination = require('narengi-utils').Pagination;
-var Security = require('narengi-utils').Security;
-var makeError = Common.Errors.makeError;
+const LoopBackContext = require('loopback-context'),
+    underscore = require('underscore'),
+    randomString = require("randomstring"),
+    app = serverRequire('server'),
+    moment = require('moment'),
+    async = require('async'),
+    promiseCallback = require('narengi-utils').Common.PromiseCallback,
+    crudHandler = require('narengi-utils').Persistency.CrudHandlers,
+    Common = require('narengi-utils').Common,
+    Persistency = require('narengi-utils').Persistency,
+    Pagination = require('narengi-utils').Pagination,
+    Security = require('narengi-utils').Security,
+    makeError = Common.Errors.makeError,
+    _ = require('lodash');
 
 /**
  * @class
@@ -180,7 +180,12 @@ var initMethods = function(Account) {
 
     Account.GetById = function(id, cb) {
         cb = cb || promiseCallback();
-        Account.findById(id).then((account) => {
+        Account.findOne({
+            where: {
+                id: id
+            }
+        })
+        .then((account) => {
             if (!account) return cb(Persistency.Errors.NotFound());
             account.displayName = ((account.profile().firstName || '') + ' ' + (account.profile().lastName || '')).trim();
             cb(null, account);
@@ -191,6 +196,26 @@ var initMethods = function(Account) {
     };
 
     Account.afterRemote("GetById", Common.RemoteHooks.convert2Dto(Account, {}));
+    Account.afterRemote("GetById", (ctx, instance, next) => {
+        let result = {};
+        let requiredFields = [
+            { fld: 'id', label: 'uid' },
+            { fld: 'displayName', label: 'fullName' },
+            { fld: 'profile.country', label: 'country' },
+            { fld: 'profile.province', label: 'province' },
+            { fld: 'profile.city', label: 'city' },
+            { fld: 'profile.picture.url', label: 'avatar' }
+        ];
+        _.map(_.keyBy(requiredFields, 'fld'), (fld) => {
+            if (fld.label === 'avatar') {
+                result[fld.label] = `/medias/get/${ctx.result.id}`
+            } else {
+                result[fld.label] = _.get(ctx.result, fld.fld);
+            }
+        })
+        ctx.result = result;
+        next();
+    });
 
     Account.remoteMethod(
         'GetById', {
@@ -465,7 +490,7 @@ var addLoginLogoutMethods = function(Account) {
             authToken = currentUser.authToken() || null;
 
         if (currentUser && authToken && authToken.token) {
-            Account.findById(currentUser.id, function (err, acc) {
+            Account.findById(currentUser.id, function(err, acc) {
                 if (err) {
                     cb(err);
                 } else if (acc) {

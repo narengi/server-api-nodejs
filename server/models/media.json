@@ -112,7 +112,7 @@
         "property": "GetProfileAvatars"
     }, {
         "principalType": "ROLE",
-        "principalId": "everyone",
+        "principalId": "$everyone",
         "permission": "ALLOW",
         "property": "GetProfileAvatars"
     }],
