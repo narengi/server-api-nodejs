@@ -14,8 +14,8 @@ const Common = require('narengi-utils').Common,
     async = require('async'),
     debug = require('debug')('narengi-house'),
     moment = require('moment'),
-    _ = require('lodash'),
-    ObjectID = require('mongodb').ObjectID;
+    ObjectID = require('mongodb').ObjectID,
+    _ = require('lodash');
 
 /**
  * @namespace Models.House

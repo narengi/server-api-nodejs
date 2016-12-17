@@ -83,7 +83,6 @@
         "permission": "ALLOW",
         "property": "GetMyMedias"
     }, {
-        "accessType": "EXECUTE",
         "principalType": "ROLE",
         "principalId": "authenticated",
         "permission": "ALLOW",
@@ -106,6 +105,16 @@
         "principalId": "authenticated",
         "permission": "ALLOW",
         "property": "RemoveMedia"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "GetProfileAvatars"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "everyone",
+        "permission": "ALLOW",
+        "property": "GetProfileAvatars"
     }],
     "methods": {}
 }
