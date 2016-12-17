@@ -16,5 +16,24 @@
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "./storage"
+  },
+  "email": {
+    "name": "email",
+    "connector": "mail",
+    "transports": [
+      {
+        "type": "smtp",
+        "host": "smtp-relay.sendinblue.com",
+        "secure": false,
+        "port": 587,
+        "tls": {
+          "rejectUnauthorized": false
+        },
+        "auth": {
+          "user": "code@arefmirhosseini.com",
+          "pass": "UhSMPakJGpA76QTt"
+        }
+      }
+    ]
   }
 }

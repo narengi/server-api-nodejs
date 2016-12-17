@@ -224,5 +224,9 @@
   "Media": {
     "dataSource": "narengi",
     "public": true
+  },
+  "Mailer": {
+    "dataSource": "email",
+    "public": false
   }
 }

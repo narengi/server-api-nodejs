@@ -19,6 +19,11 @@
   },
   "properties": {
     "id": false,
+    "uid": {
+      "type": "string",
+      "required": true,
+      "defaultFn": "uuidv4"
+    },
     "title": {
       "type": "string"
     },
@@ -52,6 +57,14 @@
     },
     "picture": {
       "type": "object"
+    },
+    "created_date": {
+      "type": "date",
+      "defaultFn": "now"
+    },
+    "updated_date": {
+      "type": "date",
+      "defaultFn": "now"
     }
   },
   "validations": [],

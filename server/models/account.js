@@ -1200,8 +1200,23 @@ var addExtraMethods = function(Account) {
     Account.afterRemote("ShowProfileMe", Common.RemoteHooks.convert2Dto(Account));
     Account.afterRemote("ShowProfileMe", (ctx, instance, next) => {
         ctx.result.profile.picture = {
-            url: '/medias/avatar'
-        }
+                url: '/medias/avatar'
+            }
+        // CHECK SENDING EMAIL
+        Account.app.models.Mailer.send({
+            to: 'arefmirhosseini@gmail.com',
+            from: 'aref@narengi.com',
+            subject: 'Narengi',
+            text: 'Narengi Launched!',
+            html: 'my <em>html</em>'
+        }, function(err, mail) {
+            if (err) {
+                console.log('email error!', err);
+            } else {
+                console.log('email sent!');
+            }
+        });
+
         app.models.Media.findOne({
                 where: {
                     owner_id: ctx.result.id,

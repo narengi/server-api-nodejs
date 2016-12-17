@@ -28,6 +28,11 @@
         "existed": { "where": { "deleted": false } }
     },
     "properties": {
+        "uid": {
+            "type": "string",
+            "required": true,
+            "defaultFn": "uuidv4"
+        },
         "name": {
             "type": "string"
         },
@@ -65,6 +70,14 @@
         "status": {
             "type": "string",
             "default": "unlisted"
+        },
+        "created_date": {
+            "type": "date",
+            "defaultFn": "now"
+        },
+        "updated_date": {
+            "type": "date",
+            "defaultFn": "now"
         }
     },
     "validations": [],
