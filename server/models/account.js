@@ -223,7 +223,7 @@ var initMethods = function(Account) {
             fields: ['id', 'name', 'status', 'summary', 'prices']
         })
         .then((houses) => {
-            if (houses.length) {
+            if (houses && houses.length) {
                 _.map(houses, (house) => {
                     house.price = Number(house.prices.price) > 0 ? `${house.prices.price} هزار تومان` : 'رایگان';
                     house.pictures = [];
