@@ -1,7 +1,7 @@
 /**
  * Narengi Media Model: Handle Image Actions
  * @author Aref Mirhosseini <code@arefmirhosseini.com> (http://arefmirhosseini.com)
- * @update Thu Dec. 15 2016
+ * @update Thu Dec. 17 2016
  */
 
 'use strict'
