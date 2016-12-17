@@ -208,7 +208,7 @@ var initMethods = function(Account) {
         ];
         _.map(_.keyBy(requiredFields, 'fld'), (fld) => {
                 if (fld.label === 'avatar') {
-                    result[fld.label] = `/medias/get/${ctx.result.id}`
+                    result[fld.label] = `/medias/avatar/${ctx.result.id}`
                     result.picture = { url: result[fld.label] }
                 } else {
                     result[fld.label] = _.get(ctx.result, fld.fld);
