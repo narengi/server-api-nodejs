@@ -1123,7 +1123,9 @@ var addExtraMethods = function(Account) {
             order: '_id DESC'
         })
         .then((media) => {
-            ctx.result.avatar = `/medias/get/${media.uid}`;
+            if (media) {
+                ctx.result.avatar = `/medias/get/${media.uid}`;
+            }
             next();
         })
     });
