@@ -482,8 +482,10 @@ function defineMainServices(House) {
             result.owner = {
                 uid: owner.id,
                 fullName: `${owner.user_profile.firstName} ${owner.user_profile.lastName}`,
-                detailUrl: `/accounts/${owner.id}`,
-                picture: {
+                detailUrl: `/accounts/${owner.id}`
+            }
+            if (owner.user_profile.picture && owner.user_profile.picture.hash) {
+                result.owner.picture = {
                     url: `/user-profiles/${owner.id}/picture/${owner.user_profile.picture.hash}`
                 }
             }
