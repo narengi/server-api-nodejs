@@ -226,17 +226,38 @@ var initMethods = function(Account) {
         })
         .then((houses) => {
             if (houses && houses.length) {
-                _.map(houses, (house) => {
+                _.map(houses, (house, idx) => {
                     house.price = house.prices && Number(house.prices.price) > 0 ? `${house.prices.price} هزار تومان` : 'رایگان';
                     house.pictures = [];
-                })
-                result = _.merge(result, { houses: houses });
+                    // Get House Pitures -- I know this method is not good but we are in release night!!
+                    app.models.Media.find({
+                        where: {
+                            assign_type: 'house',
+                            assign_id: house.id,
+                            is_private: false,
+                            deleted: false
+                        },
+                        order: '_id DESC',
+                        fields: ['uid']
+                    })
+                    .then((medias) => {
+                        if (medias && medias.length) {
+                            _.each(medias, (media) => house.pictures.push({ url: `/medias/get/${media.uid}` }))
+                        }
+                        if (idx === houses.length - 1) {
+                            result = _.merge(result, { houses: houses });
+                            ctx.result = result;
+                            next();
+                        }
+                    })
+                    .catch((err) => next(err));
+                });
+            } else {
+                ctx.result = result;
+                next();
             }
-            ctx.result = result;
-            next();
         })
         .catch((err) => {
-            console.log("HOUSE", err)
             next(err);
         })
     });
