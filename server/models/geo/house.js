@@ -488,6 +488,10 @@ function defineMainServices(House) {
                 result.owner.picture = {
                     url: `/user-profiles/${owner.id}/picture/${owner.user_profile.picture.hash}`
                 }
+            } else {
+                result.owner.picture = {
+                    url: `/medias/avatar/${owner.id}`
+                }
             }
             ctx.result = result;
             next();

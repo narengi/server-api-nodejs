@@ -172,10 +172,16 @@ class Medias extends MainHandler {
         this.registerMethod({
             name: 'GetProfileAvatar',
             description: 'get user profile avatar',
-            path: '/avatar',
+            path: '/avatar/:uid?',
             method: 'get',
             status: 200,
             accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
                 arg: 'res',
                 type: 'object',
                 http: {
@@ -918,12 +924,13 @@ class Medias extends MainHandler {
      */
     getAvatar(res, cb) {
 
+        let uid = req.params.uid || null;
         let ctx = loopBackContext.getCurrentContext();
         let currentUser = ctx && ctx.get('currentUser');
 
         this.Model.findOne({
                 where: {
-                    owner_id: ObjectID(currentUser.id),
+                    owner_id: uid ? ObjectID(uid) : ObjectID(currentUser.id),
                     assign_type: 'userprofile',
                     deleted: false
                 },
