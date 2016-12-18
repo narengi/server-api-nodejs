@@ -56,7 +56,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'spec',
         // 'price',
         'features',
-        'features_list',
+        'feature_list',
         'available_dates',
         'lang'
     ];
