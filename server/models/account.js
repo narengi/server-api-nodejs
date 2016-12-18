@@ -688,8 +688,9 @@ var accountCreateHandler = function(Account, account, password, verificationType
             Account.app.models.Mailer.send({
                 to: credential.username,
                 from: 'welcome@narengi.com',
-                subject: 'به نارنگی خوش آمدید',
-                html: emailTemp({name: account.firstName, message: 'همه چیز برای ایرانگردی شما محیاست، تنها کافیست که بر روی دکمه زیر کلیک کنید'})
+                subject: 'خوش آمدید',
+                text: 'نارنگی',
+                html: emailTemp({name: account.firstName, message: 'همه چیز برای ایرانگردی شما محیاست، تنها کافیست که بر روی دکمه زیر کلیک کنید.'})
             }, function(err, mail) {
                 if (err) {
                     console.log('email error!', err);
