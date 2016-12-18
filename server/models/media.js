@@ -39,6 +39,7 @@ class Medias extends MainHandler {
         // this.UnsetMedia(); // use RemoveMedia instead
         this.RemoveMedia();
         this.GoogleMapForHouse();
+        this.getFeatureIcon();
     }
 
     /**
@@ -952,6 +953,51 @@ class Medias extends MainHandler {
             });
 
         return cb.promise;
+    }
+
+    getFeatureIcon() {
+
+        this.registerMethod({
+            name: 'GetFeatureIcon',
+            description: 'get feature icon',
+            path: '/feature/:code',
+            method: 'get',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'res',
+                type: 'object',
+                http: {
+                    source: 'res'
+                }
+            }],
+            returns: {
+                arg: 'fileObject',
+                type: 'object',
+                root: true
+            }
+        }, (req, res, cb) => {
+
+            const Storage = app.models.Storage;
+            const iconPath = `./storage/feature-icons/${req.params.code}.png`;
+
+            Storage.getFile('feature-icons', `${req.params.code}.png`, (err, file) => {
+                if (err) {
+                    return cb({ status: 404, message: err.code });
+                }
+                res.setHeader('Content-type', mime.lookup(iconPath));
+                res.setHeader('Content-length', file.size);
+                let readStream = fs.createReadStream(iconPath);
+                readStream.pipe(res);
+            })
+
+            return cb.promise;
+        });
     }
 
 }
