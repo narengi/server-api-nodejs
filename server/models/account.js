@@ -486,7 +486,8 @@ var addLoginLogoutMethods = function(Account) {
             var error = makeError({
                 message: 'error.user.password_not_match',
                 statusCode: 401,
-                code: 'USER_PASSWORD_NOT_MATCH'
+                code: 'USER_PASSWORD_NOT_MATCH',
+                translate: 'نام کاربری/کلمه عبور اشتباه است.'
             });
             cb(error);
         };
