@@ -30,7 +30,6 @@
     "properties": {
         "uid": {
             "type": "string",
-            "required": true,
             "defaultFn": "uuidv4"
         },
         "name": {
