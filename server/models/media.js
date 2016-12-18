@@ -804,17 +804,18 @@ class Medias extends MainHandler {
                             message: 'maximum uploaded file size exceeds'
                         }, cb);
                     }
-
-                    files.push({
-                        hash: crypto.createHmac('md5', `${contcfg.key}=${currentUser.id}`).update(file.path).digest('hex'),
-                        path: file.path,
-                        size: file.size,
-                        type: file.type,
-                        ext: file.type.substr(file.type.indexOf('/') + 1),
-                        owner_id: currentUser.id,
-                        assign_type: container,
-                        storage: contcfg.dirName
-                    })
+                    if (currentUser && currentUser.id) {
+                        files.push({
+                            hash: crypto.createHmac('md5', `${contcfg.key}=${currentUser.id}`).update(file.path).digest('hex'),
+                            path: file.path,
+                            size: file.size,
+                            type: file.type,
+                            ext: file.type.substr(file.type.indexOf('/') + 1),
+                            owner_id: currentUser.id,
+                            assign_type: container,
+                            storage: contcfg.dirName
+                        })
+                    }
                 });
 
                 callback(files.length ? null : {
