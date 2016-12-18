@@ -23,15 +23,15 @@
     "transports": [
       {
         "type": "smtp",
-        "host": "smtp-relay.sendinblue.com",
+        "host": "smtp.mailgun.org",
         "secure": false,
         "port": 587,
         "tls": {
           "rejectUnauthorized": false
         },
         "auth": {
-          "user": "code@arefmirhosseini.com",
-          "pass": "UhSMPakJGpA76QTt"
+          "user": "postmaster@api.narengi.xyz",
+          "pass": "225d4e258fb4aa6dad141cebd42adae4"
         }
       }
     ]
