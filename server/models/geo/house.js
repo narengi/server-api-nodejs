@@ -62,7 +62,6 @@ function createOrUpdateHouse(req, houseId, data, cb) {
     ];
     // validate Data
     var plainData = underscore.pick(data, plainProps);
-    console.log('plainData', plainData)
 
     async.waterfall([
         function(callback) { //create or update instance by plain properties
