@@ -152,19 +152,8 @@ function defineHooks(GlobalSearch) {
             result = underscore.map(result, function(item) {
                 var dtoModel = loopback.findModel(item.Type + "DTO");
                 var converted = dtoModel.Convert(item.Data, {});
-                
-                // // @TODO -- find a better solution -- by Aref
-                if (converted.pictures && converted.pictures.length) {
-                    var pics = [];
-                    converted.pictures.forEach(function(p) {
-                        pics.push(p.url);
-                    });
-                    converted.pictures = pics;
-                }
-
                 if (converted.prices) {
                     converted.price = Number(converted.prices.price) > 0 ? `${converted.prices.price} هزار تومان` : 'رایگان';
-                    delete converted.prices;
                 }
 
                 return {
