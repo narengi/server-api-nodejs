@@ -1203,19 +1203,19 @@ var addExtraMethods = function(Account) {
                 url: '/medias/avatar'
             }
         // CHECK SENDING EMAIL
-        Account.app.models.Mailer.send({
-            to: 'arefmirhosseini@gmail.com',
-            from: 'aref@narengi.com',
-            subject: 'Narengi',
-            text: 'Narengi Launched!',
-            html: 'my <em>html</em>'
-        }, function(err, mail) {
-            if (err) {
-                console.log('email error!', err);
-            } else {
-                console.log('email sent!');
-            }
-        });
+        // Account.app.models.Mailer.send({
+        //     to: 'arefmirhosseini@gmail.com',
+        //     from: 'aref@narengi.com',
+        //     subject: 'Narengi',
+        //     text: 'Narengi Launched!',
+        //     html: 'my <em>html</em>'
+        // }, function(err, mail) {
+        //     if (err) {
+        //         console.log('email error!', err);
+        //     } else {
+        //         console.log('email sent!');
+        //     }
+        // });
 
         app.models.Media.findOne({
                 where: {
