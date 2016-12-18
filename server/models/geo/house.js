@@ -56,11 +56,13 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'spec',
         // 'price',
         'features',
+        'features_list',
         'available_dates',
         'lang'
     ];
     // validate Data
     var plainData = underscore.pick(data, plainProps);
+    console.log('plainData', plainData)
 
     async.waterfall([
         function(callback) { //create or update instance by plain properties
@@ -299,7 +301,7 @@ function defineMainServices(House) {
     House.afterRemote('Update', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
+            result.price = Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
         }
         ctx.result = result;
         next();
