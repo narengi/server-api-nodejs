@@ -1,4 +1,4 @@
-var nr = require('newrelic');
+require('newrelic');
 require('@risingstack/trace');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
