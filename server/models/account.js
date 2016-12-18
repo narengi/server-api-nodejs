@@ -689,7 +689,7 @@ var accountCreateHandler = function(Account, account, password, verificationType
                 to: credential.username,
                 from: 'welcome@narengi.com',
                 subject: 'به نارنگی خوش آمیدی',
-                html: emailTemp(account.firstName, ‍‍‍‍`همه چیز برای ایرانگردی شما محیاست، تنها کافیست که بر روی دکمه زیر کلیک کنید`),
+                html: emailTemp({name: account.firstName, message: 'همه چیز برای ایرانگردی شما محیاست، تنها کافیست که بر روی دکمه زیر کلیک کنید'})
             }, function(err, mail) {
                 if (err) {
                     console.log('email error!', err);
