@@ -120,6 +120,11 @@
         "principalId": "$everyone",
         "permission": "ALLOW",
         "property": "GetFeatureIcon"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "ALLOW",
+        "property": "GetFeatureIcon"
     }],
     "methods": {}
 }

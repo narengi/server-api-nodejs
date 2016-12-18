@@ -16,7 +16,8 @@ const LoopBackContext = require('loopback-context'),
     Security = require('narengi-utils').Security,
     makeError = Common.Errors.makeError,
     ObjectID = require('mongodb').ObjectID,
-    _ = require('lodash');
+    _ = require('lodash'),
+    emailTemp = require('./server/Templates/Emails/welcome');
 
 /**
  * @class
@@ -683,10 +684,24 @@ var accountCreateHandler = function(Account, account, password, verificationType
     }).then(function(verification) {
         if (verificationType.is('none')) {
             var credential = { username: account.usernameOrEmail(), password: password };
+            // SEND WELCOME EMAIL
+            Account.app.models.Mailer.send({
+                to: credential.username,
+                from: 'welcome@narengi.com',
+                subject: 'Welcome to Narengi.com',
+                html: emailTemp(),
+            }, function(err, mail) {
+                if (err) {
+                    console.log('email error!', err);
+                } else {
+                    console.log('email sent!');
+                }
+            });
             return Account.CustomLogin(credential, cb);
         }
         cb(null, account);
     }).catch(function(ex) {
+        console.log('catch', ex);
         var error = makeError({
             message: 'error.user.registeration_failed',
             statusCode: 500,
@@ -778,7 +793,7 @@ var addRegisterMethod = function(Account) {
             cb(ex);
         };
 
-        console.log("CREATE DATA", data);
+        // console.log("CREATE DATA", data);
 
         Account.create(data).then(function(createdAccount) {
             createdAccount.profile.create(function(e, profile) {
@@ -1201,22 +1216,8 @@ var addExtraMethods = function(Account) {
     Account.afterRemote("ShowProfileMe", Common.RemoteHooks.convert2Dto(Account));
     Account.afterRemote("ShowProfileMe", (ctx, instance, next) => {
         ctx.result.profile.picture = {
-                url: '/medias/avatar'
-            }
-        // CHECK SENDING EMAIL
-        // Account.app.models.Mailer.send({
-        //     to: 'a.abbasinasab@gmail.com',
-        //     from: 'aref@narengi.com',
-        //     subject: 'Narengi.com',
-        //     text: 'Narengi Launched!',
-        //     html: '<h1>Narengi Launched!</h1>'
-        // }, function(err, mail) {
-        //     if (err) {
-        //         console.log('email error!', err);
-        //     } else {
-        //         console.log('email sent!');
-        //     }
-        // });
+            url: '/medias/avatar'
+        }
 
         app.models.Media.findOne({
                 where: {

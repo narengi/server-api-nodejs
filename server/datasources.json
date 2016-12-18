@@ -23,15 +23,15 @@
     "transports": [
       {
         "type": "smtp",
-        "host": "smtp.mailgun.org",
+        "host": "smtp.sparkpostmail.com",
         "secure": false,
         "port": 587,
         "tls": {
           "rejectUnauthorized": false
         },
         "auth": {
-          "user": "postmaster@sandboxb77a299880034d5694df0adad53c2efa.mailgun.org",
-          "pass": "3a0e6276c1f937fd386a6fad5f1b4534"
+          "user": "SMTP_Injection",
+          "pass": "b58605d7347b76225983c3cd68287032344fad17"
         }
       }
     ]

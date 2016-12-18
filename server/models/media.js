@@ -40,6 +40,7 @@ class Medias extends MainHandler {
         this.RemoveMedia();
         this.GoogleMapForHouse();
         this.getFeatureIcon();
+        this.getSiteImages();
     }
 
     /**
@@ -994,6 +995,51 @@ class Medias extends MainHandler {
                 res.setHeader('Content-type', mime.lookup(iconPath));
                 res.setHeader('Content-length', file.size);
                 let readStream = fs.createReadStream(iconPath);
+                readStream.pipe(res);
+            })
+
+            return cb.promise;
+        });
+    }
+
+    getSiteImages() {
+
+        this.registerMethod({
+            name: 'GetSiteImages',
+            description: 'get feature icon',
+            path: '/site/:code',
+            method: 'get',
+            status: 200,
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                http: {
+                    source: 'req'
+                }
+            }, {
+                arg: 'res',
+                type: 'object',
+                http: {
+                    source: 'res'
+                }
+            }],
+            returns: {
+                arg: 'fileObject',
+                type: 'object',
+                root: true
+            }
+        }, (req, res, cb) => {
+
+            const Storage = app.models.Storage;
+            const imgPath = `./storage/site-images/${req.params.code}.png`;
+
+            Storage.getFile('site-images', `${req.params.code}.png`, (err, file) => {
+                if (err) {
+                    return cb({ status: 404, message: err.code });
+                }
+                res.setHeader('Content-type', mime.lookup(imgPath));
+                res.setHeader('Content-length', file.size);
+                let readStream = fs.createReadStream(imgPath);
                 readStream.pipe(res);
             })
 
