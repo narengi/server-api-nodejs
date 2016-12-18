@@ -614,7 +614,7 @@ function defineMainServices(House) {
         filter.where.deleted = false;
         // filter.where.status = 'listed';
         filter.order = '_id DESC';
-        debug('filter', filter)
+        // debug('filter', filter)
         House
             .find(filter)
             .then(Persistency.CrudHandlers.successHandler(cb))

@@ -152,6 +152,7 @@ function defineHooks(GlobalSearch) {
             result = underscore.map(result, function(item) {
                 var dtoModel = loopback.findModel(item.Type + "DTO");
                 var converted = dtoModel.Convert(item.Data, {});
+                
                 if (converted.prices) {
                     converted.price = Number(converted.prices.price) > 0 ? `${converted.prices.price} هزار تومان` : 'رایگان';
                 }
@@ -174,14 +175,13 @@ function defineHooks(GlobalSearch) {
                     let query = {
                         where: {
                             assign_type: 'house',
-                            or: [],
                             is_private: false,
                             deleted: false
                         },
-                        fields: ['uid', 'assign_id'],
-                        limit: 10
+                        fields: ['uid', 'assign_id']
                     }
                     _.each(result, (house) => {
+                        query.where.or = query.where.or || [];
                         query.where.or.push({ assign_id: house.Data.id })
                     })
                     if (!query.where.or.length) delete query.where.or;
@@ -197,10 +197,10 @@ function defineHooks(GlobalSearch) {
             if (pics.length) {
                 _.each(pics, (pic) => {
                     let resultIndex = _.findIndex(result, { Data: { id: pic.assign_id } })
-                    let reg = new RegExp('^\/houses\/.*', 'ig')
-                    _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
-                        if (reg.test(oldPic)) result[resultIndex].Data.pictures.splice(idx, 1);
-                    });
+                    // let reg = new RegExp('^\/houses\/.*', 'ig')
+                    // _.each(result[resultIndex].Data.pictures, function(oldPic, idx) {
+                    //     if (reg.test(oldPic)) result[resultIndex].Data.pictures.splice(idx, 1);
+                    // });
                     result[resultIndex].Data.pictures.push(`/medias/get/${pic.uid}`);
                 })
                 ctx.result = result;
