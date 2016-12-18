@@ -434,6 +434,12 @@ function defineMainServices(House) {
         if (result.prices) {
             result.price = Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
         }
+        // add icon to features
+        if (result.features && result.features.length) {
+            _.map(result.features, (feature) => {
+                feature.icon = `/medias/feature/${feature.key}`;
+            })
+        }
         ctx.result = result;
         next();
     });
@@ -727,6 +733,12 @@ function defineMainServices(House) {
                 }
                 return item;
             });
+            // add icon to features
+            if (result.features && result.features.length) {
+                _.map(result.features, (feature) => {
+                    feature.icon = `/medias/feature/${feature.key}`;
+                })
+            }
             ctx.result = result;
         }
         next();
