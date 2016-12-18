@@ -17,7 +17,7 @@ const LoopBackContext = require('loopback-context'),
     makeError = Common.Errors.makeError,
     ObjectID = require('mongodb').ObjectID,
     _ = require('lodash'),
-    emailTemp = require('./server/Templates/Emails/welcome');
+    emailTemp = require('../Templates/Emails/welcome');
 
 /**
  * @class
