@@ -30,8 +30,8 @@
           "rejectUnauthorized": false
         },
         "auth": {
-          "user": "postmaster@api.narengi.xyz",
-          "pass": "225d4e258fb4aa6dad141cebd42adae4"
+          "user": "postmaster@sandboxb77a299880034d5694df0adad53c2efa.mailgun.org",
+          "pass": "3a0e6276c1f937fd386a6fad5f1b4534"
         }
       }
     ]

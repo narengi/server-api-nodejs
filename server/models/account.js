@@ -217,7 +217,8 @@ var initMethods = function(Account) {
             // GET HOUSES
         app.models.House.find({
                 where: {
-                    ownerId: ctx.result.personId
+                    ownerId: ctx.result.personId,
+                    deleted: false
                 },
                 limit: 3,
                 skip: 0,
@@ -300,7 +301,7 @@ var initMethods = function(Account) {
             (Owner, callback) => {
                 // GET OWNER HOUSES BASE ON PAGING
                 let cond = _.merge(paging, {
-                    where: { ownerId: ObjectID(Owner.personId) },
+                    where: { ownerId: ObjectID(Owner.personId), deleted: false },
                     order: '_id DESC',
                     fields: ['id', 'name', 'status', 'summary', 'prices']
                 })
@@ -1204,11 +1205,11 @@ var addExtraMethods = function(Account) {
             }
         // CHECK SENDING EMAIL
         // Account.app.models.Mailer.send({
-        //     to: 'arefmirhosseini@gmail.com',
+        //     to: 'a.abbasinasab@gmail.com',
         //     from: 'aref@narengi.com',
-        //     subject: 'Narengi',
+        //     subject: 'Narengi.com',
         //     text: 'Narengi Launched!',
-        //     html: 'my <em>html</em>'
+        //     html: '<h1>Narengi Launched!</h1>'
         // }, function(err, mail) {
         //     if (err) {
         //         console.log('email error!', err);
