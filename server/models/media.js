@@ -877,7 +877,7 @@ class Medias extends MainHandler {
                     res.setHeader('Content-Type', media.type);
                     res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
                     let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
-                    cb(null, readStream.pipe(res));
+                    readStream.pipe(res);
                 } else {
                     cb({ status: 403, message: 'access denied' })
                 }
@@ -948,7 +948,7 @@ class Medias extends MainHandler {
                         res.setHeader('Content-Type', media.type);
                         res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
                         let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
-                        cb(null, readStream.pipe(res));
+                        readStream.pipe(res);
                     } else {
                         cb({ status: 403, message: 'access denied' })
                     }
@@ -994,7 +994,7 @@ class Medias extends MainHandler {
                 res.setHeader('Content-Type', mime.lookup(iconPath));
                 res.setHeader('Content-Length', fs.statSync(iconPath).size);
                 let readStream = fs.createReadStream(iconPath);
-                cb(null, readStream.pipe(res));
+                readStream.pipe(res);
             })
 
             return cb.promise;
@@ -1036,7 +1036,7 @@ class Medias extends MainHandler {
                 res.setHeader('Content-Length', fs.statSync(imgPath).size);
 
                 let readStream = fs.createReadStream(imgPath);
-                cb(null, readStream.pipe(res));
+                readStream.pipe(res);
             })
 
             return cb.promise;
