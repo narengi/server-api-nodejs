@@ -100,11 +100,7 @@ class Medias extends MainHandler {
                     source: 'res'
                 }
             }],
-            returns: {
-                arg: 'fileObject',
-                type: 'object',
-                root: true
-            }
+            returns: {}
         }, this.download.bind(this));
     }
 
@@ -881,7 +877,7 @@ class Medias extends MainHandler {
                     res.setHeader('Content-Type', media.type);
                     res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
                     let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
-                    cb(null, readStream.pipe(res));
+                    readStream.pipe(res);
                 } else {
                     cb({ status: 403, message: 'access denied' })
                 }
