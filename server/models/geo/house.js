@@ -593,7 +593,6 @@ function defineMainServices(House) {
      * @returns {HouseDTO[]}
      */
     House.Search = function(term, paging, req, res, cb) {
-        console.log('#3-HouseSearch')
         cb = cb || Common.PromiseCallback();
         var filter = paging;
 

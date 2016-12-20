@@ -67,10 +67,8 @@ function defineMethods(GlobalSearch) {
 function defineGeneralServices(GlobalSearch) {
 
     function findInModel(Model, term, paging, req, res, asyncCallback) {
-        console.log('#2-findInModel')
         Model.Search(term, paging, req, res)
             .then((result) => {
-                console.log('#4-HouseSearchResult')
                 var ret = underscore.map(result, function(item) {
                     return {
                         Type: Model.definition.name,
@@ -110,7 +108,6 @@ function defineGeneralServices(GlobalSearch) {
 
         async.parallel([
             function(houseCb) {
-                console.log('#1-async.parallel')
                 findInModel(app.models.House, term, pagingCloned, req, res, houseCb);
             }
             // function (attractionCb) {
@@ -120,7 +117,6 @@ function defineGeneralServices(GlobalSearch) {
             //     findInModel(app.models.City, term, pagingCloned, req, res, cityCb);
             // }
         ], function(err, result) {
-            console.log('#5-async.parallel-final')
             if (err) return cb(err);
 
             result = result || [];
