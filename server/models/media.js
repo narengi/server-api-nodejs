@@ -890,6 +890,7 @@ class Medias extends MainHandler {
             }
         })
         .catch((err) => {
+            console.log("MEDIA_DOWNLOAD_ERROR", err)
             cb(err);
         })
 
