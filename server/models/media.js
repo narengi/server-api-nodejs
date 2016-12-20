@@ -868,21 +868,15 @@ class Medias extends MainHandler {
         let ctx = loopBackContext.getCurrentContext();
         let currentUser = ctx && ctx.get('currentUser');
 
-        async.waterfall([
-            (callback) => {
-                this.Model.findOne({
-                        where: {
-                            uid: uid,
-                            deleted: false
-                        },
-                        fields: ['hash', 'type', 'size', 'owner_id', 'storage', 'is_private']
-                    })
-                    .then((media) => callback(media ? null : { status: 404, message: 'not found' }, media))
-                    .catch((err) => callback(err))
-            }
-        ], (err, media) => {
-            if (!err) {
-                // check for media privacy
+        this.Model.findOne({
+            where: {
+                uid: uid,
+                deleted: false
+            },
+            fields: ['hash', 'type', 'size', 'owner_id', 'storage', 'is_private']
+        })
+        .then((media) => {
+            if (media) {
                 if (!media.is_private || currentUser && String(currentUser.id) === String(media.owner_id)) {
                     res.setHeader('Content-Type', media.type);
                     res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
@@ -891,8 +885,13 @@ class Medias extends MainHandler {
                 } else {
                     cb({ status: 403, message: 'access denied' })
                 }
-            } else cb(err)
-        });
+            } else {
+                cb({ status: 404, message: 'not found' });
+            }
+        })
+        .catch((err) => {
+            cb(err);
+        })
 
         return cb.promise;
     }
