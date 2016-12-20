@@ -81,8 +81,7 @@ class Medias extends MainHandler {
      * @return {fileobject}
      */
     GetMedia() {
-
-        let Settings = {
+        this.registerMethod({
             name: 'GetMedia',
             description: 'get medias',
             path: '/get/:uid',
@@ -106,40 +105,7 @@ class Medias extends MainHandler {
                 type: 'object',
                 root: true
             }
-        }
-
-        this.registerMethod(Settings, (req, res, cb) => {
-
-            const uid = req.params.uid;
-            let ctx = loopBackContext.getCurrentContext();
-            let currentUser = ctx && ctx.get('currentUser');
-
-            async.waterfall([
-                (callback) => {
-                    this.Model.findOne({
-                            where: {
-                                uid: uid,
-                                deleted: false
-                            }
-                        })
-                        .then((media) => callback(media ? null : { status: 404, message: 'not found' }, media))
-                        .catch((err) => callback(err))
-                }
-            ], (err, media) => {
-                if (!err) {
-                    // check for media privacy
-                    if (!media.is_private || currentUser && String(currentUser.id) === String(media.owner_id)) {
-                        res.setHeader('Content-type', media.type);
-                        let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
-                        readStream.pipe(res)
-                    } else {
-                        cb({ status: 403, message: 'access denied' })
-                    }
-                } else cb(err)
-            });
-
-            return cb.promise;
-        });
+        }, this.download.bind(this));
     }
 
     /**
@@ -891,6 +857,47 @@ class Medias extends MainHandler {
     }
 
     /**
+     * Download Media Handler for GetMedia Method
+     * @param  {object}   req
+     * @param  {object}   res
+     * @param  {promise} cb
+     * @return {file}
+     */
+    download(req, res, cb) {
+        const uid = req.params.uid;
+        let ctx = loopBackContext.getCurrentContext();
+        let currentUser = ctx && ctx.get('currentUser');
+
+        async.waterfall([
+            (callback) => {
+                this.Model.findOne({
+                        where: {
+                            uid: uid,
+                            deleted: false
+                        },
+                        fields: ['hash', 'type', 'size', 'owner_id', 'storage', 'is_private']
+                    })
+                    .then((media) => callback(media ? null : { status: 404, message: 'not found' }, media))
+                    .catch((err) => callback(err))
+            }
+        ], (err, media) => {
+            if (!err) {
+                // check for media privacy
+                if (!media.is_private || currentUser && String(currentUser.id) === String(media.owner_id)) {
+                    res.setHeader('Content-Type', media.type);
+                    res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
+                    let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
+                    cb(null, readStream.pipe(res));
+                } else {
+                    cb({ status: 403, message: 'access denied' })
+                }
+            } else cb(err)
+        });
+
+        return cb.promise;
+    }
+
+    /**
      * Get Current USer Avatars
      * @return {object}
      */
@@ -937,15 +944,15 @@ class Medias extends MainHandler {
                     assign_type: 'userprofile',
                     deleted: false
                 },
-                fields: ['uid', 'type', 'owner_id', 'storage', 'hash', 'is_private'],
-                order: '_id DESC'
+                fields: ['uid', 'type', 'owner_id', 'storage', 'hash', 'is_private']
             })
             .then((media) => {
                 if (media) {
                     if (!media.is_private || currentUser && String(currentUser.id) === String(media.owner_id)) {
-                        res.setHeader('Content-type', media.type);
+                        res.setHeader('Content-Type', media.type);
+                        res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
                         let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
-                        readStream.pipe(res);
+                        cb(null, readStream.pipe(res));
                     } else {
                         cb({ status: 403, message: 'access denied' })
                     }
@@ -992,10 +999,10 @@ class Medias extends MainHandler {
                 if (err) {
                     return cb({ status: 404, message: err.code });
                 }
-                res.setHeader('Content-type', mime.lookup(iconPath));
-                res.setHeader('Content-length', file.size);
+                res.setHeader('Content-Type', mime.lookup(iconPath));
+                res.setHeader('Content-Length', fs.statSync(iconPath).size);
                 let readStream = fs.createReadStream(iconPath);
-                readStream.pipe(res);
+                cb(null, readStream.pipe(res));
             })
 
             return cb.promise;
@@ -1038,9 +1045,10 @@ class Medias extends MainHandler {
                     return cb({ status: 404, message: err.code });
                 }
                 res.setHeader('Content-type', mime.lookup(imgPath));
-                res.setHeader('Content-length', file.size);
+                res.setHeader('Content-Length', fs.statSync(imgPath).size);
+
                 let readStream = fs.createReadStream(imgPath);
-                readStream.pipe(res);
+                cb(null, readStream.pipe(res));
             })
 
             return cb.promise;
