@@ -94,7 +94,11 @@ class Medias extends MainHandler {
           source: 'context'
         }
       }],
-      returns: {}
+      returns: [
+        { type: 'ReadableStream', root: true },
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+      ]
     }, this.download.bind(this));
   }
 
@@ -146,11 +150,11 @@ class Medias extends MainHandler {
           source: 'res'
         }
       }],
-      returns: {
-        arg: 'fileObject',
-        type: 'object',
-        root: true
-      }
+      returns: [
+        { type: 'ReadableStream', root: true },
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+      ]
     }, this.getAvatar.bind(this));
   }
 
@@ -886,7 +890,6 @@ class Medias extends MainHandler {
       } else {
         ctx.res.setHeader('Content-Type', media.type);
         ctx.res.setHeader('Content-Length', fs.statSync(`./storage/${media.storage}/${media.hash}`).size);
-        ctx.res.setHeader('Content-Transfer-Encoding', 'binary');
         let readStream = fs.createReadStream(`./storage/${media.storage}/${media.hash}`);
         readStream.pipe(ctx.res);
       }
@@ -971,32 +974,30 @@ class Medias extends MainHandler {
       method: 'get',
       status: 200,
       accepts: [{
-        arg: 'req',
+        arg: 'ctx',
         type: 'object',
         http: {
-          source: 'req'
-        }
-      }, {
-        arg: 'res',
-        type: 'object',
-        http: {
-          source: 'res'
+          source: 'context'
         }
       }],
-      returns: {}
-    }, (req, res, cb) => {
+      returns: [
+        { type: 'ReadableStream', root: true },
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+      ]
+    }, (ctx, cb) => {
 
       const Storage = app.models.Storage;
-      const iconPath = `./storage/feature-icons/${req.params.code}.png`;
+      const iconPath = `./storage/feature-icons/${ctx.req.params.code}.png`;
 
-      Storage.getFile('feature-icons', `${req.params.code}.png`, (err, file) => {
+      Storage.getFile('feature-icons', `${ctx.req.params.code}.png`, (err, file) => {
         if (err) {
           return cb({ status: 404, message: err.code });
         }
-        res.setHeader('Content-Type', mime.lookup(iconPath));
-        res.setHeader('Content-Length', fs.statSync(iconPath).size);
+        ctx.res.setHeader('Content-Type', mime.lookup(iconPath));
+        ctx.res.setHeader('Content-Length', fs.statSync(iconPath).size);
         let readStream = fs.createReadStream(iconPath);
-        readStream.pipe(res);
+        readStream.pipe(ctx.res);
       })
 
       return cb.promise;
@@ -1012,33 +1013,31 @@ class Medias extends MainHandler {
       method: 'get',
       status: 200,
       accepts: [{
-        arg: 'req',
+        arg: 'ctx',
         type: 'object',
         http: {
-          source: 'req'
-        }
-      }, {
-        arg: 'res',
-        type: 'object',
-        http: {
-          source: 'res'
+          source: 'context'
         }
       }],
-      returns: {}
-    }, (req, res, cb) => {
+      returns: [
+        { type: 'ReadableStream', root: true },
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+      ]
+    }, (ctx, cb) => {
 
       const Storage = app.models.Storage;
-      const imgPath = `./storage/site-images/${req.params.code}.png`;
+      const imgPath = `./storage/site-images/${ctx.req.params.code}.png`;
 
-      Storage.getFile('site-images', `${req.params.code}.png`, (err, file) => {
+      Storage.getFile('site-images', `${ctx.req.params.code}.png`, (err, file) => {
         if (err) {
           return cb({ status: 404, message: err.code });
         }
-        res.setHeader('Content-type', mime.lookup(imgPath));
-        res.setHeader('Content-Length', fs.statSync(imgPath).size);
+        ctx.res.setHeader('Content-type', mime.lookup(imgPath));
+        ctx.res.setHeader('Content-Length', fs.statSync(imgPath).size);
 
         let readStream = fs.createReadStream(imgPath);
-        readStream.pipe(res);
+        readStream.pipe(ctx.res);
       })
 
       return cb.promise;
