@@ -231,6 +231,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "GetHouses"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "RecoverAccount"
     }
   ],
   "methods": {}
