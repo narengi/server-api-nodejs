@@ -153,7 +153,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             if (plainData.available_dates) {
                 var dates = plainData.available_dates;
                 house.dates = house.dates || [];
-                dates = underscore.defaults(dates, house.dates);
+                // dates = underscore.defaults(dates, house.dates);
                 house.dates = dates;
             }
             callback(null, house);
