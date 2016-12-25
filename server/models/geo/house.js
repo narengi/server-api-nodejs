@@ -55,6 +55,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'type',
         'spec',
         'price',
+        'prices',
         'features',
         'feature_list',
         'available_dates',
@@ -111,8 +112,9 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             callback(null, house);
         },
         function(house, callback) { //set price
-            if (plainData.price) {
-                var price = app.models.HousePriceProfile.RefineInput(plainData.price);
+            if (plainData.price || plainData.prices) {
+                let priceData = plainData.price || plainData.prices;
+                var price = app.models.HousePriceProfile.RefineInput(priceData);
                 house.prices = house.prices || {};
                 price = underscore.defaults(price, house.prices);
                 house.prices = price;
@@ -290,7 +292,8 @@ function defineMainServices(House) {
      */
     House.Update = function(id, data, req, cb) {
         cb = cb || Common.PromiseCallback();
-        debug('update-data:', data);        
+        data = _.mapKeys(data, _.method('toLowerCase'));
+        debug('update-data:', data);      
         return createOrUpdateHouse(req, id, data, cb);
     };
 
