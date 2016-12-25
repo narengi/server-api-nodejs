@@ -76,6 +76,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                 setOwner(callback, req)(house);
             } else {
                 callback(null, house);
+                console.log('update-house', house);
             }
         },
         function(house, callback) { //set house type.
