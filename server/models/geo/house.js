@@ -80,21 +80,23 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
         },
         function(house, callback) { //set house type.
+            console.log('#1', plainData.type)
             if (plainData.type) {
                 app.models.HouseType
-                    .find({
+                    .findOne({
                         where: {
                             key: plainData.type
                         }
                     })
-                    .then(function(types) {
-                        house.houseType(types[0]);
+                    .then(function(type) {
+                        console.log('#2', type)
+                        house.houseType(type);
                         callback(null, house);
                     })
                     .catch(function() {
                         callback(null, house);
-                        // HouseBookingRequest
                     });
+                    // HouseBookingRequest
             } else {
                 callback(null, house);
             }
@@ -293,7 +295,7 @@ function defineMainServices(House) {
     House.Update = function(id, data, req, cb) {
         cb = cb || Common.PromiseCallback();
         _.mapKeys(data, _.method('toLowerCase'));
-        debug('update-data:', data);      
+        debug('update-data:', data);    
         return createOrUpdateHouse(req, id, data, cb);
     };
 
