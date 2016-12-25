@@ -52,9 +52,9 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'summary',
         'location',
         'position',
-        // 'type',
+        'type',
         'spec',
-        // 'price',
+        'prices',
         'features',
         'feature_list',
         'available_dates',
@@ -101,22 +101,18 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         function(house, callback) { //set spec
             if (plainData.spec) {
                 var spec = app.models.HouseSpec.RefineInput(plainData.spec);
-                console.log("spec~1", spec);
                 house.spec = house.spec || {};
                 spec = underscore.defaults(spec, house.spec.toJSON());
-                console.log("spec~2", spec);
                 lodash.keys(spec).map(function(s) {
                     if (!Boolean(Number(spec[s]))) spec[s] = 0;
                 });
-                console.log("spec~3", spec);
                 house.spec = spec;
-                // console.log('house', house);
             }
             callback(null, house);
         },
         function(house, callback) { //set price
-            if (plainData.price) {
-                var price = app.models.HousePriceProfile.RefineInput(data.price);
+            if (plainData.prices) {
+                var price = app.models.HousePriceProfile.RefineInput(plainData.prices);
                 house.prices = house.prices || {};
                 price = underscore.defaults(price, house.prices);
                 house.prices = price;
