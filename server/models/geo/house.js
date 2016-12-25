@@ -52,7 +52,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'summary',
         'location',
         'position',
-        'type',
+        'housetype',
         'spec',
         'price',
         'prices',
@@ -82,11 +82,11 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         },
         function(house, callback) { //set house type.
             console.log('#1', plainData.type)
-            if (plainData.type) {
+            if (plainData.housetype) {
                 app.models.HouseType
                     .findOne({
                         where: {
-                            key: plainData.type
+                            key: plainData.housetype
                         }
                     })
                     .then(function(type) {
@@ -94,7 +94,8 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                         house.houseType(type);
                         callback(null, house);
                     })
-                    .catch(function() {
+                    .catch(function(err) {
+                        console.log('#3', err)
                         callback(null, house);
                     });
                     // HouseBookingRequest
