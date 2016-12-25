@@ -292,7 +292,7 @@ function defineMainServices(House) {
      */
     House.Update = function(id, data, req, cb) {
         cb = cb || Common.PromiseCallback();
-        data = _.mapKeys(data, _.method('toLowerCase'));
+        _.mapKeys(data, _.method('toLowerCase'));
         debug('update-data:', data);      
         return createOrUpdateHouse(req, id, data, cb);
     };
