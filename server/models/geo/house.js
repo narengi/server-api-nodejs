@@ -63,7 +63,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
     ];
     // validate Data
     var plainData = underscore.pick(data, plainProps);
-    console.log('update-house-plain-data', plainData);
+    // console.log('update-house-plain-data', plainData);
 
     async.waterfall([
         function(callback) { //create or update instance by plain properties
@@ -73,7 +73,6 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             app.models.House.upsert(plainData, callback);
         },
         function(house, callback) { //set owner
-            console.log("HOUSE-BEFORE", house)
             if (houseId == null) {
                 setOwner(callback, req)(house);
             } else {
@@ -81,7 +80,6 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
         },
         function(house, callback) { //set house type.
-            console.log('#1', plainData.type)
             if (plainData.housetype) {
                 app.models.HouseType
                     .findOne({
@@ -90,12 +88,10 @@ function createOrUpdateHouse(req, houseId, data, cb) {
                         }
                     })
                     .then(function(type) {
-                        console.log('#2', type)
                         house.houseType(type);
                         callback(null, house);
                     })
                     .catch(function(err) {
-                        console.log('#3', err)
                         callback(null, house);
                     });
                     // HouseBookingRequest
@@ -158,7 +154,6 @@ function createOrUpdateHouse(req, houseId, data, cb) {
     ], function(err, house) {
         if (err) return cb(err);
         // console.log('NEW HOUSE WILL BE SAVE!', house);
-        console.log('updated-house', house)
         house.save(cb);
     });
 
