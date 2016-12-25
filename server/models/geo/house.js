@@ -73,6 +73,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             app.models.House.upsert(plainData, callback);
         },
         function(house, callback) { //set owner
+            console.log("HOUSE-BEFORE", house)
             if (houseId == null) {
                 setOwner(callback, req)(house);
             } else {

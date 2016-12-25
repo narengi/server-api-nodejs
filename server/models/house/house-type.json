@@ -18,7 +18,8 @@
   "protected": ["id", "lang"],
   "properties": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "key": {
       "type": "string",
