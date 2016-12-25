@@ -62,6 +62,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
     ];
     // validate Data
     var plainData = underscore.pick(data, plainProps);
+    console.log('update-house-plain-data', plainData);
 
     async.waterfall([
         function(callback) { //create or update instance by plain properties
@@ -78,11 +79,11 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
         },
         function(house, callback) { //set house type.
-            if (data.type) {
+            if (plainData.type) {
                 app.models.HouseType
                     .find({
                         where: {
-                            key: data.type
+                            key: plainData.type
                         }
                     })
                     .then(function(types) {
@@ -98,8 +99,8 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             }
         },
         function(house, callback) { //set spec
-            if (data.spec) {
-                var spec = app.models.HouseSpec.RefineInput(data.spec);
+            if (plainData.spec) {
+                var spec = app.models.HouseSpec.RefineInput(plainData.spec);
                 house.spec = house.spec || {};
                 spec = underscore.defaults(spec, house.spec.toJSON());
                 // console.log(spec);
@@ -112,7 +113,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             callback(null, house);
         },
         function(house, callback) { //set price
-            if (data.price) {
+            if (plainData.price) {
                 var price = app.models.HousePriceProfile.RefineInput(data.price);
                 house.prices = house.prices || {};
                 price = underscore.defaults(price, house.prices);
@@ -290,7 +291,7 @@ function defineMainServices(House) {
      */
     House.Update = function(id, data, req, cb) {
         cb = cb || Common.PromiseCallback();
-        debug('update-data:', data);
+        debug('update-data:', data);        
         return createOrUpdateHouse(req, id, data, cb);
     };
 
