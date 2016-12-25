@@ -54,7 +54,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'position',
         'type',
         'spec',
-        'prices',
+        'price',
         'features',
         'feature_list',
         'available_dates',
@@ -111,8 +111,8 @@ function createOrUpdateHouse(req, houseId, data, cb) {
             callback(null, house);
         },
         function(house, callback) { //set price
-            if (plainData.prices) {
-                var price = app.models.HousePriceProfile.RefineInput(plainData.prices);
+            if (plainData.price) {
+                var price = app.models.HousePriceProfile.RefineInput(plainData.price);
                 house.prices = house.prices || {};
                 price = underscore.defaults(price, house.prices);
                 house.prices = price;
