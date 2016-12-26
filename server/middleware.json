@@ -29,6 +29,9 @@
     },
     "./middleware/locale": {
       "params": {}
+    },
+    "./middleware/req-logger": {
+      "params": {}
     }
   },
   "session": {},
