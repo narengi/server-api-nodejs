@@ -1,29 +1,31 @@
-//
-// Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
-//
+'use strict';
 
-var app = serverRequire('server');
-var lodash = require('lodash');
+var _ = require('lodash');
 
 module.exports = function(Model) {
-    defineServices(Model);
+  defineServices(Model);
 };
 
-function defineServices(Model){
-    Model.GetProvinces = function(cb){
-        Model.find({order: "province ASC, city ASC"}, function(err, all){
-            if(err) return cb(err);
-            var ret = lodash.groupBy(all, function(entity){
-                return entity.province;
-            });
-            cb(null, ret);
-        });
-    };
-
-    Model.remoteMethod("GetProvinces", {
-        returns: {
-            arg: 'provinces', type: 'object', root: true
-        },
-        http: {verb: 'get', path: "/"}
+function defineServices(Model) {
+  Model.GetProvinces = function(cb) {
+    Model.find({
+      order: 'province ASC, city ASC'
+    }, function(err, data) {
+      if (err) return cb(err);
+      data = _.map(_.uniqBy(data, 'city'));
+      data = _.groupBy(data, function(entity) {
+        return entity.province;
+      });
+      cb(null, data);
     });
+  };
+
+  Model.remoteMethod("GetProvinces", {
+    returns: {
+      arg: 'provinces',
+      type: 'object',
+      root: true
+    },
+    http: { verb: 'get', path: "/" }
+  });
 }
