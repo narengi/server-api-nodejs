@@ -1,4 +1,3 @@
-require('@risingstack/trace');
 require('newrelic');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
@@ -8,6 +7,8 @@ var opbeat = require('opbeat').start({
   organizationId: '32e61836c5804fd7a63baab8c973fbe8',
   secretToken: '1d6510eb9a491aa1716a0d5ce5ec80608610e2c0'
 });
+var logger = require('logger-request');
+// require('@risingstack/trace');
 
 /**
  * Add `global` method for requiring from `root`
@@ -31,6 +32,11 @@ JSON.stringify = function () {
 };
 
 var app = module.exports = loopback();
+app.use(logger({
+  console: true,
+  json: false,
+  raw: true
+}));
 
 app.start = function () {
     // start the web server
