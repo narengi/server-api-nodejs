@@ -1219,7 +1219,8 @@ var addExtraMethods = function(Account) {
   Account.afterRemote("ShowProfileMe", Common.RemoteHooks.convert2Dto(Account));
   Account.afterRemote("ShowProfileMe", (ctx, instance, next) => {
     ctx.result.profile.picture = {
-      url: '/medias/avatar'
+      url: '/medias/avatar',
+      external_url: `/medias/avatar/${ctx.result.id}`
     }
 
     app.models.Media.findOne({
