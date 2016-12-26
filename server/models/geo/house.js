@@ -594,9 +594,11 @@ function defineMainServices(House) {
     House.Search = function(term, paging, req, res, cb) {
         cb = cb || Common.PromiseCallback();
         var filter = paging;
-
+        // ي ك
         //type of argument is string so we test it by empty string
         if (term !== '') {
+            term = term.replace(new RegExp('ي', 'ig'), 'ی');
+            term = term.replace(new RegExp('ك', 'ig'), 'ک');
             // filter.where = { name: { like: term, options: 'i' } }; // i denotes insensitivity
             filter.where = {
                 or: [{
