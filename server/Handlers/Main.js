@@ -4,11 +4,11 @@ const http = require('http');
 
 class MainHandler {
 
-  constructor (Model) {
+  constructor(Model) {
     this.Model = Model
   }
 
-  registerMethod (data, handler) {
+  registerMethod(data, handler) {
     this.Model.remoteMethod(data.name, {
       description: data.description || '',
       accepts: data.accepts || [],
@@ -22,7 +22,7 @@ class MainHandler {
     this.Model[data.name] = handler
   }
 
-  Error ({status = 200, message, code}, callback) {
+  Error({ status = 200, message, code }, callback) {
     let ErrObj = {
       status: status,
       statusCode: status,
@@ -31,6 +31,17 @@ class MainHandler {
     }
     ErrObj.message = ErrObj.message || ErrObj.code;
     callback(ErrObj)
+  }
+
+  get Memory() {
+    let kDec = 2;
+    var memoryObj = process.memoryUsage();
+    var bytes = parseInt(memoryObj.rss);
+    if (bytes) {
+      var MBytes = bytes / (1024 * 1024);
+      var roundedMegabytes = Math.round(MBytes * Math.pow(10, kDec)) / Math.pow(10, kDec);
+      return `memory: ${roundedMegabytes.toString()} mb | time: ${Date.now() - this.startTime} ms`;
+    }
   }
 
 }

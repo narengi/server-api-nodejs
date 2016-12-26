@@ -96,8 +96,8 @@ class Medias extends MainHandler {
       }],
       returns: [
         { type: 'ReadableStream', root: true },
-        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
-        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' } },
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' } }
       ]
     }, this.download.bind(this));
   }
@@ -152,8 +152,8 @@ class Medias extends MainHandler {
       }],
       returns: [
         { type: 'ReadableStream', root: true },
-        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
-        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' } },
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' } }
       ]
     }, this.getAvatar.bind(this));
   }
@@ -652,10 +652,9 @@ class Medias extends MainHandler {
    * @return {object}
    */
   upload(req, cb) {
-
     const uploadDebugger = debug('narengi-media:upload')
-
-    uploadDebugger(`request params:`, req.params)
+    this.startTime = Date.now();
+    uploadDebugger(`request params:`, req.params, this.Memory)
 
     const Storage = app.models.Storage;
     let container = req.params.section.trim();
@@ -668,7 +667,7 @@ class Medias extends MainHandler {
     // VALIDATE CONFIGS
     switch (true) {
       case !Object.keys(contcfg).length:
-        uploadDebugger(`validation failed: invalid 'contcfg' object keys length for ${container}`)
+        uploadDebugger(`validation failed: invalid 'contcfg' object keys length for ${container}`, this.Memory)
         this.Error({
           status: 400,
           code: 'validation failed',
@@ -676,7 +675,7 @@ class Medias extends MainHandler {
         }, cb)
         break;
       case !_.has(contcfg, 'dirName') || !contcfg.dirName.trim().length:
-        uploadDebugger(`validation failed: 'contcfg' not include required key 'dirName'`)
+        uploadDebugger(`validation failed: 'contcfg' not include required key 'dirName'`, this.Memory)
         this.Error({
           status: 400,
           code: 'validation failed',
@@ -684,7 +683,7 @@ class Medias extends MainHandler {
         }, cb)
         break;
       case !_.has(contcfg, 'maxSize') || typeof contcfg.maxSize !== "number":
-        uploadDebugger(`validation failed: 'contcfg' not include required key 'maxSize'`)
+        uploadDebugger(`validation failed: 'contcfg' not include required key 'maxSize'`, this.Memory)
         this.Error({
           status: 400,
           code: 'validation failed',
@@ -692,7 +691,7 @@ class Medias extends MainHandler {
         }, cb)
         break;
       case !_.has(contcfg, 'key') || !contcfg.key.trim().length:
-        uploadDebugger(`validation failed: 'contcfg' not include required key 'key'`)
+        uploadDebugger(`validation failed: 'contcfg' not include required key 'key'`, this.Memory)
         this.Error({
           status: 400,
           code: 'validation failed',
@@ -700,7 +699,7 @@ class Medias extends MainHandler {
         }, cb)
         break;
       case !_.has(contcfg, 'model') || !contcfg.model.trim().length:
-        uploadDebugger(`validation failed: 'contcfg' not include required key 'model'`)
+        uploadDebugger(`validation failed: 'contcfg' not include required key 'model'`, this.Memory)
         this.Error({
           status: 400,
           code: 'validation failed',
@@ -712,29 +711,29 @@ class Medias extends MainHandler {
     async.waterfall([
       (callback) => {
         // CHECK IF CONTAINER IS EXISTS
-        uploadDebugger('CHECK IF CONTAINER IS EXISTS');
-        Storage.getContainer(contcfg.dirName, (err) => callback(null, err ? err.code : 'OK'))
+        uploadDebugger('CHECK IF CONTAINER IS EXISTS', this.Memory);
+        Storage.getContainer(contcfg.dirName, callback)
       },
+      // (cont, callback) => {
+      //   // CREATE CONTAINER IF IT IS NOT EXISTS
+      //   uploadDebugger('CREATE CONTAINER IF IT IS NOT EXISTS');
+      //   switch (cont) {
+      //     case 'OK':
+      //       callback(null)
+      //       break;
+      //     case 'ENOENT':
+      //       Storage.createContainer({ name: contcfg.dirName }, () => callback(null))
+      //       break;
+      //   }
+      // },
       (cont, callback) => {
-        // CREATE CONTAINER IF IT IS NOT EXISTS
-        uploadDebugger('CREATE CONTAINER IF IT IS NOT EXISTS');
-        switch (cont) {
-          case 'OK':
-            callback(null)
-            break;
-          case 'ENOENT':
-            Storage.createContainer({ name: contcfg.dirName }, () => callback(null))
-            break;
-        }
-      },
-      (callback) => {
         // GET FILE DATA FROM REQUEST
-        uploadDebugger('GET FILE DATA FROM REQUEST');
+        uploadDebugger('GET FILE DATA FROM REQUEST', this.Memory);
         Http.Uploader.mediaUpload(req, callback);
       },
       (fileds, formData, callback) => {
         // VALIDATE FILE BASE ON CONTAINER CONFIGS
-        uploadDebugger('VALIDATE FILE BASE ON CONTAINER CONFIGS');
+        uploadDebugger('VALIDATE FILE BASE ON CONTAINER CONFIGS', this.Memory);
         let isValid = true;
         let files = [];
 
@@ -745,9 +744,9 @@ class Medias extends MainHandler {
 
         _.each(formData.files, (file, idx) => {
           isValid = isValid && file.type.substring(0, file.type.indexOf('/')) === "image";
-          uploadDebugger(`check file type: ${file.type.substring(0, file.type.indexOf('/'))} = ${isValid}`)
+          uploadDebugger(`check file type: ${file.type.substring(0, file.type.indexOf('/'))} = ${isValid}`, this.Memory)
           if (!isValid) {
-            uploadDebugger(`invalid uploaded file type '${file.type.substring(0, file.type.indexOf('/'))}'`)
+            uploadDebugger(`invalid uploaded file type '${file.type.substring(0, file.type.indexOf('/'))}'`, this.Memory)
             this.Error({
               status: 400,
               code: 'validation failed',
@@ -756,9 +755,9 @@ class Medias extends MainHandler {
           }
 
           isValid = isValid && Number(file.size) <= contcfg.maxSize;
-          uploadDebugger(`check file size: ${Number(file.size)}/${contcfg.maxSize} = ${isValid}`)
+          uploadDebugger(`check file size: ${Number(file.size)}/${contcfg.maxSize} = ${isValid}`, this.Memory)
           if (!isValid) {
-            uploadDebugger('maximum uploaded file size exceeds')
+            uploadDebugger('maximum uploaded file size exceeds', this.Memory)
             this.Error({
               status: 400,
               code: 'validation failed',
@@ -785,29 +784,30 @@ class Medias extends MainHandler {
       },
       (files, callback) => {
         // CREATE IMAGE OBJECTS FROM FILES
-        uploadDebugger('CREATE IMAGE OBJECTS FROM FILES');
+        uploadDebugger('CREATE IMAGE OBJECTS FROM FILES', this.Memory);
         let idx = 0;
         _.each(files, (file) => {
           lwip.open(file.path, (err, img) => {
-            file.img = img;
-            if (idx < files.length - 1) idx++;
-            else callback(null, files);
+            img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {});
+            // if (idx < files.length - 1) idx++;
+            // else callback(null, files);
           })
         });
+        callback(null, files);
       },
-      (files, callback) => {
-        // WRITE FILES
-        let idx = 0;
-        _.each(files, (file) => {
-          file.img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {
-            if (idx < files.length - 1) idx++;
-            else callback(null, files);
-          });
-        });
-      },
+      // (files, callback) => {
+      //   // WRITE FILES
+      //   let idx = 0;
+      //   _.each(files, (file) => {
+      //     file.img.writeFile(`./storage/${contcfg.dirName}/${file.hash}`, file.ext, {}, () => {
+      //       if (idx < files.length - 1) idx++;
+      //       else callback(null, files);
+      //     });
+      //   });
+      // },
       (files, callback) => {
         // SAVE FILE TO DB
-        uploadDebugger('SAVE FILES TO DB');
+        uploadDebugger('SAVE FILES TO DB', this.Memory);
         let uploaded = [];
         let idx = 0;
 
@@ -820,29 +820,22 @@ class Medias extends MainHandler {
           if (file.assign_type === 'userprofile') {
             file.assign_id = ObjectID(currentUser.id);
           }
-          this.Model.create(file)
-            .then((media) => {
-              uploaded.push(media.uid);
-              if (idx < files.length - 1) idx++;
-              else callback(null, uploaded);
-            })
-            .catch((err) => {
-              uploadDebugger('SAVE FILE TO DB ERR');
-              if (idx < files.length - 1) idx++;
-              else callback(err);
-            });
         });
+        this.Model.create(files, callback);
       }
     ], (err, result) => {
       // DONE
       if (!err) {
-        uploadDebugger('DONE')
+        uploadDebugger('DONE', this.Memory)
+        _.map(result, (d, idx) => {
+          result[idx] = _.valuesIn(_.pick(d, 'uid'))[0];
+        })
         cb(null, {
           uids: result,
           message: `${result.length} images uploaded`
         })
       } else {
-        uploadDebugger('ERR')
+        uploadDebugger('ERR', this.Memory)
         cb(err)
       }
     });
@@ -873,12 +866,12 @@ class Medias extends MainHandler {
         }, callback);
       },
       (media, callback) => {
-        if (!media) return callback({status: 404, message: 'MEDIA_NOT_FOUND'});
+        if (!media) return callback({ status: 404, message: 'MEDIA_NOT_FOUND' });
         if (media.is_private) {
           if (currentUser && ObjectID(currentUser.id) === ObjectID(currentUser.owner_id)) {
             callback(null, media);
           } else {
-            callback({status: 403, message: 'ACCESS_DENIED'});
+            callback({ status: 403, message: 'ACCESS_DENIED' });
           }
         } else {
           callback(null, media);
@@ -982,8 +975,8 @@ class Medias extends MainHandler {
       }],
       returns: [
         { type: 'ReadableStream', root: true },
-        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
-        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' } },
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' } }
       ]
     }, (ctx, cb) => {
 
@@ -1021,8 +1014,8 @@ class Medias extends MainHandler {
       }],
       returns: [
         { type: 'ReadableStream', root: true },
-        { arg: 'Content-Type', type: 'string', http: { target: 'header' }},
-        { arg: 'Content-Length', type: 'string', http: { target: 'header' }}
+        { arg: 'Content-Type', type: 'string', http: { target: 'header' } },
+        { arg: 'Content-Length', type: 'string', http: { target: 'header' } }
       ]
     }, (ctx, cb) => {
 
