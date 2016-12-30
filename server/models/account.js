@@ -212,7 +212,7 @@ var initMethods = function(Account) {
         if (fld.label === 'avatar') {
           result[fld.label] = `/medias/avatar/${ctx.result.id}`
           result.picture = { 
-            url: result[fld.label],
+            url: '/medias/avatar',
             external_url: `/medias/avatar/${ctx.result.id}`
           }
         } else {
