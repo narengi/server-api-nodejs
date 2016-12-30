@@ -938,7 +938,8 @@ class Medias extends MainHandler {
           assign_type: 'userprofile',
           deleted: false
         },
-        fields: ['uid', 'type', 'owner_id', 'storage', 'hash', 'is_private']
+        fields: ['uid', 'type', 'owner_id', 'storage', 'hash', 'is_private'],
+        order: 'created_date DESC'
       })
       .then((media) => {
         if (media) {
