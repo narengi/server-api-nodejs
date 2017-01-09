@@ -62,6 +62,7 @@ function createOrUpdateHouse(req, houseId, data, cb) {
         'lang'
     ];
     // validate Data
+    if (data.type) data.housetype = data.type;
     var plainData = underscore.pick(data, plainProps);
     // console.log('update-house-plain-data', plainData);
 
