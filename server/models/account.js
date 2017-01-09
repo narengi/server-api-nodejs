@@ -17,6 +17,7 @@ const LoopBackContext = require('loopback-context'),
   makeError = Common.Errors.makeError,
   ObjectID = require('mongodb').ObjectID,
   crypto = require('crypto'),
+  debug = require('debug')('narengi-account'),
   _ = require('lodash'),
   emailTemp = require('../Templates/Emails/welcome');
 
@@ -1448,10 +1449,14 @@ var addExtraMethods = function(Account) {
       }
     });
 
-    if (!errMessages.length)
+    // debug('updateProfile-user', currentUser);
+    // debug('updateProfile-data', data);
+
+    if (!errMessages.length) {
       updateProfile(currentUser, data, cb);
-    else
+    } else {
       cb(errMessages[0]);
+    }
 
     return cb.promise;
   };

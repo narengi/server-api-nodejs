@@ -63,8 +63,7 @@ module.exports = function (AccountDTO) {
 
     AccountDTO.convertForWeb = function (account, options) {
         var dto = this.convertForMobile(account, options);
-        delete dto.token;
-
+        if (dto && dto.token) delete dto.token;
         return dto;
     };
 };
