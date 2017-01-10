@@ -234,7 +234,8 @@ var initMethods = function(Account) {
       .then((houses) => {
         if (houses && houses.length) {
           _.map(houses, (house, idx) => {
-            house.price = house.prices && Number(house.prices.price) > 0 ? `${house.prices.price} هزار تومان` : 'رایگان';
+            house.price = Common.Prices(house.prices.price);
+            house.extra_guest_price = Common.Prices(house.prices.extra_guest_price);
             house.pictures = [];
             // Get House Pitures -- I know this method is not good but we are in release night!!
             app.models.Media.find({

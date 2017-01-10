@@ -433,7 +433,8 @@ function defineMainServices(House) {
     House.afterRemote('GetById', function(ctx, instance, next) {
         let result = ctx.result;
         if (result.prices) {
-            result.price = Number(result.prices.price) > 0 ? `${result.prices.price} هزار تومان` : `رایگان`;
+            result.price = Common.Prices(result.prices.price);
+            result.extra_guest_price = Common.Prices(result.prices.extra_guest_price);
         }
         // add icon to features
         if (result.features && result.features.length) {
@@ -732,7 +733,8 @@ function defineMainServices(House) {
         if (result.length) {
             result = underscore.map(result, function(item) {
                 if (item.prices) {
-                    item.price = Number(item.prices.price) > 0 ? `${item.prices.price} هزار تومان` : 'رایگان';
+                    item.price = Common.Prices(item.prices.price);
+                    item.extra_guest_price = Common.Prices(item.prices.extra_guest_price);
                 }
                 return item;
             });

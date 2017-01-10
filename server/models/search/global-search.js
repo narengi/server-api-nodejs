@@ -8,6 +8,8 @@ var promiseCallback = require('narengi-utils').Common.PromiseCallback;
 var async = require('async');
 var underscore = require('underscore');
 var Pagination = require('narengi-utils').Pagination;
+var Common = require('narengi-utils').Common;
+var debug = require('debug')('narengi-search');
 var _ = require('lodash');
 
 /**
@@ -207,6 +209,17 @@ function defineHooks(GlobalSearch) {
             next();
         })
     });
+
+    GlobalSearch.afterRemote('Search', (ctx, instance, next) => {
+        let result = ctx.result;
+        result = _.map(ctx.result, (home) => {
+            home.Data.price = Common.Prices(home.Data.prices.price);
+            home.Data.extra_guest_price = Common.Prices(home.Data.prices.extra_guest_price);
+            return home;
+        });
+        ctx.result = result;
+        next();
+    })
 }
 
 /**
