@@ -44,7 +44,7 @@ module.exports = function (price) {
     }
 
     formatted_price = Boolean(formatted_price) ? formatted_price.toLocaleString('fa-IR') : formatted_price;
-
+    console.log('formatted-price:', `${formatted_price} ${formatted_label}`.trim());
     return `${formatted_price} ${formatted_label}`.trim();
 };
 
