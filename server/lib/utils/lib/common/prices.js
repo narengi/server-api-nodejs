@@ -43,6 +43,8 @@ module.exports = function (price) {
         formatted_label = 'رایگان';
     }
 
-    return `${formatted_price.toLocaleString('fa-IR')} ${formatted_label}`.trim();
+    formatted_price = Boolean(formatted_price) ? formatted_price.toLocaleString('fa-IR') : formatted_price;
+
+    return `${formatted_price} ${formatted_label}`.trim();
 };
 
