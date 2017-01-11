@@ -2,6 +2,22 @@
  * @author Aref Mirhosseini <code@arefmirhosseini.com> (http://arefmirhosseini.com)
  */
 
+const areIntlLocalesSupported = require('intl-locales-supported');
+const localesMyAppSupports = [
+    'fa-IR'
+];
+
+if (global.Intl) {
+    if (!areIntlLocalesSupported(localesMyAppSupports)) {
+        const IntlPolyfill    = require('intl');
+        Intl.NumberFormat   = IntlPolyfill.NumberFormat;
+        Intl.DateTimeFormat = IntlPolyfill.DateTimeFormat;
+    }
+} else {
+    global.Intl = require('intl');
+}
+
+const nf = new Intl.NumberFormat('fa-IR');
 const debug = require('debug')('narengi-commonlibs-prices')
 
 module.exports = function (price) {
@@ -43,8 +59,10 @@ module.exports = function (price) {
         formatted_label = 'رایگان';
     }
 
-    formatted_price = Boolean(formatted_price) ? formatted_price.toLocaleString('fa-IR') : formatted_price;
-    console.log('formatted-price:', `${formatted_price} ${formatted_label}`.trim());
+    formatted_price = Number(formatted_price) ? nf.format(Number(formatted_price)) : '';
+
+    debug('formatted-price:', formatted_price);
+    
     return `${formatted_price} ${formatted_label}`.trim();
 };
 
