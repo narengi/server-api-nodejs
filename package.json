@@ -1,6 +1,11 @@
 {
   "name": "api",
-  "version": "0.4.15",
+  "version": "1.0.0",
+  "private": true,
+  "authors": [
+    "Ali Abbasinasab <a.abbasinasab@gmail.com> (http://abbasinasab.com)",
+    "Aref Mirhosseini <code@arefmirhosseini.com> (http://arefmirhosseini.com)"
+  ],
   "main": "server/server.js",
   "scripts": {
     "pretest": "jshint .",
