@@ -9,6 +9,7 @@ module.exports = function(HouseFeatureDTO) {
 
     HouseFeatureDTO.convertForMobile = function (feature, options) {
         var dto = this.base.convert_internal(feature, HouseFeatureDTO, options);
+        dto.icon = `/medias/feature/${dto.key}`;
         return dto;
     };
 

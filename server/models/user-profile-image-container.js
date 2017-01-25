@@ -41,7 +41,7 @@ function addMethods(UserProfileImageContainer) {
      * @param userId
      */
     UserProfileImageContainer.getPathFor = function (userId) {
-        return nodePath.join(this.Config.Root, this.DirName(this.Config), userId);
+        return nodePath.join(__dirname, '..', '..', this.Config.Root, this.DirName(this.Config), userId);
     };
 };
 
@@ -66,6 +66,7 @@ function addServices(UserProfileImageContainer) {
         options["fieldName"] = "picture";
 
         var self = this;
+
         return new Promise(function (resolve, reject) {
             fsExtra.emptyDir(options["destDir"], function (err) {
                 if (err) return reject(err);

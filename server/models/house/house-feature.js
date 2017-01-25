@@ -26,11 +26,16 @@ function dataCorrector(ctx, instance, next) {
     }
 
     var defaultForm = {
-        "key": "",
-        "title": "",
-        "description": ""
+        'key': '',
+        'title': '',
+        'description': '',
+        'group': ''
     };
     data = underscore.pick(data, underscore.keys(defaultForm));
+    data['key'] = data['key'].trim().toLowerCase().replace(/\ /g, '-');
+    if (data['title']) data['title'] = data['title'].trim();
+    if (data['group']) data['group'] = data['group'].trim();
+    if (data['description']) data['description'] = data['description'].trim();
     ctx.req.body = data;
     next();
 }
@@ -79,8 +84,8 @@ function defineServices(HouseFeature) {
     HouseFeature.beforeRemote('Create', dataCorrector);
     HouseFeature.beforeRemote('Create', Common.RemoteHooks.correctRequestData);
     HouseFeature.beforeRemote('Create', Common.RemoteHooks.injectLangToRequestData);
-    HouseFeature.beforeRemote('Create', Persistency.Validation.RemoteHooks.Before.CheckUniqueness(HouseFeature.definition.name, "data", ["lang", "key"]));
-    HouseFeature.afterRemote("Create", Common.RemoteHooks.convert2Dto(HouseFeature));
+    HouseFeature.beforeRemote('Create', Persistency.Validation.RemoteHooks.Before.CheckUniqueness(HouseFeature.definition.name, 'data', ['lang', 'key']));
+    HouseFeature.afterRemote('Create', Common.RemoteHooks.convert2Dto(HouseFeature));
 
     HouseFeature.remoteMethod(
         'Create', {
@@ -101,7 +106,7 @@ function defineServices(HouseFeature) {
                 root: true
             },
             http: {
-                path: "/",
+                path: '/',
                 verb: 'post',
                 status: 201
             }
@@ -126,7 +131,7 @@ function defineServices(HouseFeature) {
     HouseFeature.beforeRemote('Update', dataCorrector);
     HouseFeature.beforeRemote('Update', Common.RemoteHooks.correctRequestData);
     HouseFeature.beforeRemote('Update', Common.RemoteHooks.injectLangToRequestData);
-    HouseFeature.afterRemote("Update", Common.RemoteHooks.convert2Dto(HouseFeature));
+    HouseFeature.afterRemote('Update', Common.RemoteHooks.convert2Dto(HouseFeature));
 
     HouseFeature.remoteMethod(
         'Update', {
@@ -155,7 +160,7 @@ function defineServices(HouseFeature) {
                 root: true
             },
             http: {
-                path: "/:id",
+                path: '/:id',
                 verb: 'put',
                 status: 204
             }
@@ -196,7 +201,7 @@ function defineServices(HouseFeature) {
                 }
             ],
             http: {
-                path: "/:id",
+                path: '/:id',
                 verb: 'delete',
                 status: 204
             }
@@ -222,7 +227,7 @@ function defineServices(HouseFeature) {
         return cb.promise;
     };
 
-    HouseFeature.afterRemote("GetById", Common.RemoteHooks.convert2Dto(HouseFeature));
+    HouseFeature.afterRemote('GetById', Common.RemoteHooks.convert2Dto(HouseFeature));
 
     HouseFeature.remoteMethod(
         'GetById', {
@@ -243,7 +248,7 @@ function defineServices(HouseFeature) {
                 root: true
             },
             http: {
-                path: "/:id",
+                path: '/:id',
                 verb: 'get',
                 status: 200
             }
@@ -271,19 +276,21 @@ function defineServices(HouseFeature) {
 
     HouseFeature.GetAll = function (paging, cb) {
         cb = cb || PromiseCallback();
-        var filter = paging;
-        this.injectLangToFilter(filter);
-        HouseFeature.find(filter).then(Persistency.CrudHandlers.successHandler(cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
+        // var filter = paging;
+        // this.injectLangToFilter(filter);
+        HouseFeature.find({})
+            .then(Persistency.CrudHandlers.successHandler(cb))
+            .catch(Persistency.CrudHandlers.failureHandler(cb));
         return cb.promise;
     };
 
     /**
      * Refine pagination arg
      */
-    HouseFeature.beforeRemote("GetAll", Pagination.RemoteHooks.refinePaginationParams);
+    HouseFeature.beforeRemote('GetAll', Pagination.RemoteHooks.refinePaginationParams);
 
-    HouseFeature.afterRemote("GetAll", Pagination.RemoteHooks.afterPaginatedService);
-    HouseFeature.afterRemote("GetAll", Common.RemoteHooks.convert2Dto(HouseFeature));
+    HouseFeature.afterRemote('GetAll', Pagination.RemoteHooks.afterPaginatedService);
+    HouseFeature.afterRemote('GetAll', Common.RemoteHooks.convert2Dto(HouseFeature));
 
     HouseFeature.remoteMethod(
         'GetAll', {
@@ -305,7 +312,7 @@ function defineServices(HouseFeature) {
                 description: 'List of paginated `HouseFeature` instances'
             },
             http: {
-                path: "/",
+                path: '/',
                 verb: 'get',
                 status: 200
             }

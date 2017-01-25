@@ -1,54 +1,60 @@
 {
-  "name": "HouseFeature",
-  "plural": "house-features",
-  "base": "LocalizedModel",
-  "idInjection": true,
-  "options": {
-    "validateUpsert": true,
-    "mongodb": {
-      "collection": "house_features"
-    }
-  },
-  "http": {
-    "path": "/house-features"
-  },
-  "mixins": {
-    "RemoteMethodReset": {}
-  },
-  "protected": ["lang"],
-  "properties": {
-    "key": {
-      "type": "string"
+    "name": "HouseFeature",
+    "plural": "house-features",
+    "base": "LocalizedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true,
+        "mongodb": {
+            "collection": "house_features"
+        }
     },
-    "title": {
-      "type": "string"
+    "http": {
+        "path": "/house-features"
     },
-    "description": {
-      "type": "string"
-    }
-  },
-  "validations": [],
-  "relations": {},
-  "acls": [
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "$everyone",
-      "permission": "DENY"
+    "mixins": {
+        "RemoteMethodReset": {}
     },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "ADMIN",
-      "permission": "ALLOW"
+    "protected": ["lang"],
+    "properties": {
+        "key": {
+            "type": "string",
+            "required": true
+        },
+        "title": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "group": {
+            "type": "string"
+        }
     },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "$everyone",
-      "permission": "ALLOW",
-      "property": ["GetById", "GetAll", "GetByKey"]
-    }
-  ],
-  "methods": {}
+    "validations": [],
+    "relations": {},
+    "acls": [{
+        "accessType": "*",
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "DENY"
+    }, {
+        "accessType": "*",
+        "principalType": "ROLE",
+        "principalId": "ADMIN",
+        "permission": "ALLOW"
+    }, {
+        "accessType": "*",
+        "principalType": "ROLE",
+        "principalId": "confirmedUser",
+        "permission": "ALLOW",
+        "property": ["Create"]
+    }, {
+        "accessType": "*",
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "ALLOW",
+        "property": ["GetById", "GetAll", "GetByKey"]
+    }],
+    "methods": {}
 }

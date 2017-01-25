@@ -146,7 +146,7 @@ exports.convert2Dto = function (Entity, options) {
             Entity = loopback.getModel(Entity);
         }
 
-        debug("Convert to DTO => model: %j, options: %j", Entity, options);
+        // debug("Convert to DTO => model: %j, options: %j", Entity, options);
 
         try {
             options = options || {};

@@ -18,7 +18,7 @@ var Security = require('narengi-utils').Security;
 var Common = require('narengi-utils').Common;
 var Persistency = require('narengi-utils').Persistency;
 
-module.exports = function (UserProfile) {
+module.exports = function(UserProfile) {
     /**
      * `UserProfile` model definition
      */
@@ -50,7 +50,7 @@ function createProfile(userId, data, cb) {
  * This function is for handling callbacks from calling CRUD methods of `loopback'
  */
 function createProfileHandler(data, cb) {
-    return function (account) {
+    return function(account) {
         cb = cb || promiseCallback();
         if (!account) {
             cb(PersistencyErrors.NotFound());
@@ -59,7 +59,7 @@ function createProfileHandler(data, cb) {
         if (account.profile.value()) {
             return cb(PersistencyErrors.Errors.Existed());
         }
-        account.profile.create(data, function (err, profile) {
+        account.profile.create(data, function(err, profile) {
             if (err) {
                 return cb(err);
             }
@@ -90,7 +90,7 @@ function updateProfile(userId, data, cb) {
  * This function is for handling callbacks from calling CRUD methods of `loopback'
  */
 function updateProfileHandler(data, cb) {
-    return function (account) {
+    return function(account) {
         cb = cb || promiseCallback();
         if (!account) {
             cb(PersistencyErrors.NotFound());
@@ -99,7 +99,7 @@ function updateProfileHandler(data, cb) {
         if (!account.profile.value()) {
             return createProfileHandler(data, cb)(account);
         }
-        account.profile.update(data, function (err, profile) {
+        account.profile.update(data, function(err, profile) {
             if (err) {
                 return cb(err);
             }
@@ -112,7 +112,7 @@ function updateProfileHandler(data, cb) {
 
 function defineProperties(UserProfile) {
     Object.defineProperty(UserProfile.prototype, "DisplayName", {
-        get: function () {
+        get: function() {
             return `${this.title || ''} ${this.firstName || ''} ${this.lastName || ''}`;
         },
         configurable: true,
@@ -123,7 +123,7 @@ function defineProperties(UserProfile) {
 /**
  * Add remote and operation hooks to the model
  */
-var addHooks = function (UserProfile) {
+var addHooks = function(UserProfile) {
 
     UserProfile.beforeRemote('CreateProfile', Security.RemoteHooks.checkCurrentUserAuthorized);
     UserProfile.beforeRemote('CreateProfile', commonBeforeRemotes.correctCaseOfKeys);
@@ -140,7 +140,7 @@ var addHooks = function (UserProfile) {
  A `beforeRemote` hook validating input data for persisting in storage
  This method correct and sanitizes input data.
  **/
-var dataOwnerCorrector = function (ctx, instance, next) {
+var dataOwnerCorrector = function(ctx, instance, next) {
     var data = ctx.req.body;
     if (!data) {
         next(Errors.DataEmpty());
@@ -159,31 +159,29 @@ var dataOwnerCorrector = function (ctx, instance, next) {
     next();
 };
 
-var defineServices = function (UserProfile) {
+var defineServices = function(UserProfile) {
 
     /**
      * Class method for creating an `UserProfile`
      * Just a proxy for main function.
      */
-    UserProfile.CreateProfile = function (data, cb) {
+    UserProfile.CreateProfile = function(data, cb) {
         var ctx = LoopBackContext.getCurrentContext();
-        var currentUser = ctx.get('currentUser');
+        var currentUser = ctx && ctx.get('currentUser');
         return createProfile(currentUser.id, data, cb);
     };
 
     UserProfile.remoteMethod(
         'CreateProfile', {
             description: 'Creates an user profile.',
-            accepts: [
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'body'
-                    }
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
                 }
-            ],
+            }],
             http: {
                 path: "/",
                 verb: 'post',
@@ -196,25 +194,23 @@ var defineServices = function (UserProfile) {
      * Class method for updating an `UserProfile`
      * Just a proxy for main function.
      */
-    UserProfile.UpdateProfile = function (data, cb) {
+    UserProfile.UpdateProfile = function(data, cb) {
         var ctx = LoopBackContext.getCurrentContext();
-        var currentUser = ctx.get('currentUser');
+        var currentUser = ctx && ctx.get('currentUser');
         return updateProfile(currentUser.id, data, cb);
     };
 
     UserProfile.remoteMethod(
         'UpdateProfile', {
             description: 'Updates an user profile.',
-            accepts: [
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'body'
-                    }
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
                 }
-            ],
+            }],
             http: {
                 path: "/",
                 verb: 'put',
@@ -223,7 +219,7 @@ var defineServices = function (UserProfile) {
         }
     );
 
-    UserProfile.EnsureProfileExisted = function (user, cb) {
+    UserProfile.EnsureProfileExisted = function(user, cb) {
         cb = cb || promiseCallback();
         if (!user) return cb(Persistency.Errors.NotFound());
         if (user.profile.value()) return cb(null, user.profile);
@@ -241,45 +237,69 @@ function defineProfilePictureMethods(UserProfile) {
      * @param {Callback} cb
      * @private
      */
-    UserProfile._UploadPicture = function (currentUser, ctx, cb) {
+    UserProfile._UploadPictureOLD = function(currentUser, ctx, cb) {
         cb = cb || promiseCallback();
 
         var options = {};
 
         if (currentUser) {
             async.waterfall([
-                function (callback) {
+                function(callback) {
                     UserProfile.EnsureProfileExisted(currentUser, callback);
                 },
-                function (existedProfile, callback) {
+                function(existedProfile, callback) {
                     currentUser.reload(callback);
                 }
-            ], function (err, reloadedUser) {
+            ], function(err, reloadedUser) {
                 if (err) return cb(err);
-                app.models.UserProfileImageContainer.UploadPicture(reloadedUser, ctx, options).then(function (result) {
-                    var picture = result.db; //synced
-                    if (underscore.isArray(picture))
-                        picture = picture[0];
-                    reloadedUser.profile.update({picture: picture}).then((profile) => {
-                        var api = {};
-                        api.url = `/user-profiles/${reloadedUser.id}/picture/${result.api[0].hash}`;
-                        api.styles = underscore.reduce(result.api[0].styles, function (memo, stylePack) {
-                            return underscore.extend(memo, stylePack.style);
-                        }, {});
-                        cb(null, api);
-                    }).catch(function (err) {
+                console.time("UserProfileImageContainer.UploadPicture");
+                app.models.UserProfileImageContainer.UploadPicture(reloadedUser, ctx, options)
+                    .then(function(result) {
+                        console.timeEnd("UserProfileImageContainer.UploadPicture");
+                        var picture = result.db; //synced
+                        if (underscore.isArray(picture))
+                            picture = picture[0];
+                        reloadedUser.profile.update({ picture: picture }).then((profile) => {
+                            var api = {};
+                            api.url = `/user-profiles/${reloadedUser.id}/picture/${result.api[0].hash}`;
+                            api.styles = underscore.reduce(result.api[0].styles, function(memo, stylePack) {
+                                return underscore.extend(memo, stylePack.style);
+                            }, {});
+                            // cb(null, api);
+                            cb(null);
+                        }).catch(function(err) {
                             cb(err);
-                        }
-                    )
-                    ;
-                }).catch(function (ex) {
-                    return cb(ex);
-                });
+                        });
+                    })
+                    .catch(function(ex) {
+                        return cb(ex);
+                    });
             });
-        }
-        else {
+        } else {
             cb(SecurityErrors.NotAuthorized());
         }
+        return cb.promise;
+    };
+
+    /**
+     * UPLOAD USER PROFILE -- added by Aref
+     */
+     UserProfile._UploadPicture = function(currentUser, ctx, cb) {
+        cb = cb || promiseCallback();
+        var options = {
+            uid: currentUser.id
+        };
+
+        app.models.ImageContainerBase.UploadPicture2(ctx, options, {})
+            .then(function(file){
+                currentUser.profile.update({ picture: file });
+                // file.styles = [];
+                cb(null, file);
+            })
+            .catch(function(err){
+                cb(err);
+            })
+
         return cb.promise;
     };
 
@@ -289,10 +309,15 @@ function defineProfilePictureMethods(UserProfile) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    UserProfile.UploadPicture = function (ctx, cb) {
+    UserProfile.UploadPicture = function(data, cb) {
         cb = cb || promiseCallback();
-        var currentUser = LoopBackContext.getCurrentContext().get('currentUser');
-        UserProfile._UploadPicture(currentUser, ctx, cb);
+
+        var ctx = LoopBackContext.getCurrentContext();
+        var currentUser = ctx && ctx.get('currentUser');
+        if (!currentUser) return cb(Security.Errors.NotAuthorized());
+
+        UserProfile._UploadPicture(currentUser, data, cb);
+
         return cb.promise;
     };
 
@@ -300,13 +325,24 @@ function defineProfilePictureMethods(UserProfile) {
      * Defines uploading picture service method as a REST API
      */
     UserProfile.remoteMethod("UploadPicture", {
-        accepts: [
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
-        ],
+        description: "Upload Picture",
+        accepts: [{
+            arg: 'data',
+            type: 'object',
+            http: {
+                source: 'context'
+            }
+        }],
         returns: {
-            arg: 'fileObject', type: 'object', root: true
+            arg: 'fileObject',
+            type: 'object',
+            root: true
         },
-        http: {verb: 'post', status: 201, path: "/picture"}
+        http: {
+            verb: 'post',
+            status: 201,
+            path: "/picture"
+        }
     });
 
     /**
@@ -317,7 +353,7 @@ function defineProfilePictureMethods(UserProfile) {
      * @param {Callback} cb
      * @returns {Promise}
      */
-    UserProfile.DownloadPicture = function (hash, style, ctx, cb) {
+    UserProfile.DownloadPicture = function(hash, style, ctx, cb) {
         cb = cb || promiseCallback();
         var currentUser = LoopBackContext.getCurrentContext().get('currentUser');
         if (!currentUser) {
@@ -326,8 +362,7 @@ function defineProfilePictureMethods(UserProfile) {
 
         try {
             app.models.UserProfileImageContainer.DownloadPicture(currentUser, hash, style, ctx);
-        }
-        catch (ex) {
+        } catch (ex) {
             cb(ex);
         }
 
@@ -339,22 +374,24 @@ function defineProfilePictureMethods(UserProfile) {
      */
     UserProfile.remoteMethod("DownloadPicture", {
         accepts: [
-            {arg: 'hash', type: 'string', required: true, http: {source: 'path'}},
-            {
-                arg: 'style', type: 'string',
-                http: function (ctx) {
+            { arg: 'hash', type: 'string', required: true, http: { source: 'path' } }, {
+                arg: 'style',
+                type: 'string',
+                http: function(ctx) {
                     var req = ctx.req;
                     var query = req.query || {};
                     var style = query['style'] ? query['style'] : null;
                     return style ? style.trim() : "";
                 }
             },
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
+            { arg: 'ctx', type: 'object', http: { source: 'context' } }
         ],
         returns: {
-            arg: 'fileObject', type: 'object', root: true
+            arg: 'fileObject',
+            type: 'object',
+            root: true
         },
-        http: {verb: 'get', path: "/picture/:hash"}
+        http: { verb: 'get', path: "/picture/:hash" }
     });
 
     /**
@@ -364,7 +401,7 @@ function defineProfilePictureMethods(UserProfile) {
      * @param {Callback} cb
      * @public
      */
-    UserProfile.UploadPictureForOther = function (id, ctx, cb) {
+    UserProfile.UploadPictureForOther = function(id, ctx, cb) {
         cb = cb || promiseCallback();
         app.models.Account.findById(id).then((account) => {
             UserProfile._UploadPicture(account, ctx, cb);
@@ -375,14 +412,30 @@ function defineProfilePictureMethods(UserProfile) {
     };
 
     UserProfile.remoteMethod("UploadPictureForOther", {
-        accepts: [
-            {arg: 'id', type: 'string', http: {source: 'path'}},
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
-        ],
+        description: "Upload Picture for Other",
+        accepts: [{
+            arg: 'id',
+            type: 'string',
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'ctx',
+            type: 'object',
+            http: {
+                source: 'context'
+            }
+        }],
         returns: {
-            arg: 'fileObject', type: 'object', root: true
+            arg: 'fileObject',
+            type: 'object',
+            root: true
         },
-        http: {verb: 'post', status: 201, path: "/:id/picture"}
+        http: {
+            verb: 'post',
+            status: 201,
+            path: "/:id/picture"
+        }
     });
 
     /**
@@ -393,7 +446,7 @@ function defineProfilePictureMethods(UserProfile) {
      * @param {HttpContext} ctx
      * @param {Callback} cb
      */
-    UserProfile.DownloadPictureForOther = function (id, hash, style, ctx, cb) {
+    UserProfile.DownloadPictureForOther = function(id, hash, style, ctx, cb) {
         cb = cb || promiseCallback();
 
         app.models.Account.findById(id).then(accountFound).catch(accountError);
@@ -411,24 +464,45 @@ function defineProfilePictureMethods(UserProfile) {
 
 
     UserProfile.remoteMethod("DownloadPictureForOther", {
-        accepts: [
-            {arg: 'id', type: 'string', required: true, http: {source: 'path'}},
-            {arg: 'hash', type: 'string', required: true, http: {source: 'path'}},
-            {
-                arg: 'style', type: 'string',
-                http: function (ctx) {
-                    var req = ctx.req;
-                    var query = req.query || {};
-                    var style = query['style'] ? query['style'] : null;
-                    return style ? style.trim() : "";
-                }
-            },
-            {arg: 'ctx', type: 'object', http: {source: 'context'}}
-        ],
+        accepts: [{
+            arg: 'id',
+            type: 'string',
+            required: true,
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'hash',
+            type: 'string',
+            required: true,
+            http: {
+                source: 'path'
+            }
+        }, {
+            arg: 'style',
+            type: 'string',
+            http: function(ctx) {
+                var req = ctx.req;
+                var query = req.query || {};
+                var style = query['style'] ? query['style'] : null;
+                return style ? style.trim() : "";
+            }
+        }, {
+            arg: 'ctx',
+            type: 'object',
+            http: {
+                source: 'context'
+            }
+        }],
         returns: {
-            arg: 'fileObject', type: 'object', root: true
+            arg: 'fileObject',
+            type: 'object',
+            root: true
         },
-        http: {verb: 'get', path: "/:id/picture/:hash"}
+        http: {
+            verb: 'get',
+            path: "/:id/picture/:hash"
+        }
     });
 
 }
@@ -443,7 +517,7 @@ function defineAdminStuff(UserProfile) {
      * Class method for creating an `UserProfile` by admin
      * Just a proxy for main function.
      */
-    UserProfile.CreateProfileByAdmin = function (id, data, cb) {
+    UserProfile.CreateProfileByAdmin = function(id, data, cb) {
         return createProfile(id, data, cb);
     };
 
@@ -455,24 +529,21 @@ function defineAdminStuff(UserProfile) {
     UserProfile.remoteMethod(
         'CreateProfileByAdmin', {
             description: 'Creates an user profile by admin.',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
-                },
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'body'
-                    }
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }, {
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
             http: {
                 path: "/:id",
                 verb: 'post',
@@ -485,7 +556,7 @@ function defineAdminStuff(UserProfile) {
      * Class method for updating an `UserProfile` by admin
      * Just a proxy for main function.
      */
-    UserProfile.UpdateProfileByAdmin = function (id, data, cb) {
+    UserProfile.UpdateProfileByAdmin = function(id, data, cb) {
         return updateProfile(id, data, cb);
     };
 
@@ -497,24 +568,21 @@ function defineAdminStuff(UserProfile) {
     UserProfile.remoteMethod(
         'UpdateProfileByAdmin', {
             description: 'Updates an user profile by admin.',
-            accepts: [
-                {
-                    arg: 'id',
-                    type: 'string',
-                    required: true,
-                    http: {
-                        source: 'path'
-                    }
-                },
-                {
-                    arg: 'data',
-                    type: 'object',
-                    required: true,
-                    http: {
-                        source: 'body'
-                    }
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
                 }
-            ],
+            }, {
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
             http: {
                 path: "/:id",
                 verb: 'put',

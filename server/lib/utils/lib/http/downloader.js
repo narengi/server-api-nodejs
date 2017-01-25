@@ -18,9 +18,8 @@ exports.download = function(res, filename, filepath){
 
     var mimetype = nodeMime.lookup(filepath);
 
-    res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+    // res.setHeader('Content-disposition', 'attachment; filename=' + filename);
     res.setHeader('Content-type', mimetype);
-
     var filestream = nodeFs.createReadStream(filepath);
     filestream.pipe(res);
 };

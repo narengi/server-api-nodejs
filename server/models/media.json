@@ -1,0 +1,130 @@
+{
+    "name": "Media",
+    "plural": "medias",
+    "base": "Model",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
+    },
+    "properties": {
+        "uid": {
+            "type": "string",
+            "required": true,
+            "defaultFn": "uuidv4"
+        },
+        "type": {
+            "type": "string",
+            "required": true,
+            "default": "n/a"
+        },
+        "size": {
+            "type": "number",
+            "required": true,
+            "default": 0
+        },
+        "ext": {
+            "type": "string",
+            "required": true,
+            "default": "n/a"
+        },
+        "hash": {
+            "type": "string",
+            "required": true,
+            "default": "n/a"
+        },
+        "storage": {
+            "type": "string",
+            "required": true,
+            "default": "n/a"
+        },
+        "owner_id": {
+            "type": "object",
+            "required": true
+        },
+        "assign_type": {
+            "type": "string",
+            "required": true,
+            "default": "n/a"
+        },
+        "assign_id": {
+            "type": "object",
+            "default": "null"
+        },
+        "is_private": {
+            "type": "boolean",
+            "default": false
+        },
+        "deleted": {
+            "type": "boolean",
+            "default": false
+        },
+        "created_date": {
+            "type": "date",
+            "required": true,
+            "defaultFn": "now"
+        },
+        "updated_date": {
+            "type": "date",
+            "defaultFn": "now"
+        }
+    },
+    "validations": [],
+    "relations": {
+        "account": {
+            "type": "hasOne",
+            "model": "Account",
+            "foreignKey": "owner_id"
+        }
+    },
+    "acls": [{
+        "accessType": "EXECUTE",
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "GetMyMedias"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "UploadMedias"
+    }, {
+        "accessType": "EXECUTE",
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "SetMedia"
+    }, {
+        "accessType": "EXECUTE",
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "UnsetMedia"
+    }, {
+        "accessType": "EXECUTE",
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "RemoveMedia"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "authenticated",
+        "permission": "ALLOW",
+        "property": "GetProfileAvatars"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "ALLOW",
+        "property": "GetProfileAvatars"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "ALLOW",
+        "property": "GetFeatureIcon"
+    }, {
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "ALLOW",
+        "property": "GetFeatureIcon"
+    }],
+    "methods": {}
+}

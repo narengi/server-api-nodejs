@@ -42,12 +42,14 @@ module.exports = exports;
  * ```
  * @return {Promise}
  */
-exports.upload = function (req, options) {
+exports.upload = function(req, options) {
 
     options.hash = true; //force hashing
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
-        fs.Core.ensurePathExists(options.destDir).then(pathExisted).catch(pathNotExisted);
+        fs.Core.ensurePathExists(options.destDir)
+            .then(pathExisted)
+            .catch(pathNotExisted);
 
         function formParsedHandler(err, fields, files) {
             if (err) {
@@ -56,15 +58,17 @@ exports.upload = function (req, options) {
         }
 
         function fileUploadedHandler(fields, files) {
-            if (this.openedFiles) {
+            if (this.openedFiles && this.openedFiles.length) {
                 var uploadedFile = this.openedFiles[0];
-                handleImageStyles(uploadedFile, options).then((result) => {
-                    resolve(result);
-                }).catch((err) => {
-                    reject(err);
-                });
-            }
-            else {
+                console.time('handleImageStyles');
+                handleImageStyles(uploadedFile, options)
+                    .then(function(result) {
+                        console.timeEnd('handleImageStyles');
+                        resolve(result);
+                    }).catch(function(err) {
+                        reject(err);
+                    });
+            } else {
                 reject(HttpErrors.FileUploadFailure());
             }
         }
@@ -75,13 +79,17 @@ exports.upload = function (req, options) {
                 if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
                     return reject(HttpErrors.FileNotCorrectError());
                 }
-            }
-            catch (ex) {
+                //check image size
+                if (options.maxSize && file.size > options.maxSize) {
+                    return reject(HttpErrors.FileSizeLimitExceeded());
+                }
+            } catch (ex) {
                 return reject(HttpErrors.FileNotCorrectError());
             }
         }
 
         function pathExisted(path) {
+            if (!req) return reject(HttpErrors.FileNotCorrectError());
             var form = new formidable.IncomingForm();
             form.keepExtensions = true;
             if (!!options.hash)
@@ -96,6 +104,72 @@ exports.upload = function (req, options) {
         }
     });
 };
+
+exports.upload2 = function(req, options) {
+
+    options.hash = true; //force hashing
+
+    return new Promise(function(resolve, reject) {
+        // check upload path exists
+        let baseDir = fsExtra.ensureDirSync(options.destDir) || options.destDir;
+
+        if (!req) return reject(HttpErrors.FileNotCorrectError());
+        
+        function fileUploadedHandler() {
+            if (this.openedFiles) {
+                var uploadedFile = this.openedFiles[0];
+                console.timeEnd('uploading');
+                handleImageStyles(uploadedFile, options);
+                let uploaded = underscore.extend({original: 'original'}, options.styles);
+                let styles = [];
+                Object.keys(uploaded).map(function(key){
+                    styles.push({
+                        style: key,
+                        size: uploadedFile.size,
+                        type: uploadedFile.type
+                    })
+                })
+                resolve({
+                    hash: uploadedFile.hash,
+                    styles: styles
+                });
+            } else {
+                reject(HttpErrors.FileUploadFailure());
+            }
+        }
+
+        function fileDetectedHandler(name, file) {
+            try {
+                if (!options.fieldName) return; //prevent forcing upload field names
+                if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
+                    return reject(HttpErrors.FileNotCorrectError());
+                }
+                //check image size
+                if (options.maxSize && file.size > options.maxSize) {
+                    return reject(HttpErrors.FileSizeLimitExceeded());
+                }
+            } catch (ex) {
+                return reject(HttpErrors.FileNotCorrectError());
+            }
+        }
+
+        var form = new formidable.IncomingForm();
+        form.keepExtensions = true;
+        if (!!options.hash)
+            form.hash = "md5";
+        form.parse(req);
+        form.on("end", fileUploadedHandler);
+        form.on('file', fileDetectedHandler);
+    });
+};
+
+exports.mediaUpload = function(req, cb) {
+    const Form = new formidable.IncomingForm();
+    Form.keepExtensions = true;
+    Form.encoding = 'utf-8';
+    Form.multiples = true;
+    Form.parse(req, cb);
+}
 
 /**
  * Uploads files with remote `fieldname` to `destPath`
@@ -120,10 +194,10 @@ exports.upload = function (req, options) {
  * ```
  * @return {Promise}
  */
-exports.uploadAll = function (req, options) {
+exports.uploadAll = function(req, options) {
 
     options.hash = true; //force hashing
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
         fs.Core.ensurePathExists(options.destDir).then(pathExisted).catch(pathNotExisted);
 
@@ -138,7 +212,7 @@ exports.uploadAll = function (req, options) {
             var retArr = [];
 
             if (this.openedFiles) {
-                async.each(this.openedFiles, function (file, callback) {
+                async.each(this.openedFiles, function(file, callback) {
                     handleImageStyles(file, options).then((result) => {
                         if (underscore.isArray(result) && result.length > 0) {
                             var ret = {};
@@ -149,12 +223,11 @@ exports.uploadAll = function (req, options) {
                     }).catch((err) => {
                         callback(err);
                     });
-                }, function (err) {
+                }, function(err) {
                     if (err) return reject(err);
                     resolve(retArr);
                 });
-            }
-            else {
+            } else {
                 reject(HttpErrors.FileUploadFailure());
             }
         }
@@ -165,8 +238,7 @@ exports.uploadAll = function (req, options) {
                 if (name.toLowerCase() !== options.fieldName.toLowerCase()) {
                     return reject(HttpErrors.FileNotCorrectError());
                 }
-            }
-            catch (ex) {
+            } catch (ex) {
                 return reject(HttpErrors.FileNotCorrectError());
             }
         }
@@ -190,7 +262,7 @@ exports.uploadAll = function (req, options) {
 function handleImageStyles(uploadedFile, options, cb) {
     cb = cb || Common.PromiseCallback();
     styles = options.styles || {};
-    styles = underscore.extend({original: "original"}, styles);
+    styles = underscore.extend({ original: "original" }, styles);
 
     var emptyDir = bluebird.promisify(fsExtra.emptyDir);
 
@@ -198,36 +270,47 @@ function handleImageStyles(uploadedFile, options, cb) {
 
     var readFile = bluebird.promisify(nodeFs.readFile);
 
-    readFile(uploadedFile.path).then(fileDidRead).catch((e) => {
-        cb(fs.Errors.NoAccess());
-    });
+    if (uploadedFile) {
+        readFile(uploadedFile.path)
+            .then(fileDidRead)
+            .catch(function(e) {
+                cb(fs.Errors.NoAccess());
+            });
+    } else {
+        cb(HttpErrors.FileUploadFailure());
+    }
     return cb.promise;
 
     function doEachFileForStyle(uploadedFile, styleName, styleValue, buffer) {
-        debug("Image manipulation - style : %s => %s", styleName, styleValue);
-        return function (callback) {
+        // console.log("Image manipulation - style : %s => %s", styleName, styleValue);
+        return function(callback) {
             var destDirPath = nodePath.join(options.destDir, uploadedFile.hash);
             emptyDir(destDirPath).then(doOperation).catch((err) => {
                 callback(err);
+                return null;
             });
 
             function doOperation() {
                 var extension = nodePath.extname(uploadedFile.name).slice(1).toLowerCase();
-                if(!extension){
+                if (!extension) {
                     extension = mime.extension(uploadedFile.type);
                 }
                 var destPath = nodePath.join(destDirPath, styleName) + "." + extension;
-                debug("destination : %s", destPath);
+                // console.log("destination : %s", destPath);
                 if (styleName !== 'original') {
                     openImage(buffer, extension).then((image) => {
                         var batch = image.batch();
                         //if (image.width() > styleValue) //TODO: this is a policy consideration
                         batch.scale(styleValue / image.width());
-                        batch.writeFile(destPath, function (err) {
-                            if (err) return callback(err);
+                        batch.writeFile(destPath, function(err) {
+                            if (err) {
+                                // console.log("IMAGE SCALLING ERROR:", err)
+                                return callback(err);  
+                            } 
                             prepareForReturn(destPath);
                         });
                     }).catch((err) => {
+                        // console.log("OPENIMAGE ERROR:", err)
                         callback(null, null);
                     });
                 } else {
@@ -237,6 +320,7 @@ function handleImageStyles(uploadedFile, options, cb) {
                         callback(err);
                     });
                 }
+                return null;
             }
 
             function prepareForReturn(destPath) {
@@ -248,22 +332,27 @@ function handleImageStyles(uploadedFile, options, cb) {
                     style: {}
                 };
                 ret.style[styleName] = styleValue;
+                // console.log("prepareForReturn", ret);
                 callback(null, ret);
+                return null;
             }
+
+            return null;
         }
     }
 
     function fileDidRead(buffer) {
-        var cbArr = underscore.map(styles, function (value, key) {
+        var cbArr = underscore.map(styles, function(value, key) {
             return new doEachFileForStyle(uploadedFile, key.toString(), value, buffer);
         });
 
-        async.parallel(cbArr, function (err, result) {
+        async.parallel(cbArr, function(err, result) {
             if (err) return cb(err);
-            result = underscore.filter(result, function (item) {
+            result = underscore.filter(result, function(item) {
                 return item !== null;
             });
             cb(null, result);
         });
+        return null;
     }
 }

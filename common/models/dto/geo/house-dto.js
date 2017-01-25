@@ -24,9 +24,18 @@ module.exports = function (HouseDTO) {
 
     HouseDTO.convertForMobile = function (house, options) {
         var dto = this.base.convert_internal(house, HouseDTO, options);
-        dto.pictures = getPictures(house);
-        dto.type = house.type;
-        dto.detailUrl = house.getDetailUrl();
+        if (typeof house === 'object') {
+            dto.pictures = getPictures(house);
+            dto.type = house.type;
+            dto.detailUrl = house.getDetailUrl();
+            dto.googleMap = `/medias/googlemap/house/${house.id}`;
+            dto.position = house.position;
+            dto.dates = house.dates || [];
+            if (dto.dates.length) {
+                dto.dates = dto.dates.sort();
+                dto.first_date = dto.dates[0];
+            }
+        }
         return dto;
     };
 

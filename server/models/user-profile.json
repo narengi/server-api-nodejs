@@ -19,6 +19,11 @@
   },
   "properties": {
     "id": false,
+    "uid": {
+      "type": "string",
+      "required": true,
+      "defaultFn": "uuidv4"
+    },
     "title": {
       "type": "string"
     },
@@ -28,14 +33,38 @@
     "lastName": {
       "type": "string"
     },
+    "bio": {
+      "type": "string"
+    },
     "location": {
       "type": "Location"
+    },
+    "city": {
+      "type": "string"
+    },
+    "province": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "gender": {
+      "type": "string",
+      "default": "n/a"
     },
     "birthDate": {
       "type": "date"
     },
     "picture": {
       "type": "object"
+    },
+    "created_date": {
+      "type": "date",
+      "defaultFn": "now"
+    },
+    "updated_date": {
+      "type": "date",
+      "defaultFn": "now"
     }
   },
   "validations": [],
@@ -66,6 +95,20 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "UpdateProfile"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": "UploadPicture"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": "DownloadPictureForOther"
     },
     {
       "accessType": "EXECUTE",

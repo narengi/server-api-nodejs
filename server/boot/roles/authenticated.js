@@ -2,7 +2,7 @@
 // Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
 //
 
-var debug = require('debug')('narengi:role:authenticated');
+var debug = require('debug')('narengi-role:authenticated');
 
 module.exports = function (app) {
     var Role = app.models.Role;
@@ -14,12 +14,12 @@ module.exports = function (app) {
             cb(null, false);
         }
 
-        debug("model name : %s", context.modelName);
+        // debug("model name : %s", context.modelName);
 
         var userId = context.accessToken.userId;
 
-        debug("context access token : %j", context.accessToken);
-        debug("user id : %j", context);
+        // debug("context access token : %j", context.accessToken);
+        // debug("user id : %j", context);
 
         if(!context || !context.accessToken || !context.accessToken.userId) return reject();
 

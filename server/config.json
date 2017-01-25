@@ -1,14 +1,15 @@
 {
-  "restApiRoot": "/api",
-  "host": "0.0.0.0",
+  "restApiRoot": "/v1",
+  "host": "127.0.0.1",
   "port": 3000,
   "https": false,
-  "hostExt": "127.0.0.1:3000",
+  "hostExt": "api.narengi.local",
   "remoting": {
     "rest": {
       "normalizeHttpPath": false,
       "xml": false
     },
+    "context": false,
     "json": {
       "strict": false,
       "limit": "200kb"
@@ -37,15 +38,26 @@
   },
   "userProfile": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "uploads",
       "dirName": "user-profile-images",
-      "maxSize": "2097152",
+      "fieldName": "picture",
+      "maxSize": 4194304,
+      "key": ";32Co2r@4a'N}K]",
+      "model": "UserProfile",
       "styles": {
         "w64": 64,
         "w128": 128,
         "w480": 480,
         "w1024": 1024
       }
+    }
+  },
+  "userprofile": {
+    "picture": {
+      "dirName": "user-profile-images",
+      "maxSize": 4194304,
+      "key": ";32Co2r@4a'N}K]",
+      "model": "UserProfile"
     }
   },
   "pagination": {
@@ -58,9 +70,9 @@
   },
   "city": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "city-images",
-      "maxSize": "2097152",
+      "maxSize": 4194304,
       "styles": {
         "w64": 64,
         "w480": 480,
@@ -70,9 +82,9 @@
   },
   "attraction": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "attraction-images",
-      "maxSize": "2097152",
+      "maxSize": 4194304,
       "styles": {
         "w64": 64,
         "w480": 480,
@@ -82,9 +94,11 @@
   },
   "house": {
     "picture": {
-      "root": "/usr/local/projects/narengi/app/assets",
+      "root": "./uploads",
       "dirName": "house-images",
-      "maxSize": "2097152",
+      "maxSize": 4194304,
+      "key": "yTw|>ojz9S%F4@9",
+      "model": "House",
       "styles": {
         "w64": 64,
         "w480": 480,

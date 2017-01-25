@@ -21,3 +21,5 @@ exports.app = require('./application');
 exports.Size = require('./size');
 
 exports.Dates = require('./dates');
+
+exports.Prices = require('./prices');

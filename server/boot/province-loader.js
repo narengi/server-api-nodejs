@@ -26,16 +26,16 @@ module.exports = function (app, cb) {
         },
         function (count, callback) {
             var arr = [];
-            lineReader.eachLine(path.join(__dirname, '../../bin/province-city.json'), function (line, last) {
+            lineReader.eachLine(path.join(__dirname, '../../bin/province-city.json'), (line, last) => {
                 var obj = JSON.parse(line);
                 delete obj._id;
                 arr.push(obj);
                 if(last === true){
                     async.each(arr, function(obj, scb){
-                        Model.create(obj, function(e, entity){
+                        Model.create(obj, (e, entity) => {
                             scb(null);
                         });
-                    }, function (err) {
+                    }, (err) => {
                         callback(null);
                     });
                 }

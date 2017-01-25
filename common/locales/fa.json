@@ -51,7 +51,8 @@
 			"op": {
 				"not_found": "کاربر وجود ندارد"
 			}
-		}
+		},
+		"file_size_limit_exceeded": "error.file_size_limit_exceeded"
 	},
 	"Authorization Required": "Authorization Required"
 }

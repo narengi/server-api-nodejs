@@ -31,7 +31,9 @@ module.exports = function (AccountDTO) {
         }
         var justProfile = options.justProfile === true;
         var dto = this.base.convert_internal(account, AccountDTO, options);
+        dto.profileUrl = `/accounts/${dto.id}`;
         dto.profile = refineProfile(account, account.profile.value());
+        dto.personId = account.personId;
 
         if (!justProfile) {
             var authToken = account.authToken.value() || {};
@@ -61,8 +63,7 @@ module.exports = function (AccountDTO) {
 
     AccountDTO.convertForWeb = function (account, options) {
         var dto = this.convertForMobile(account, options);
-        delete dto.token;
-
+        if (dto && dto.token) delete dto.token;
         return dto;
     };
 };

@@ -216,5 +216,17 @@
   "ProvinceCity": {
     "dataSource": "narengi",
     "public": true
+  },
+  "Storage": {
+    "dataSource": "container",
+    "public": false
+  },
+  "Media": {
+    "dataSource": "narengi",
+    "public": true
+  },
+  "Mailer": {
+    "dataSource": "email",
+    "public": false
   }
 }

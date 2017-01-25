@@ -1,6 +1,13 @@
+require('newrelic');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 var path = require('path');
+var opbeat = require('opbeat').start({
+  appId: '783184833c',
+  organizationId: '32e61836c5804fd7a63baab8c973fbe8',
+  secretToken: '1d6510eb9a491aa1716a0d5ce5ec80608610e2c0'
+});
+// require('@risingstack/trace');
 
 /**
  * Add `global` method for requiring from `root`

@@ -39,6 +39,7 @@ module.exports = function (BaseDTO) {
         options = options || {};
 
         var keys = underscore.keys(EntityType.definition.properties);
+            keys.push('prices');
 
         if (options.skipId === true) {
             keys = underscore.filter(keys, function (key) {
