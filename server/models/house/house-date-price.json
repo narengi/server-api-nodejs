@@ -1,0 +1,47 @@
+{
+  "name": "HouseDatePrice",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "house_date_prices"
+    }
+  },
+  "protected": ["houseId"],
+  "properties": {
+    "houseId": {
+      "type": "object",
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "price": {
+      "type": "Price",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "indexes": {
+    "date_index": {
+      "keys": {"date": 1}
+    },
+    "house_id_index": {
+      "keys": {"houseId": 1}
+    }
+  },
+  "validations": [],
+  "relations": {
+    "house": {
+      "type": "belongsTo",
+      "model": "House",
+      "foreignKey": "houseId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

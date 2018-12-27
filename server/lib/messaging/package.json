@@ -1,0 +1,23 @@
+{
+  "name": "narengi-messaging",
+  "version": "1.0.0",
+  "description": "Messaging library for narengi",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "jshint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ebrahim Pasbani <e.pasbani@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "moment": "^2.13.0",
+    "node-sender": "^2.0.4",
+    "nodemailer": "^2.4.1",
+    "nodemailer-express-handlebars": "^2.0.0",
+    "nodemailer-plugin-inline-base64": "^1.0.1",
+    "querystring": "^0.2.0",
+    "request": "^2.72.0",
+    "underscore": "^1.8.3"
+  }
+}

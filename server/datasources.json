@@ -1,0 +1,39 @@
+{
+  "memory": {
+    "name": "memory",
+    "connector": "memory"
+  },
+  "narengi": {
+    "host": "localhost",
+    "port": 27017,
+    "database": "narengi_db_dev",
+    "name": "narengi",
+    "connector": "mongodb",
+    "debug": true
+  },
+  "container": {
+    "name": "container",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./storage"
+  },
+  "email": {
+    "name": "email",
+    "connector": "mail",
+    "transports": [
+      {
+        "type": "smtp",
+        "host": "smtp.sparkpostmail.com",
+        "secure": false,
+        "port": 587,
+        "tls": {
+          "rejectUnauthorized": false
+        },
+        "auth": {
+          "user": "SMTP_Injection",
+          "pass": "b58605d7347b76225983c3cd68287032344fad17"
+        }
+      }
+    ]
+  }
+}

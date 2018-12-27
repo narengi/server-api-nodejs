@@ -1,0 +1,32 @@
+{
+  "name": "ProvinceCity",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "province_city"
+    }
+  },
+  "http": {
+    "path": "/settings/provinces"
+  },
+  "mixins": {
+    "RemoteMethodReset": {}
+  },
+  "hidden": [
+    "province"
+  ],
+  "properties": {
+    "province": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

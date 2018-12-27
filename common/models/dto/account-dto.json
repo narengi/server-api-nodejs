@@ -1,0 +1,50 @@
+{
+	"name": "AccountDTO",
+	"base": "BaseDTO",
+	"idInjection": false,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id":{
+			"type": "string"
+		},
+		"username": {
+			"type": "string"
+		},
+		"email": {
+			"type": "string"
+		},
+		"displayName": {
+			"type": "string"
+		},
+		"cellNumber": {
+			"type": "string"
+		},
+		"enabled": {
+			"type": "boolean"
+		},
+		"lastLoginDate": {
+			"type": "date"
+		},
+		"registrationSource": {
+			"type": "string"
+		},
+		"verificationType": {
+			"type": "string"
+		},
+		"verified": {
+			"type": "string"
+		},
+		"createdAt": {
+			"type": "date"
+		},
+		"updatedAt": {
+			"type": "date"
+		}
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

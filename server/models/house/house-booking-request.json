@@ -1,0 +1,84 @@
+{
+  "name": "HouseBookingRequest",
+  "base": "PersistedModel",
+  "plural": "house-booking-requests",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "house_booking_requests",
+      "allowExtendedOperators": true
+    }
+  },
+  "http": {
+    "path": "/houses/requests"
+  },
+  "properties": {
+    "houseId": {
+      "type": "object"
+    },
+    "requestDate": {
+      "type": "date"
+    },
+    "requesterId": {
+      "type": "object"
+    },
+    "state": {
+      "type": "string",
+      "default": "NONE"
+    },
+    "securityCode": {
+      "type": "string"
+    }
+  },
+  "scopes": {
+    "Alive": {"where": {"state": {"inq": ["ISSUED", "ACCEPTED", "PAID", "CONFIRMED", "SETTLED"]}}},
+    "Dead": {"where": {"state": {"inq": ["NONE", "CANCELED", "REJECTED"]}}}
+  },
+  "validations": [],
+  "relations": {
+    "house": {
+      "type": "belongsTo",
+      "model": "House",
+      "foreignKey": "houseId"
+    },
+    "houseSnapshot": {
+      "type": "embedsOne",
+      "model": "House",
+      "property": "house_snapshot",
+      "options": {
+        "validate": true,
+        "forceId": false,
+        "persistent": false
+      }
+    },
+    "bookedDates": {
+      "type": "embedsMany",
+      "model": "HouseAvailableDate",
+      "property": "booked_dates",
+      "options": {
+        "validate": true,
+        "forceId": false,
+        "persistent": false
+      }
+    },
+    "owner": {
+      "type": "belongsTo",
+      "model": "Person",
+      "foreignKey": "requesterId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "authenticated",
+      "permission": "ALLOW",
+      "property": ["AddRequest"]
+    }
+  ],
+  "methods": {},
+  "description": [
+    "Booking request of a house"
+  ]
+}

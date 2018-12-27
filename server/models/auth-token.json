@@ -1,0 +1,51 @@
+{
+  "name": "AuthToken",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "mixins": {},
+  "protected": [
+    "type"
+  ],
+  "properties": {
+    "uid": {
+      "type": "string",
+      "defaultFn": "uuid"
+    },
+    "token": {
+      "type": "string",
+      "required": true
+    },
+    "assigned_account": {
+      "type": "object"
+    },
+    "type": {
+      "type": "string",
+      "required": true,
+      "default": "password"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "ttl": {
+      "type": "number",
+      "description": "time to live in seconds (2 weeks by default)",
+      "ttl": true,
+      "default": 1209600
+    },
+    "createdAt": {
+      "type": "date",
+      "defaultFn": "now"
+    },
+    "updatedAt": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

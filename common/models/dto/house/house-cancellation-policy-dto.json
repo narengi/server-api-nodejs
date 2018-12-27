@@ -1,0 +1,29 @@
+{
+  "name": "HouseCancellationPolicyDTO",
+  "base": "BaseDTO",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "brief": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "terms": {
+      "type": "string"
+    },
+    "explanation": {
+      "type": "array"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

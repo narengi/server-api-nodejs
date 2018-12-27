@@ -1,0 +1,24 @@
+{
+  "name": "HouseBookingRequestDTO",
+  "base": "BaseDTO",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "requestDate": {
+      "type": "date"
+    },
+    "state": {
+      "type": "string",
+      "default": "NONE"
+    },
+    "securityCode": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

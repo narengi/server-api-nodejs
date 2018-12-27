@@ -1,0 +1,58 @@
+{
+  "initial:before": {
+    "loopback#favicon": {}
+  },
+  "initial": {
+    "loopback-context#per-request": {
+      "params": {
+        "name": "narengi_context",
+        "enableHttpContext": true
+      }
+    },
+    "./middleware/context": {
+      "params": {
+        "name": "narengi_context"
+      }
+    },
+    "compression": {},
+    "cors": {
+      "params": {
+        "origin": true,
+        "credentials": true,
+        "maxAge": 86400
+      }
+    }
+  },
+  "initial:after": {
+    "./middleware/source-device": {
+      "params": {}
+    },
+    "./middleware/locale": {
+      "params": {}
+    },
+    "./middleware/req-logger": {
+      "params": {}
+    }
+  },
+  "session": {},
+  "auth": {
+    "./middleware/authentication": {}
+  },
+  "parse": {},
+  "routes": {
+    "loopback#rest": {
+      "paths": [
+        "${restApiRoot}"
+      ]
+    }
+  },
+  "files": {},
+  "final": {
+    "loopback#urlNotFound": {}
+  },
+  "final:after": {
+    "strong-error-handler": {
+      "params": {}
+    }
+  }
+}

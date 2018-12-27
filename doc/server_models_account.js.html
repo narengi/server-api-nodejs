@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>DocStrap Source: server/models/account.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">DocStrap</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="FileSystem.Core.html">FileSystem.Core</a></li><li><a href="HouseBookingRequest.html">HouseBookingRequest</a></li><li><a href="HouseBookingRequestMQPersister.html">HouseBookingRequestMQPersister</a></li><li><a href="http-context.html">http-context</a></li><li><a href="NotificationMQ.html">NotificationMQ</a></li><li><a href="NotificationMQPersister.html">NotificationMQPersister</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-House.html">House</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="CheckUniqueness.html">CheckUniqueness</a></li><li><a href="Explanation.html">Explanation</a></li><li><a href="GetService.html">GetService</a></li><li><a href="HouseAvailableDate.html">HouseAvailableDate</a></li><li><a href="HouseBookingRequest.RequestState.html">HouseBookingRequest.RequestState</a></li><li><a href="http-context.Context.html">http-context.Context</a></li><li><a href="Image.MakeFromDbArray.html">Image.MakeFromDbArray</a></li><li><a href="ImageContainerBase.UploadPicture.html">ImageContainerBase.UploadPicture</a></li><li><a href="module.html#.exports">module.exports</a></li><li><a href="Service.html">Service</a></li><li><a href="Transporter.html">Transporter</a></li><li><a href="UserProfileImageContainer.UploadPicture.html">UserProfileImageContainer.UploadPicture</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#accountCreateHandler">accountCreateHandler</a></li><li><a href="global.html#addHooks">addHooks</a></li><li><a href="global.html#addMethods">addMethods</a></li><li><a href="global.html#addServices">addServices</a></li><li><a href="global.html#afterPaginatedService">afterPaginatedService</a></li><li><a href="global.html#app">app</a></li><li><a href="global.html#argShouldNotEmpty">argShouldNotEmpty</a></li><li><a href="global.html#argumentWrapper">argumentWrapper</a></li><li><a href="global.html#arraySuccessHandler">arraySuccessHandler</a></li><li><a href="global.html#checkCurrentUserAuthorized">checkCurrentUserAuthorized</a></li><li><a href="global.html#convert2Dto">convert2Dto</a></li><li><a href="global.html#correctCaseOfKeys">correctCaseOfKeys</a></li><li><a href="global.html#correctRequestData">correctRequestData</a></li><li><a href="global.html#createOrUpdate">createOrUpdate</a></li><li><a href="global.html#createOrUpdateAttraction">createOrUpdateAttraction</a></li><li><a href="global.html#createOrUpdateCity">createOrUpdateCity</a></li><li><a href="global.html#createOrUpdateHouseFeature">createOrUpdateHouseFeature</a></li><li><a href="global.html#createOrUpdateHouseType">createOrUpdateHouseType</a></li><li><a href="global.html#createProfile">createProfile</a></li><li><a href="global.html#createProfileHandler">createProfileHandler</a></li><li><a href="global.html#CreateService">CreateService</a></li><li><a href="global.html#dataCorrector">dataCorrector</a></li><li><a href="global.html#dataOwnerCorrector">dataOwnerCorrector</a></li><li><a href="global.html#dataOwnerCorrectorInArg">dataOwnerCorrectorInArg</a></li><li><a href="global.html#dataShouldNotEmpty">dataShouldNotEmpty</a></li><li><a href="global.html#DateRange">DateRange</a></li><li><a href="global.html#defineAdminServices">defineAdminServices</a></li><li><a href="global.html#defineAdminStuff">defineAdminStuff</a></li><li><a href="global.html#defineGeneralServices">defineGeneralServices</a></li><li><a href="global.html#defineHooks">defineHooks</a></li><li><a href="global.html#defineMethods">defineMethods</a></li><li><a href="global.html#defineRemoteMethods">defineRemoteMethods</a></li><li><a href="global.html#defineServices">defineServices</a></li><li><a href="global.html#doStructureResultForMultiple">doStructureResultForMultiple</a></li><li><a href="global.html#download">download</a></li><li><a href="global.html#extractFileSizes">extractFileSizes</a></li><li><a href="global.html#failureHandler">failureHandler</a></li><li><a href="global.html#getModelKeyMap">getModelKeyMap</a></li><li><a href="global.html#injectLangToRequestData">injectLangToRequestData</a></li><li><a href="global.html#isUserAdmin">isUserAdmin</a></li><li><a href="global.html#jsoner">jsoner</a></li><li><a href="global.html#Normalize">Normalize</a></li><li><a href="global.html#refinePaginationParams">refinePaginationParams</a></li><li><a href="global.html#successHandler">successHandler</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateProfileHandler">updateProfileHandler</a></li><li><a href="global.html#upload">upload</a></li><li><a href="global.html#uploadAll">uploadAll</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: server/models/account.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">//
+// Author : Ali Abbasinasab (a.abbasinasab@gmail.com)
+//
+
+var loopback = require('loopback');
+var LoopBackContext = require('loopback-context');
+var underscore = require('underscore');
+var randomString = require("randomstring");
+var app = serverRequire('server');
+var moment = require('moment');
+var async = require('async');
+var promiseCallback = require('narengi-utils').Common.PromiseCallback;
+var Common = require('narengi-utils').Common;
+var Persistency = require('narengi-utils').Persistency;
+var Pagination = require('narengi-utils').Pagination;
+var Security = require('narengi-utils').Security;
+var makeError = Common.Errors.makeError;
+
+/**
+ * @class
+ * @constructor
+ */
+module.exports = function (Account) {
+    init(Account);
+    defineProperties(Account);
+    addHooks(Account);
+    initMethods(Account);
+    addLoginLogoutMethods(Account);
+    addRegisterMethod(Account);
+    addCrudMethods(Account);
+    addExtraMethods(Account);
+};
+
+var init = function (Account) {
+
+    Account.disableRemoteMethod('confirm', true);
+    Account.disableRemoteMethod('login', true);
+
+    // Deleting unused `validation` &amp; `relations` exactly
+    delete Account.relations.accessTokens;
+    delete Account.validations.email;
+    delete Account.validations.username;
+
+    //Redefine correct validation
+    Account.validatesUniquenessOf('email', {
+        message: 'error.user.validation.email_existed'
+    });
+    Account.validatesUniquenessOf('username', {
+        message: 'error.user.validation.username_existed'
+    });
+
+    Account.prototype.person = function (cb) {
+        cb = cb || promiseCallback();
+        if (this.personId)
+            app.models.Person.findById(this.personId, cb);
+        else
+            cb(null, null);
+        return cb.promise;
+    };
+};
+
+function defineProperties(Account) {
+
+    function getDisplayName() {
+        var profile = this.profile() &amp;&amp; this.profile().value();
+        if (!profile) return '---';
+        return `${profile.DisplayName}`;
+    }
+
+    Object.defineProperty(Account.prototype, "DisplayName", {
+        get: function () {
+            if (this &amp;&amp; this.profile &amp;&amp; this.profile.value())
+                return `${this.profile.value().title || ''} ${this.profile.value().firstName || ''} ${this.profile.value().lastName || ''}`;
+            return "---";
+        },
+        configurable: true,
+        enumerable: true
+    });
+
+    Account.setter.email = function (value) {
+        value = value || "";
+        this.$email = value.trim().toLowerCase();
+    };
+
+    Account.setter.username = function (value) {
+        value = value || "";
+        this.$username = value.trim().toLowerCase();
+    };
+
+}
+
+var addHooks = function (Account) {
+    Account.observe('before save', function (ctx, next) {
+        if (ctx.options &amp;&amp; ctx.options.skipUpdatedAt) {
+            return next();
+        }
+        if (ctx.instance) {
+            ctx.instance['updatedAt'] = new Date();
+        } else {
+            ctx.data['updatedAt'] = new Date();
+        }
+        next();
+    });
+
+    /**
+     * Ensures each `Account` has a `Person`
+     */
+    Account.observe('before save', function (ctx, next) {
+        var instance = ctx.instance || ctx.currentInstance;
+        if (instance) {
+            if (!instance.personId) {
+                app.models.Person.create({}, function (err, person) {
+                    if (!err) {
+                        if (ctx.data)
+                            ctx.data["personId"] = person.id;
+                        if (instance)
+                            instance.personId = person.id;
+                    }
+                    next();
+                });
+            } else {
+                next();
+            }
+        } else {
+            //do nothing
+            next();
+        }
+
+    });
+};
+
+var initMethods = function (Account) {
+    /**
+     * Finds `Account` based on `username` or `email`
+     **/
+    Account.findByUsernameOrEmail = function (usernameOrEmail, cb) {
+        cb = cb || promiseCallback();
+        usernameOrEmail = usernameOrEmail || "";
+        usernameOrEmail = usernameOrEmail.trim().toLowerCase();
+        Account.findOne({
+                where: {
+                    or: [{
+                        "username": `${usernameOrEmail}`
+                    }, {
+                        "email": `${usernameOrEmail}`
+                    }]
+                }
+            },
+            function (err, account) {
+                if (err) return cb(err);
+                cb(null, account);
+            });
+        return cb.promise;
+    };
+
+    Account.afterRemote("findByUsernameOrEmail", Common.RemoteHooks.convert2Dto(Account, {}));
+
+    Account.remoteMethod(
+        'findByUsernameOrEmail', {
+            description: 'Returns account by username/email',
+            accepts: [
+                {
+                    arg: 'identity',
+                    type: 'string',
+                    required: true,
+                    http: {
+                        source: 'path'
+                    }
+                }
+            ],
+            returns: {
+                arg: 'account',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/by-username/:identity",
+                verb: 'get'
+            }
+        }
+    );
+
+    Account.GetById = function (id, cb) {
+        cb = cb || promiseCallback();
+        Account.findById(id).then((account) => {
+            if (!account) return cb(Persistency.Errors.NotFound());
+            cb(null, account);
+        }).catch((e) => {
+            cb(e);
+        });
+        return cb.promise;
+    };
+
+    Account.afterRemote("GetById", Common.RemoteHooks.convert2Dto(Account, {}));
+
+    Account.remoteMethod(
+        'GetById', {
+            description: 'Returns account by id',
+            accepts: [
+                {
+                    arg: 'id',
+                    type: 'string',
+                    required: true,
+                    http: {
+                        source: 'path'
+                    }
+                }
+            ],
+            returns: {
+                arg: 'account',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/:id",
+                verb: 'get'
+            }
+        }
+    );
+
+    /**
+     * Determines if account is verfiied or not
+     **/
+    Account.prototype.isVerified = function () {
+        var last = this.lastVerification();
+        if (this.verifications.count() === 0 &amp;&amp; last === null) {
+            return false;
+        }
+        if (last) {
+            return last.verified;
+        }
+        return false;
+    };
+
+    /**
+     * Returns last `AccountVerification` for `this` `Account`
+     * @method
+     **/
+    Account.prototype.lastVerification = function () {
+        var len = this.verifications.value().length;
+        if (len &amp;&amp; len > 0) {
+            var nextYear = moment().add(500, 'y');
+            var list = underscore.sortBy(this.verifications.value(), function (verification) {
+                return nextYear.diff(moment(verification.requestDate));
+            });
+            return list[0];
+        } else {
+            return null;
+        }
+    };
+
+    Account.prototype.lastVerificationOfType = function (type) {
+        var list = this.verificationsOfType(type);
+        if (list &amp;&amp; list.length > 0) {
+            return list[0];
+        } else {
+            return null;
+        }
+    };
+
+    Account.prototype.verificationsOfType = function (type) {
+        var list = this.verifications.value();
+        list = underscore.filter(list, function (item) {
+            return item.verificationType.toLowerCase() === type.toLowerCase();
+        });
+        var nextYear = moment().add(500, 'y');
+        list = underscore.sortBy(list, function (verification) {
+            return nextYear.diff(moment(verification.requestDate));
+        });
+        return list;
+    };
+
+    /**
+     * Returns `VerificationTypeEnum`
+     * **Note**: This function should be defined as a `getter` method. But in `loopback` there is a mechanism which prevents that.
+     **/
+    Account.prototype.getVerificationType = function () {
+        if (this.getRegistrationSource().is('web')) {
+            return app.VerificationTypeEnum.get('email');
+        } else if (this.getRegistrationSource().is('mobile')) {
+            return app.VerificationTypeEnum.get('sms');
+        } else {
+            return app.VerificationTypeEnum.get('none');
+        }
+    };
+
+    /**
+     * Returns `RegistrationSourceEnum`
+     * **Note**: This function should be defined as a `getter` method. But in `loopback` there is a mechanism which prevents that.
+     **/
+    Account.prototype.getRegistrationSource = function () {
+        if (this.registrationSource instanceof Enum) {
+            return this.registrationSource;
+        }
+        return app.RegistrationSourceEnum.get(this.registrationSource);
+    };
+
+    Account.prototype.usernameOrEmail = function () {
+        if (this.username &amp;&amp; this.username !== "") {
+            return this.username;
+        }
+        return this.email;
+    };
+};
+
+var addLoginLogoutMethods = function (Account) {
+    // Login process
+
+    /**
+     * @param(Object) credentials username/password
+     * ```
+     * {"username": "&lt;username or email>", "password": "&lt;password>"}
+     * ```
+     * @callback {Function} cb
+     **/
+    Account.CustomLogin = function (credentials, cb) {
+        var defaultError = makeError({
+            message: 'error.user.login.failed',
+            statusCode: 401,
+            code: 'LOGIN_FAILED'
+        });
+
+        var tokenErrorHandler = function (ex) {
+            console.log(ex);
+            var error = makeError({
+                message: 'error.user.token_not_created',
+                statusCode: 500,
+                code: 'USER_AUTHTOKEN_NOT_CREATED'
+            });
+            cb(error);
+        };
+
+        var passwordNotMatchHandler = function (ex) {
+            var error = makeError({
+                message: 'error.user.password_not_match',
+                statusCode: 401,
+                code: 'USER_PASSWORD_NOT_MATCH'
+            });
+            cb(error);
+        };
+
+        var tokenInitializedHandler = function (authToken, account) {
+            account.updateAttributes({
+                lastLoginDate: new Date()
+            }, function (err, updatedAccount) {
+                if (err) {
+                    cb(err);
+                } else {
+                    cb(null,
+                        app.models.AccountDTO.Convert(updatedAccount)
+                    );
+                }
+            });
+        };
+
+        cb = cb || promiseCallback();
+
+        credentials.username = credentials.username.trim();
+
+        if (!(credentials.username &amp;&amp; credentials.password)) {
+            var error = makeError({
+                message: 'error.user.required.username_and_password',
+                statusCode: 400,
+                code: 'USERNAME_AND_PASSWORD_REQUIRED'
+            });
+            cb(error);
+            return cb.promise;
+        }
+
+        Account.findByUsernameOrEmail(credentials.username, function (err, account) {
+            if (err || !account) {
+                var error = makeError({
+                    message: 'error.user.op.not_found',
+                    statusCode: 404,
+                    code: 'USER_NOT_FOUND'
+                });
+                cb(error);
+                return cb.promise;
+            }
+
+            if (!account.enabled) {
+                var error = makeError({
+                    message: 'error.user.banned',
+                    statusCode: 401,
+                    code: 'USER_BANNED'
+                });
+                cb(error);
+                return cb.promise;
+            }
+
+            account.hasPassword(credentials.password).then(function (isMatch) {
+                if (isMatch) {
+
+                    if (!account.isVerified()) {
+                        var error = makeError({
+                            message: 'error.user.not_verified',
+                            statusCode: 401,
+                            code: 'USER_NOT_VERIFIED'
+                        });
+                        cb(error);
+                        return cb.promise;
+                    }
+
+                    //renew `AuthToken`
+                    app.models.AuthToken.createToken().then(function (token) {
+                        var params = {
+                            token: token,
+                            updatedAt: new Date()
+                        };
+
+                        if (account.authToken.value()) {
+                            account.authToken.update(params).then(function (authToken) {
+                                tokenInitializedHandler(authToken, account);
+                            }).catch(tokenErrorHandler);
+                        } else {
+                            account.authToken.create(params).then(function (authToken) {
+                                tokenInitializedHandler(authToken, account);
+                            }).catch(tokenErrorHandler);
+                        }
+                    }).catch(tokenErrorHandler);
+
+                } else { //password not match
+                    passwordNotMatchHandler();
+                }
+            }).catch(passwordNotMatchHandler);
+        });
+
+        return cb.promise;
+    };
+
+    Account.remoteMethod(
+        'CustomLogin', {
+            description: 'Login a user with username/email and password.',
+            accepts: [{
+                arg: 'credentials',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
+            returns: {
+                arg: 'accessToken',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/login",
+                verb: 'post'
+            }
+        }
+    );
+
+    // end of Login process
+
+    // Logout process
+
+    /**
+     * Logout current user.
+     * Current user is authorized user by data sent in `request` header.
+     * It is silent about non logged in users or undefined users.
+     **/
+    Account.CustomLogout = function (cb) {
+        cb = cb || promiseCallback();
+
+        var ctx = LoopBackContext.getCurrentContext();
+        var authToken = ctx.get('currentToken');
+        var currentUser = ctx.get('currentUser');
+        if (currentUser &amp;&amp; authToken &amp;&amp; authToken.token) {
+            Account.findByUsernameOrEmail(currentUser.username, function (err, acc) {
+                if (err) {
+                    cb(err);
+                } else if (acc) {
+                    if (acc.authToken.value()) {
+                        if (acc.authToken.value().token === authToken.token) {
+                            acc.authToken.destroy(cb);
+                        } else {
+                            cb(null);
+                        }
+                    }
+                }
+            });
+        } else {
+            cb(null);
+        }
+
+        return cb.promise;
+    };
+
+    Account.remoteMethod(
+        'CustomLogout', {
+            description: 'Logout current user',
+            http: {
+                path: "/logout",
+                verb: 'all'
+            }
+        }
+    );
+
+    // end of Logout process
+}
+
+/**
+ *    Handles create or update of `Account`
+ *
+ **/
+var accountCreateHandler = function (Account, account, password, verificationType, cb) {
+    var verificationCodeLen = app.settings.narengi.verificationCodeLen || 4;
+    var verified = false || verificationType.is('none');
+    account.verifications.create({
+        verificationType: verificationType,
+        verified: verified,
+        code: randomString.generate({
+            length: verificationCodeLen,
+            charset: 'numeric'
+        })
+    }).then(function (verification) {
+        if (verificationType.is('none')) {
+            var credential = {username: account.usernameOrEmail(), password: password};
+            return Account.CustomLogin(credential, cb);
+        }
+        cb(null, account);
+    }).catch(function (ex) {
+        var error = makeError({
+            message: 'error.user.registeration_failed',
+            statusCode: 500,
+            code: 'USER_REGISTRATION_FAILED'
+        });
+        cb(error);
+    });
+};
+
+var passwordValidation = function (force) {
+    return function (ctx, instance, next) {
+        var data = ctx.req.body;
+        var passwordLen = app.settings.narengi.passwordLen || 4;
+        if (!data || (force &amp;&amp; (!data.password || data.password.length &lt; passwordLen))) {
+            var error = makeError({
+                message: 'error.user.validation.password_length',
+                statusCode: 400,
+                code: 'USER_FORM_INVALID'
+            });
+            return next(error);
+        }
+        next();
+    };
+};
+
+var addRegisterMethod = function (Account) {
+
+    Account.beforeRemote("CustomRegister", passwordValidation(true));
+
+    Account.CustomRegister = function (data, req, cb) {
+        cb = cb || promiseCallback();
+
+        var ctx = req.getNarengiContext();
+
+        // check for validity of `data` and sanitize it
+        if (!(data &amp;&amp; (data.email || data.username) &amp;&amp; data.password)) {
+            var error = makeError({
+                message: 'error.user.validation.form_not_valid',
+                statusCode: 400,
+                code: 'USER_FORM_INVALID'
+            });
+            cb(error);
+            return cb.promise;
+        } else {
+            var form = {
+                email: "",
+                username: undefined,
+                password: "",
+                displayName: "",
+                cellNumber: ""
+            };
+            data = underscore.pick(data, underscore.keys(form));
+            data = underscore.defaults(data, form);
+        }
+
+        var verificationType = app.VerificationTypeEnum.get('none');
+
+        //EXP : do not throw error if there is no email/cellnumber
+        /* if (ctx.getReqSource().is('mobile')) {
+         if (data.cellNumber === "") {
+         var error = new Error('error.user.validation.cellnumber_required');
+         error.statusCode = 400;
+         error.code = 'USER_FORM_INVALID';
+         cb(error);
+         return cb.promise;
+         }
+         verificationType = app.VerificationTypeEnum.get('sms');
+         } else {
+         if (data.email === "") {
+         var error = new Error('error.user.validation.email_required');
+         error.statusCode = 400;
+         error.code = 'USER_FORM_INVALID';
+         cb(error);
+         return cb.promise;
+         }
+         verificationType = app.VerificationTypeEnum.get('email');
+         }*/
+
+        var accountCreateUpdateErrorHandler = function (ex) {
+            cb(ex);
+        };
+
+        Account.create(data).then(function (createdAccount) {
+            createdAccount.profile.create(function (e, profile) {
+                accountCreateHandler(Account, createdAccount, data.password, verificationType, cb);
+            });
+        }).catch(accountCreateUpdateErrorHandler);
+
+        return cb.promise;
+    };
+
+    Account.remoteMethod(
+        'CustomRegister', {
+            description: 'Registers an account',
+            accepts: [
+                {
+                    arg: 'data',
+                    type: 'object',
+                    required: true,
+                    http: {source: 'body'}
+                },
+                {
+                    arg: 'req',
+                    type: 'object',
+                    required: true,
+                    http: {source: 'req'}
+                }
+            ],
+            returns: {
+                arg: 'account',
+                type: 'object',
+                root: true,
+            },
+            http: {
+                path: "/register",
+                verb: 'post',
+                status: 201
+            }
+        }
+    );
+};
+
+var addCrudMethods = function (Account) {
+
+    // remote hooks
+
+    function checkInputForCreateUpdate(ctx, instance, next) {
+        var body = ctx.req.body;
+
+        if (!body.verificationType) {
+            body.verificationType = app.settings.narengi.verificationType;
+        }
+
+        ctx.req.body = body;
+        next();
+    };
+
+    function accountCreateUpdateErrorHandler(cb) {
+        return function (ex) {
+            cb(ex);
+        };
+    }
+
+    /**
+     * Creates an `Account` instance
+     * @param {Object} data
+     * @param {Callback} cb
+     * @return {Promise}
+     * @method
+     */
+    Account.CustomCreate = function (data, cb) {
+        cb = cb || promiseCallback();
+
+        var verificationType = app.VerificationTypeEnum.get(data.verificationType);
+
+        Account.create(data).then((createdAccount) => {
+            accountCreateHandler(Account, createdAccount, data.password, verificationType, cb);
+        }).catch(accountCreateUpdateErrorHandler(cb));
+
+        return cb.promise;
+    };
+
+    Account.beforeRemote("CustomCreate", passwordValidation(true));
+    Account.beforeRemote("CustomCreate", checkInputForCreateUpdate);
+    Account.afterRemote("CustomCreate", Common.RemoteHooks.convert2Dto(Account, {}));
+
+    Account.remoteMethod(
+        'CustomCreate', {
+            description: 'Creates an account',
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
+            returns: {
+                arg: 'account',
+                type: 'object',
+                root: true,
+            },
+            http: {
+                path: "/",
+                verb: 'post',
+                status: 201
+            }
+        }
+    );
+
+    /**
+     * Update an `Account` instance
+     * @param {String} id
+     * @param {Object} data
+     * @param {Callback} cb
+     * @return {Promise}
+     * @method
+     */
+    Account.CustomUpdate = function (id, data, cb) {
+        cb = cb || promiseCallback();
+        async.waterfall([
+            function (callback) {
+                Account.findById(id, callback);
+            },
+            function (account, callback) {
+                if (!account) return callback(Persistency.Errors.NotFound());
+                account.updateAttributes(data, callback);
+            }
+        ], function (err, result) {
+            if (err) return cb(err);
+            cb(null, result);
+        });
+
+        return cb.promise;
+    };
+
+    Account.beforeRemote("CustomUpdate", passwordValidation(false));
+    Account.beforeRemote("CustomUpdate", checkInputForCreateUpdate);
+    Account.afterRemote("CustomUpdate", Common.RemoteHooks.convert2Dto(Account, {}));
+
+    Account.remoteMethod(
+        'CustomUpdate', {
+            description: 'Updates an account',
+            accepts: [
+                {
+                    arg: 'id',
+                    type: 'string',
+                    required: true,
+                    http: {source: 'path'}
+                },
+                {
+                    arg: 'data',
+                    type: 'object',
+                    required: true,
+                    http: {source: 'body'}
+                }],
+            returns: {
+                arg: 'account',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/:id",
+                verb: 'put',
+                status: 201
+            }
+        }
+    );
+
+    Account.GetAll = function (paging, cb) {
+        cb = cb || promiseCallback();
+        Account.find(paging).then(Persistency.CrudHandlers.arraySuccessHandler(cb)).catch(Persistency.CrudHandlers.failureHandler(cb));
+        return cb.promise;
+    };
+
+    Account.afterRemote("GetAll", Common.RemoteHooks.convert2Dto(Account, {}));
+    /**
+     * Refine pagination arg
+     */
+    Account.beforeRemote("GetAll", Pagination.RemoteHooks.refinePaginationParams);
+    Account.afterRemote("GetAll", Pagination.RemoteHooks.afterPaginatedService);
+
+    Account.remoteMethod(
+        'GetAll', {
+            description: 'Get all accounts',
+            accepts: [
+                {
+                    arg: 'paging',
+                    type: 'object',
+                    required: true,
+                    http: Pagination.Common.HttpPagingParam
+                }
+            ],
+            returns: {
+                arg: 'accounts',
+                type: 'array',
+                root: true
+            },
+            http: {
+                path: "/",
+                verb: 'get',
+                status: 200
+            }
+        });
+
+    Account.DeleteById = function (id, cb) {
+        cb = cb || promiseCallback();
+        Account.destroyById(id, cb);
+        return cb.promise;
+    };
+    Account.remoteMethod(
+        'DeleteById', {
+            description: 'Deletes account by id',
+            accepts: [
+                {
+                    arg: 'id',
+                    type: 'string',
+                    required: true,
+                    http: {source: 'path'}
+                }
+            ],
+            http: {
+                path: "/:id",
+                verb: 'delete',
+                status: 204
+            }
+        });
+
+    Account.ChangePassByAdmin = function (id, data, cb) {
+        cb = cb || promiseCallback();
+        async.waterfall([
+            function (callback) {
+                Account.findById(id, callback);
+            },
+            function (account, callback) {
+                if (!account) return callback(Persistency.Errors.NotFound());
+                account.updateAttributes({password: data.password}, callback);
+            }
+        ], function (err, result) {
+            if (err) return cb(err);
+            if (!result) return cb(makeError({message: 'error.operation.failure'}));
+            cb(null);
+        });
+        return cb.promise;
+    };
+
+    Account.beforeRemote("ChangePassByAdmin", passwordValidation(false));
+
+    Account.remoteMethod(
+        'ChangePassByAdmin', {
+            description: 'Changes password. It is for admin only',
+            accepts: [
+                {
+                    arg: 'id',
+                    type: 'string',
+                    required: true,
+                    http: {source: 'path'}
+                }
+            ],
+            http: {
+                path: "/:id/change-password-by-admin",
+                verb: 'put',
+                status: 204
+            }
+        });
+};
+
+var addExtraMethods = function (Account) {
+
+    var banPerformer = function (data, banning, cb) {
+        cb = cb || promiseCallback();
+
+        if (!(data || data.accountId)) {
+            var error = makeError({
+                message: 'error.user.validation.id_required',
+                statusCode: 400,
+                code: 'USER_FORM_INVALID'
+            });
+            cb(error);
+            return cb.promise;
+        }
+
+        Account.updateAll({
+            id: data.accountId
+        }, {
+            enabled: banning
+        }).then(function (updated, count) {
+            cb(null, count);
+        }).catch(function (err) {
+            cb(err);
+        });
+
+        return cb.promise;
+    };
+
+    Account.Ban = function (data, cb) {
+        return banPerformer(data, false, cb);
+    };
+
+    Account.remoteMethod(
+        'Ban', {
+            description: 'Ban an account.',
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
+            http: {
+                path: "/ban",
+                verb: 'put',
+                status: 204
+            }
+        }
+    );
+
+    Account.Unban = function (data, cb) {
+        return banPerformer(data, true, cb);
+    };
+
+    Account.remoteMethod(
+        'Unban', {
+            description: 'Ban an account.',
+            accepts: [{
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'body'
+                }
+            }],
+            http: {
+                path: "/unban",
+                verb: 'put',
+                status: 204
+            }
+        }
+    );
+
+    Account.remoteMethod(
+        'IsCurrentAdmin', {
+            description: 'Checks if current user is admin or not',
+            returns: {
+                arg: 'result',
+                type: 'boolean',
+                root: true
+            },
+            http: {
+                path: "/is-current-admin",
+                verb: 'get',
+                status: 200
+            }
+        }
+    );
+
+    Account.remoteMethod(
+        'IsAdmin', {
+            description: 'Checks if user is admin or not',
+            accepts: [{
+                arg: 'userPrincipal',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'boolean',
+                root: true
+            },
+            http: {
+                path: "/:userPrincipal/is-admin",
+                verb: 'get',
+                status: 200
+            }
+        }
+    );
+
+    Account.ShowProfile = function (id, cb) {
+        cb = cb || promiseCallback();
+
+        Account.GetById(id, cb);
+
+        return cb.promise;
+    };
+
+    Account.prototype.getProfileDetailUrl = function () {
+        var rel = `${Account.settings.http.path}/${this.id}/profile`;
+        return Account.formatRelUrl(rel);
+    };
+
+    Account.afterRemote("ShowProfile", Common.RemoteHooks.convert2Dto(Account, {justProfile: true}));
+
+    Account.remoteMethod(
+        'ShowProfile', {
+            description: 'Show account profile',
+            accepts: [{
+                arg: 'id',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/:id/profile",
+                verb: 'get',
+                status: 200
+            }
+        }
+    );
+
+
+    Account.ShowProfileMe = function (req, cb) {
+        cb = cb || promiseCallback();
+
+        var currentUser = req.getNarengiContext().getUser();
+        if (!currentUser) return cb(Security.Errors.NotAuthorized());
+        Account.GetById(currentUser.id, cb);
+
+        return cb.promise;
+    };
+
+    Account.afterRemote("ShowProfileMe", Common.RemoteHooks.convert2Dto(Account));
+
+    Account.remoteMethod(
+        'ShowProfileMe', {
+            description: 'Show account profile for current user',
+            accepts: [{
+                arg: 'req',
+                type: 'object',
+                required: true,
+                http: {
+                    source: 'req'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/me",
+                verb: 'get',
+                status: 200
+            }
+        }
+    );
+
+    Account.SendResetPasswordByEmail = function (email, cb) {
+        cb = cb || promiseCallback();
+        async.waterfall([
+            function (callback) {
+                Account.findByUsernameOrEmail(email, callback);
+            },
+            function (account, callback) {
+                if (!account) return callback(Persistency.Errors.NotFound());
+                var locals = {
+                    displayName: account.DisplayName
+                };
+                app.models.Notification.SendEmailResetPassword(email, account, locals).then((res) => {
+                    callback(null, {result: 'sent'})
+                }).catch((e) => {
+                    callback(e)
+                });
+            }
+        ], cb);
+        return cb.promise;
+    };
+
+    Account.remoteMethod(
+        'SendResetPasswordByEmail', {
+            description: 'Send email to account owner to access to reset password',
+            accepts: [{
+                arg: 'email',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/reset-password/send/email/:email",
+                verb: 'post',
+                status: 201
+            }
+        }
+    );
+
+    Account.SendResetPasswordByMobile = function (email, cb) {
+        cb = cb || promiseCallback();
+        async.waterfall([
+            function (callback) {
+                Account.findByUsernameOrEmail(email, callback);
+            },
+            function (account, callback) {
+                if (!account) return callback(Persistency.Errors.NotFound());
+                var locals = {
+                    displayName: account.DisplayName
+                };
+                app.models.Notification.SendEmailResetPassword(account.cellNumber, account, locals).then((res) => {
+                    callback(null, {result: 'sent'})
+                }).catch((e) => {
+                    callback(e)
+                });
+            }
+        ], cb);
+        return cb.promise;
+    };
+
+    Account.remoteMethod(
+        'SendResetPasswordByMobile', {
+            description: 'Send sms to account owner to access to reset password',
+            accepts: [{
+                arg: 'email',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
+                }
+            }],
+            returns: {
+                arg: 'result',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/reset-password/send/sms/:email",
+                verb: 'post',
+                status: 201
+            }
+        }
+    );
+
+    Account.ChangePassword = function (email, data, cb) {
+        cb = cb || promiseCallback();
+        var passwordLen = app.settings.narengi.passwordLen || 4;
+        if (!data.password || data.password.trim().length &lt; passwordLen) {
+            var error = makeError({
+                message: 'error.user.validation.password_length',
+                statusCode: 400,
+                code: 'USER_FORM_INVALID'
+            });
+            cb(error);
+            return cb.promise;
+        }
+        async.waterfall([
+            function (callback) {
+                Account.findByUsernameOrEmail(email, callback);
+            },
+            function (account, callback) {
+                if (!account) return callback(Persistency.Errors.NotFound());
+                account.updateAttributes({
+                    password: data.password
+                }, callback);
+            }
+        ], cb);
+        return cb.promise;
+    };
+
+    Account.afterRemote("ChangePassword", Common.RemoteHooks.convert2Dto(Account));
+
+    Account.remoteMethod(
+        'ChangePassword', {
+            description: 'Change password of an account specified by email',
+            accepts: [{
+                arg: 'email',
+                type: 'string',
+                required: true,
+                http: {
+                    source: 'path'
+                }
+            },
+                {
+                    arg: 'data',
+                    type: 'object',
+                    required: true,
+                    http: {source: 'body'},
+                    description: 'Field `password` is required'
+                }],
+            returns: {
+                arg: 'result',
+                type: 'object',
+                root: true
+            },
+            http: {
+                path: "/change-password/:email",
+                verb: 'put',
+                status: 201
+            }
+        }
+    );
+};</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	DocStrap Copyright © 2012-2015 The contributors to the JSDoc3 and DocStrap projects.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on Sat Sep 24th 2016
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+{
+	"notification": {
+		"email": {
+			"account_registration": {
+				"subject": "ثبت نام در نارنگی"
+			}
+		}
+	},
+	"error": {
+		"common": {
+			"internal": "خطای داخلی",
+			"data_is_empty": "داده ای وجود ندارد"
+		},
+		"filesystem": {
+			"file_not_found": "فایل پیدا نشد",
+			"no_access": "دسترسی محدود است"
+		},
+		"http": {
+			"file_not_correct": "فایل ارسالی صحیح نیست",
+			"file_not_uploaded": "فایل آپلود نشد."
+		},
+		"persistency": {
+			"uniqueness_violation": "داده ها نباید تکراری باشند",
+			"not_found": "پیدا نشد",
+			"existed": "از قبل وجود دارد",
+			"not_saved": "ذخیره نشد"
+		},
+		"operation": {
+			"failure": "عملیات با شکست مواجه شده است"
+		},
+		"user": {
+			"not_authorized": "مجاز نیستید",
+			"not_admin": "دسترسی مدیر لازم است",
+			"token_not_created": "باید اول لاگین کنید",
+			"password_not_match": "رمز عبور درست نیست",
+			"banned": "کاربر از ورود منع شده است",
+			"not_verified": "کاربر وریفای نشده است ",
+			"registeration_failed": "ثبت نام ناموفق است",
+			"validation": {
+				"email_existed": "ایمیل قبلا ثبت شده است.",
+				"password_length": "طول رمزعبور باید بیشتر باشد",
+				"form_not_valid": "فرم ثبت نام درست پر نشده است",
+				"id_required": "شناسه کاربر نیاز است"
+			},
+			"login": {
+				"failed": "ورود ناموفق"
+			},
+			"required": {
+				"username_and_password": "نام کاربری و رمزعبور اجباری است"
+			},
+			"op": {
+				"not_found": "کاربر وجود ندارد"
+			}
+		},
+		"file_size_limit_exceeded": "error.file_size_limit_exceeded"
+	},
+	"Authorization Required": "Authorization Required"
+}

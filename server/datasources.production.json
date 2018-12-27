@@ -1,0 +1,19 @@
+{
+	"memory": {
+		"name": "memory",
+		"connector": "memory"
+	},
+	"narengi": {
+		"name": "narengi",
+		"connector": "mongodb",
+		"database": "narengi_db_prod",
+		"debug": false,
+		"host": "localhost",
+		"port": 27635,
+		"server": {
+			"auto_reconnect": true,
+			"reconnectTries": 100,
+			"reconnectInterval": 1000
+		}
+	}
+}

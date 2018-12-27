@@ -1,0 +1,15 @@
+{
+	"name": "BaseDTO",
+	"base": "Model",
+	"idInjection": false,
+	"options": {
+		"validateUpsert": true
+	},
+	"properties": {
+		"id": null
+	},
+	"validations": [],
+	"relations": {},
+	"acls": [],
+	"methods": {}
+}

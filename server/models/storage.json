@@ -1,0 +1,12 @@
+{
+  "name": "Storage",
+  "plural": "storages",
+  "base": "Model",
+  "idInjection": true,
+  "options": {},
+  "properties": {},
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

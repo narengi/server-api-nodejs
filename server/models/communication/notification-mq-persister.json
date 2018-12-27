@@ -1,0 +1,29 @@
+{
+  "name": "NotificationMQPersister",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "mongodb": {
+      "collection": "notification_queue",
+      "allowExtendedOperators": true
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true
+    },
+    "jobs": {
+      "type": "array",
+      "default": []
+    },
+    "queue": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
